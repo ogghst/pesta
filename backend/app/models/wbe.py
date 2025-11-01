@@ -68,3 +68,10 @@ class WBEPublic(WBEBase):
 
     wbe_id: uuid.UUID
     project_id: uuid.UUID
+
+
+class WBEsPublic(SQLModel):
+    """Schema for list of WBEs."""
+
+    data: list[WBEPublic]
+    count: int

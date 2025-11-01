@@ -77,3 +77,10 @@ class ProjectPublic(ProjectBase):
 
     project_id: uuid.UUID
     project_manager_id: uuid.UUID
+
+
+class ProjectsPublic(SQLModel):
+    """Schema for list of projects."""
+
+    data: list[ProjectPublic]
+    count: int

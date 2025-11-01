@@ -47,6 +47,7 @@ from app.models.cost_element import (
     CostElementBase,
     CostElementCreate,
     CostElementPublic,
+    CostElementsPublic,
     CostElementUpdate,
 )
 from app.models.cost_element_schedule import (
@@ -104,6 +105,7 @@ from app.models.project import (
     ProjectBase,
     ProjectCreate,
     ProjectPublic,
+    ProjectsPublic,
     ProjectUpdate,
 )
 from app.models.project_event import (
@@ -145,6 +147,7 @@ from app.models.wbe import (
     WBEBase,
     WBECreate,
     WBEPublic,
+    WBEsPublic,
     WBEUpdate,
 )
 
@@ -216,6 +219,7 @@ __all__ = [
     "Project",
     "ProjectBase",
     "ProjectCreate",
+    "ProjectsPublic",
     "ProjectPublic",
     "ProjectUpdate",
     # Project Event models
@@ -229,12 +233,14 @@ __all__ = [
     "WBEBase",
     "WBECreate",
     "WBEPublic",
+    "WBEsPublic",
     "WBEUpdate",
     # Cost Element models
     "CostElement",
     "CostElementBase",
     "CostElementCreate",
     "CostElementPublic",
+    "CostElementsPublic",
     "CostElementUpdate",
     # Audit Log models
     "AuditLog",

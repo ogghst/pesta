@@ -80,3 +80,10 @@ class CostElementPublic(CostElementBase):
     cost_element_id: uuid.UUID
     wbe_id: uuid.UUID
     cost_element_type_id: uuid.UUID
+
+
+class CostElementsPublic(SQLModel):
+    """Schema for list of cost elements."""
+
+    data: list[CostElementPublic]
+    count: int
