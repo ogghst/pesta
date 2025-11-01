@@ -54,6 +54,14 @@ The system shall allow users to establish initial budgets at the cost element le
 
 The system must maintain the integrity of budget allocations and provide warnings when total allocated budgets exceed available project budgets or when WBE budgets exceed allocated revenues.
 
+### 6.1.1 Cost Element Schedule Baseline
+
+For each cost element, the system shall support the creation and maintenance of a schedule baseline that defines the planned progression of work over time. The schedule baseline must include a start date and end date defining the planned duration of the cost element, and a progression type that determines how the planned work completion percentage is calculated over the schedule period.
+
+The system shall support the following progression types: linear (even distribution over the duration), gaussian (normal distribution curve with peak at midpoint), and logarithmic (slow start with accelerating completion). The schedule baseline shall be used to calculate Planned Value (PV) at any point in time based on the planned percentage of completion according to the selected progression type.
+
+Once baselined, the schedule may be modified only through approved change orders or formal baseline revisions, maintaining the original baseline for historical comparison.
+
 ### 6.2 Cost Registration and Actual Cost Tracking
 
 The system shall provide functionality to register actual costs incurred against specific cost elements. Each cost registration must capture the date of expenditure, amount, cost category (labor, materials, subcontracts, or other), invoice or reference number, and descriptive notes.
@@ -62,7 +70,11 @@ Cost registrations shall update the Actual Cost (AC) for the associated cost ele
 
 ### 6.3 Earned Value Recording
 
-Users must be able to record earned value for cost elements based on work completed. Each earned value entry shall capture the completion date, percentage of work completed, or specific deliverables achieved, and the corresponding Earned Value (EV) amount. The system shall use these entries to calculate performance metrics and identify variances.
+Users must be able to record the percentage of work completed for cost elements based on physical progress and deliverables achieved. The system shall maintain a baseline of earned value progression for each cost element, tracking the percentage of work completed at specific dates.
+
+Each earned value entry shall capture the completion date and the percentage of work completed (percent complete) representing the physical completion of the work scope. The system shall calculate Earned Value (EV) using the formula $EV = BAC \times \%\ \text{di completamento fisico}$ where BAC is the Budget at Completion for the cost element. For example, if a cost element has $BAC = €100{,}000$ and is 30% physically complete, then $EV = 100{,}000 \times 0{,}30 = €30{,}000$.
+
+Earned value entries may also capture specific deliverables achieved and descriptive notes. The system shall use these entries to calculate performance metrics and identify variances. The earned value percentage must be baselined and maintained as historical record for trend analysis.
 
 ## 7. Forecasting Requirements
 
@@ -144,7 +156,11 @@ The system shall fully implement Earned Value Management principles using standa
 
 The system must calculate and maintain the following core EVM metrics for each cost element, WBE, and at the project level:
 
-Planned Value (PV) represents the authorized budget assigned to scheduled work and shall be calculated based on the time-phased budget plan. Earned Value (EV) represents the budgeted cost of work performed and shall be calculated based on recorded work completion and achievement of deliverables. Actual Cost (AC) represents the realized cost incurred for work performed and shall be calculated from all registered costs including quality event costs.
+Planned Value (PV), also known as Budgeted Cost of Work Scheduled (BCWS), represents the authorized budget assigned to scheduled work and shall be calculated from the cost element schedule baseline. The system shall calculate PV using the formula $PV = BAC \times \%\ \text{di completamento pianificato}$, where BAC is the Budget at Completion of the cost element and the planned completion percentage is determined from the schedule baseline (start date, end date, and progression type) at the control date. For example, if $BAC = €100{,}000$ and at month 2 the planned completion is 40%, then $PV = 100{,}000 \times 0{,}40 = €40{,}000$. The progression type (linear, gaussian, logarithmic) determines how the planned completion percentage is calculated between the start and end dates.
+
+Earned Value (EV), also known as Budgeted Cost of Work Performed (BCWP), represents the budgeted cost of work actually performed at the control date and shall be calculated from the baselined percentage of work completed. The system shall calculate EV using the formula $EV = BAC \times \%\ \text{di completamento fisico}$, where the physical completion percentage is based on recorded earned value entries. For example, if a cost element has $BAC = €100{,}000$ and is 30% physically complete, then $EV = 100{,}000 \times 0{,}30 = €30{,}000$. At the project level, the same formula applies using the aggregated budget and completion percentage.
+
+Actual Cost (AC) represents the realized cost incurred for work performed and shall be calculated from all registered costs including quality event costs.
 
 Budget at Completion (BAC) represents the total planned budget for the work scope and shall be maintained as the sum of all allocated budgets adjusted for approved changes. Estimate at Completion (EAC) represents the expected total cost at project completion and shall be calculated using current forecasts. Estimate to Complete (ETC) represents the expected cost to finish remaining work and shall be calculated as EAC minus AC.
 
