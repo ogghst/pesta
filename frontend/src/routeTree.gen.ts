@@ -19,6 +19,8 @@ import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutProjectsRouteImport } from './routes/_layout/projects'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutProjectsIdRouteImport } from './routes/_layout/projects.$id'
+import { Route as LayoutProjectsIdWbesWbeIdRouteImport } from './routes/_layout/projects.$id.wbes.$wbeId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -69,6 +71,17 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutProjectsIdRoute = LayoutProjectsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => LayoutProjectsRoute,
+} as any)
+const LayoutProjectsIdWbesWbeIdRoute =
+  LayoutProjectsIdWbesWbeIdRouteImport.update({
+    id: '/wbes/$wbeId',
+    path: '/wbes/$wbeId',
+    getParentRoute: () => LayoutProjectsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
@@ -77,9 +90,11 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
   '/items': typeof LayoutItemsRoute
-  '/projects': typeof LayoutProjectsRoute
+  '/projects': typeof LayoutProjectsRouteWithChildren
   '/settings': typeof LayoutSettingsRoute
   '/': typeof LayoutIndexRoute
+  '/projects/$id': typeof LayoutProjectsIdRouteWithChildren
+  '/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -88,9 +103,11 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
   '/items': typeof LayoutItemsRoute
-  '/projects': typeof LayoutProjectsRoute
+  '/projects': typeof LayoutProjectsRouteWithChildren
   '/settings': typeof LayoutSettingsRoute
   '/': typeof LayoutIndexRoute
+  '/projects/$id': typeof LayoutProjectsIdRouteWithChildren
+  '/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,9 +118,11 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/items': typeof LayoutItemsRoute
-  '/_layout/projects': typeof LayoutProjectsRoute
+  '/_layout/projects': typeof LayoutProjectsRouteWithChildren
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/projects/$id': typeof LayoutProjectsIdRouteWithChildren
+  '/_layout/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,6 +136,8 @@ export interface FileRouteTypes {
     | '/projects'
     | '/settings'
     | '/'
+    | '/projects/$id'
+    | '/projects/$id/wbes/$wbeId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -128,6 +149,8 @@ export interface FileRouteTypes {
     | '/projects'
     | '/settings'
     | '/'
+    | '/projects/$id'
+    | '/projects/$id/wbes/$wbeId'
   id:
     | '__root__'
     | '/_layout'
@@ -140,6 +163,8 @@ export interface FileRouteTypes {
     | '/_layout/projects'
     | '/_layout/settings'
     | '/_layout/'
+    | '/_layout/projects/$id'
+    | '/_layout/projects/$id/wbes/$wbeId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -222,13 +247,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/projects/$id': {
+      id: '/_layout/projects/$id'
+      path: '/$id'
+      fullPath: '/projects/$id'
+      preLoaderRoute: typeof LayoutProjectsIdRouteImport
+      parentRoute: typeof LayoutProjectsRoute
+    }
+    '/_layout/projects/$id/wbes/$wbeId': {
+      id: '/_layout/projects/$id/wbes/$wbeId'
+      path: '/wbes/$wbeId'
+      fullPath: '/projects/$id/wbes/$wbeId'
+      preLoaderRoute: typeof LayoutProjectsIdWbesWbeIdRouteImport
+      parentRoute: typeof LayoutProjectsIdRoute
+    }
   }
 }
+
+interface LayoutProjectsIdRouteChildren {
+  LayoutProjectsIdWbesWbeIdRoute: typeof LayoutProjectsIdWbesWbeIdRoute
+}
+
+const LayoutProjectsIdRouteChildren: LayoutProjectsIdRouteChildren = {
+  LayoutProjectsIdWbesWbeIdRoute: LayoutProjectsIdWbesWbeIdRoute,
+}
+
+const LayoutProjectsIdRouteWithChildren =
+  LayoutProjectsIdRoute._addFileChildren(LayoutProjectsIdRouteChildren)
+
+interface LayoutProjectsRouteChildren {
+  LayoutProjectsIdRoute: typeof LayoutProjectsIdRouteWithChildren
+}
+
+const LayoutProjectsRouteChildren: LayoutProjectsRouteChildren = {
+  LayoutProjectsIdRoute: LayoutProjectsIdRouteWithChildren,
+}
+
+const LayoutProjectsRouteWithChildren = LayoutProjectsRoute._addFileChildren(
+  LayoutProjectsRouteChildren,
+)
 
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutItemsRoute: typeof LayoutItemsRoute
-  LayoutProjectsRoute: typeof LayoutProjectsRoute
+  LayoutProjectsRoute: typeof LayoutProjectsRouteWithChildren
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
@@ -236,7 +298,7 @@ interface LayoutRouteChildren {
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutItemsRoute: LayoutItemsRoute,
-  LayoutProjectsRoute: LayoutProjectsRoute,
+  LayoutProjectsRoute: LayoutProjectsRouteWithChildren,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }
