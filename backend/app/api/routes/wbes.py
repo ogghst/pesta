@@ -7,6 +7,7 @@ from sqlmodel import func, select
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     WBE,
+    CostElement,
     Message,
     Project,
     WBECreate,
@@ -112,6 +113,17 @@ def delete_wbe(
     wbe = session.get(WBE, id)
     if not wbe:
         raise HTTPException(status_code=404, detail="WBE not found")
+
+    # Check if WBE has cost elements
+    ce_count = session.exec(
+        select(func.count()).select_from(CostElement).where(CostElement.wbe_id == id)
+    ).one()
+    if ce_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete WBE with {ce_count} existing cost element(s). Delete cost elements first.",
+        )
+
     session.delete(wbe)
     session.commit()
     return Message(message="WBE deleted successfully")

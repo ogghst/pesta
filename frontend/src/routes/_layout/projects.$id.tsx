@@ -4,7 +4,6 @@ import {
   EmptyState,
   Flex,
   Heading,
-  Table,
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -18,16 +17,14 @@ import {
 } from "@tanstack/react-router"
 import { FiBox, FiChevronRight } from "react-icons/fi"
 import { z } from "zod"
-
+import type { WBEPublic } from "@/client"
 import { ProjectsService, WbesService } from "@/client"
+import { DataTable } from "@/components/DataTable/DataTable"
+import type { ColumnDefExtended } from "@/components/DataTable/types"
 import PendingItems from "@/components/Pending/PendingItems"
 import AddWBE from "@/components/Projects/AddWBE"
-import {
-  PaginationItems,
-  PaginationNextTrigger,
-  PaginationPrevTrigger,
-  PaginationRoot,
-} from "@/components/ui/pagination.tsx"
+import DeleteWBE from "@/components/Projects/DeleteWBE"
+import EditWBE from "@/components/Projects/EditWBE"
 
 const projectDetailSearchSchema = z.object({
   page: z.number().catch(1),
@@ -65,11 +62,95 @@ export const Route = createFileRoute("/_layout/projects/$id")({
   validateSearch: (search) => projectDetailSearchSchema.parse(search),
 })
 
+// Column definitions for WBEs table
+const wbesColumns: ColumnDefExtended<WBEPublic>[] = [
+  {
+    accessorKey: "machine_type",
+    header: "Machine Type",
+    enableSorting: true,
+    enableResizing: true,
+    enableColumnFilter: true,
+    filterType: "text",
+    size: 200,
+    defaultVisible: true,
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    enableSorting: true,
+    enableResizing: true,
+    enableColumnFilter: true,
+    filterType: "select",
+    filterConfig: {
+      type: "select",
+      options: [
+        "designing",
+        "in-production",
+        "shipped",
+        "commissioning",
+        "completed",
+      ],
+    },
+    size: 120,
+    defaultVisible: true,
+    cell: ({ getValue }) => (
+      <span style={{ textTransform: "capitalize" }}>
+        {(getValue() as string) || "designing"}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "serial_number",
+    header: "Serial Number",
+    enableSorting: true,
+    enableResizing: true,
+    size: 150,
+    defaultVisible: true,
+    cell: ({ getValue }) => (getValue() as string) || "N/A",
+  },
+  {
+    accessorKey: "revenue_allocation",
+    header: "Revenue Allocation",
+    enableSorting: true,
+    enableResizing: true,
+    size: 120,
+    defaultVisible: true,
+    cell: ({ getValue }) => (getValue() as string) || "0.00",
+  },
+  {
+    accessorKey: "contracted_delivery_date",
+    header: "Contracted Delivery",
+    enableSorting: true,
+    enableResizing: true,
+    size: 150,
+    defaultVisible: true,
+    cell: ({ getValue }) =>
+      getValue() ? new Date(getValue() as string).toLocaleDateString() : "N/A",
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    enableSorting: false,
+    enableColumnFilter: false,
+    size: 120,
+    defaultVisible: true,
+    cell: ({ row }) => (
+      <Flex gap={2}>
+        <EditWBE wbe={row.original} />
+        <DeleteWBE
+          id={row.original.wbe_id}
+          machineType={row.original.machine_type}
+        />
+      </Flex>
+    ),
+  },
+]
+
 function WBEsTable({ projectId }: { projectId: string }) {
   const navigate = useNavigate({ from: Route.fullPath })
   const { page } = Route.useSearch()
 
-  const { data, isLoading, isPlaceholderData } = useQuery({
+  const { data, isLoading } = useQuery({
     ...getWBEsQueryOptions({ projectId, page }),
     placeholderData: (prevData) => prevData,
   })
@@ -80,14 +161,18 @@ function WBEsTable({ projectId }: { projectId: string }) {
     })
   }
 
-  const wbes = data?.data.slice(0, PER_PAGE) ?? []
+  const wbes = data?.data ?? []
   const count = data?.count ?? 0
 
-  if (isLoading) {
-    return <PendingItems />
+  const handleRowClick = (wbe: WBEPublic) => {
+    navigate({
+      to: "/projects/$id/wbes/$wbeId",
+      params: { id: projectId, wbeId: wbe.wbe_id },
+      search: { page: 1 },
+    })
   }
 
-  if (wbes.length === 0) {
+  if (!isLoading && wbes.length === 0) {
     return (
       <EmptyState.Root>
         <EmptyState.Content>
@@ -106,67 +191,17 @@ function WBEsTable({ projectId }: { projectId: string }) {
   }
 
   return (
-    <>
-      <Table.Root size={{ base: "sm", md: "md" }}>
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader w="md">Machine Type</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Status</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Serial Number</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Revenue Allocation</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Contracted Delivery</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {wbes?.map((wbe) => (
-            <Table.Row
-              key={wbe.wbe_id}
-              opacity={isPlaceholderData ? 0.5 : 1}
-              cursor="pointer"
-              onClick={() => {
-                navigate({
-                  to: "/projects/$id/wbes/$wbeId",
-                  params: { id: projectId, wbeId: wbe.wbe_id },
-                  search: { page: 1 },
-                })
-              }}
-              _hover={{ bg: "gray.100" }}
-            >
-              <Table.Cell truncate maxW="md">
-                {wbe.machine_type}
-              </Table.Cell>
-              <Table.Cell>
-                <span style={{ textTransform: "capitalize" }}>
-                  {wbe.status || "designing"}
-                </span>
-              </Table.Cell>
-              <Table.Cell truncate maxW="sm">
-                {wbe.serial_number || "N/A"}
-              </Table.Cell>
-              <Table.Cell>{wbe.revenue_allocation || "0.00"}</Table.Cell>
-              <Table.Cell>
-                {wbe.contracted_delivery_date
-                  ? new Date(wbe.contracted_delivery_date).toLocaleDateString()
-                  : "N/A"}
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table.Root>
-      <Flex justifyContent="flex-end" mt={4}>
-        <PaginationRoot
-          count={count}
-          pageSize={PER_PAGE}
-          onPageChange={({ page }) => setPage(page)}
-        >
-          <Flex>
-            <PaginationPrevTrigger />
-            <PaginationItems />
-            <PaginationNextTrigger />
-          </Flex>
-        </PaginationRoot>
-      </Flex>
-    </>
+    <DataTable
+      data={wbes}
+      columns={wbesColumns}
+      tableId="wbes-table"
+      onRowClick={handleRowClick}
+      isLoading={isLoading}
+      count={count}
+      page={page}
+      onPageChange={setPage}
+      pageSize={PER_PAGE}
+    />
   )
 }
 

@@ -8,6 +8,7 @@ from app.core.config import settings
 from tests.utils.cost_element_type import create_random_cost_element_type
 from tests.utils.project import create_random_project
 from tests.utils.user import create_random_user
+from tests.utils.wbe import create_random_wbe
 
 
 def test_create_project(
@@ -145,6 +146,31 @@ def test_delete_project_not_found(
     assert response.status_code == 404
     content = response.json()
     assert content["detail"] == "Project not found"
+
+
+def test_delete_project_with_wbes_should_fail(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test deleting a project with WBEs should be blocked."""
+    project = create_random_project(db)
+    # Create a WBE for this project
+    create_random_wbe(db, project.project_id)
+
+    response = client.delete(
+        f"{settings.API_V1_STR}/projects/{project.project_id}",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 400
+    content = response.json()
+    assert "Cannot delete project" in content["detail"]
+    assert "existing WBE(s)" in content["detail"]
+
+    # Verify project still exists
+    response = client.get(
+        f"{settings.API_V1_STR}/projects/{project.project_id}",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
 
 
 def test_create_from_template_success(

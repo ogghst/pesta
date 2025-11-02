@@ -4,7 +4,6 @@ import {
   EmptyState,
   Flex,
   Heading,
-  Table,
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -12,16 +11,14 @@ import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { FiChevronRight, FiTag } from "react-icons/fi"
 import { z } from "zod"
-
+import type { CostElementPublic } from "@/client"
 import { CostElementsService, ProjectsService, WbesService } from "@/client"
+import { DataTable } from "@/components/DataTable/DataTable"
+import type { ColumnDefExtended } from "@/components/DataTable/types"
 import PendingItems from "@/components/Pending/PendingItems"
 import AddCostElement from "@/components/Projects/AddCostElement"
-import {
-  PaginationItems,
-  PaginationNextTrigger,
-  PaginationPrevTrigger,
-  PaginationRoot,
-} from "@/components/ui/pagination.tsx"
+import DeleteCostElement from "@/components/Projects/DeleteCostElement"
+import EditCostElement from "@/components/Projects/EditCostElement"
 
 const wbeDetailSearchSchema = z.object({
   page: z.number().catch(1),
@@ -66,11 +63,89 @@ export const Route = createFileRoute("/_layout/projects/$id/wbes/$wbeId")({
   validateSearch: (search) => wbeDetailSearchSchema.parse(search),
 })
 
+// Column definitions for Cost Elements table
+const costElementsColumns: ColumnDefExtended<CostElementPublic>[] = [
+  {
+    accessorKey: "department_name",
+    header: "Department",
+    enableSorting: true,
+    enableResizing: true,
+    enableColumnFilter: true,
+    filterType: "text",
+    size: 200,
+    defaultVisible: true,
+  },
+  {
+    accessorKey: "department_code",
+    header: "Department Code",
+    enableSorting: true,
+    enableResizing: true,
+    enableColumnFilter: true,
+    filterType: "text",
+    size: 150,
+    defaultVisible: true,
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    enableSorting: true,
+    enableResizing: true,
+    enableColumnFilter: true,
+    filterType: "select",
+    filterConfig: {
+      type: "select",
+      options: ["planned", "in-progress", "completed", "on-hold"],
+    },
+    size: 120,
+    defaultVisible: true,
+    cell: ({ getValue }) => (
+      <span style={{ textTransform: "capitalize" }}>
+        {(getValue() as string) || "planned"}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "budget_bac",
+    header: "Budget (BAC)",
+    enableSorting: true,
+    enableResizing: true,
+    size: 120,
+    defaultVisible: true,
+    cell: ({ getValue }) => (getValue() as string) || "0.00",
+  },
+  {
+    accessorKey: "revenue_plan",
+    header: "Revenue Plan",
+    enableSorting: true,
+    enableResizing: true,
+    size: 120,
+    defaultVisible: true,
+    cell: ({ getValue }) => (getValue() as string) || "0.00",
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    enableSorting: false,
+    enableColumnFilter: false,
+    size: 120,
+    defaultVisible: true,
+    cell: ({ row }) => (
+      <Flex gap={2}>
+        <EditCostElement costElement={row.original} />
+        <DeleteCostElement
+          id={row.original.cost_element_id}
+          departmentName={row.original.department_name}
+        />
+      </Flex>
+    ),
+  },
+]
+
 function CostElementsTable({ wbeId }: { wbeId: string }) {
   const navigate = useNavigate({ from: Route.fullPath })
   const { page } = Route.useSearch()
 
-  const { data, isLoading, isPlaceholderData } = useQuery({
+  const { data, isLoading } = useQuery({
     ...getCostElementsQueryOptions({ wbeId, page }),
     placeholderData: (prevData) => prevData,
   })
@@ -81,14 +156,10 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
     })
   }
 
-  const costElements = data?.data.slice(0, PER_PAGE) ?? []
+  const costElements = data?.data ?? []
   const count = data?.count ?? 0
 
-  if (isLoading) {
-    return <PendingItems />
-  }
-
-  if (costElements.length === 0) {
+  if (!isLoading && costElements.length === 0) {
     return (
       <EmptyState.Root>
         <EmptyState.Content>
@@ -107,52 +178,16 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
   }
 
   return (
-    <>
-      <Table.Root size={{ base: "sm", md: "md" }}>
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader w="md">Department</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Department Code</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Status</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Budget (BAC)</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Revenue Plan</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {costElements?.map((ce) => (
-            <Table.Row
-              key={ce.cost_element_id}
-              opacity={isPlaceholderData ? 0.5 : 1}
-            >
-              <Table.Cell truncate maxW="md">
-                {ce.department_name}
-              </Table.Cell>
-              <Table.Cell>{ce.department_code}</Table.Cell>
-              <Table.Cell>
-                <span style={{ textTransform: "capitalize" }}>
-                  {ce.status || "planned"}
-                </span>
-              </Table.Cell>
-              <Table.Cell>{ce.budget_bac || "0.00"}</Table.Cell>
-              <Table.Cell>{ce.revenue_plan || "0.00"}</Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table.Root>
-      <Flex justifyContent="flex-end" mt={4}>
-        <PaginationRoot
-          count={count}
-          pageSize={PER_PAGE}
-          onPageChange={({ page }) => setPage(page)}
-        >
-          <Flex>
-            <PaginationPrevTrigger />
-            <PaginationItems />
-            <PaginationNextTrigger />
-          </Flex>
-        </PaginationRoot>
-      </Flex>
-    </>
+    <DataTable
+      data={costElements}
+      columns={costElementsColumns}
+      tableId="cost-elements-table"
+      isLoading={isLoading}
+      count={count}
+      page={page}
+      onPageChange={setPage}
+      pageSize={PER_PAGE}
+    />
   )
 }
 

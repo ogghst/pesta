@@ -161,3 +161,125 @@ When implementing nested routes:
 - TanStack Router's file-based routing automatically creates nested route structure
 - Parent routes are responsible for rendering their child routes via Outlet
 - Route matching and component rendering are separate concerns in nested route architecture
+
+### Session 5: Enhanced Table Features with TanStack Table (2025-11-02)
+
+**Objective:** Enhance all table layouts with column customization, filtering, sorting, and pagination using TanStack Table v8.
+
+**What We Accomplished:**
+- Integrated TanStack Table v8 with Chakra UI rendering
+- Migrated 3 tables (Projects, WBEs, Cost Elements) to unified DataTable component
+- Implemented column visibility, sorting, resizing, and filtering features
+- Created reusable infrastructure: DataTable, ColumnVisibilityMenu, ColumnResizer, TableFilters, types.ts
+- Added useTablePreferences hook for future localStorage integration
+- Reduced code by ~210 lines while adding powerful features
+- Zero TypeScript errors, zero linter warnings
+
+**Critical Learning:** TanStack Table manages state internally. localStorage integration requires manual wiring via onStateChange handlers, but wasn't implemented.
+
+**Critical Moment 1: Type Extension Challenge**
+
+**What Happened:** Initial attempt to extend `ColumnDef` via `interface ColumnDefExtended extends ColumnDef` failed with TypeScript error: "An interface can only extend an object type or intersection of object types with statically known members."
+
+**Why Significant:** TanStack Table's `ColumnDef` is a union type, making traditional interface extension impossible. This blocked custom column properties.
+
+**What We Learned:** Union types can't be extended with interfaces. Use intersection types instead: `type ColumnDefExtended = ColumnDef & ColumnDefExtensions`.
+
+**Technical Pattern:**
+```typescript
+// ❌ Doesn't work (union type extension)
+interface ColumnDefExtended extends ColumnDef<TData> { ... }
+
+// ✅ Works (intersection type)
+type ColumnDefExtended<TData> = ColumnDef<TData> & ColumnDefExtensions
+```
+
+**Critical Moment 2: TDD Without Frontend Testing Framework**
+
+**What Happened:** Project only had Playwright E2E tests, no unit test framework. Modified TDD approach using temporary compile-check files.
+
+**Why Significant:** Invented custom RED-GREEN workflow using TypeScript compilation errors as "test failures."
+
+**What We Learned:** TDD discipline is adaptable - compile-time verification works when unit test frameworks aren't available. Process: Create temporary import files → Get compile errors (RED) → Implement → Verify compilation (GREEN) → Delete temp files.
+
+**Process Pattern:**
+1. Create `_test-hook-compile.ts` importing non-existent hook
+2. Run `tsc --noEmit` → Compile errors (RED phase)
+3. Implement hook with JSDoc
+4. Verify compilation succeeds (GREEN phase)
+5. Delete temp file
+
+**Critical Moment 3: localStorage Integration Deferred**
+
+**What Happened:** Created `useTablePreferences` hook but didn't wire into DataTable due to TanStack Table's internal state management complexity.
+
+**Why Significant:** Uncovered mismatch between TanStack Table's built-in state management and custom persistence needs.
+
+**What We Learned:** TanStack Table expects controlled state via `state` and `onStateChange` props. Integration requires: extracting state from table, mapping to localStorage structure, handling state merges, and providing reset functionality.
+
+**What Didn't Work:**
+- Assuming simple localStorage integration
+- Trying to persist state without controlling table state
+- Deferring integration made feature incomplete
+
+**Process Improvements That Worked:**
+
+1. **Compile-First TDD:** TypeScript as test framework when no unit tests available
+2. **Incremental Migration:** One table at a time reduced risk of breaking everything
+3. **Pattern Reuse:** Following existing AddProject/AddUser patterns accelerated development
+4. **Interface Documentation:** JSDoc on public APIs improved understanding
+5. **Temporary Verification Files:** Created/destroyed temp files for compile verification
+
+**Wasted Effort:**
+
+1. **Column Reordering:** Implemented drag-and-drop infrastructure (react-dnd installed) but cancelled due to TanStack Table complexity. Could have skipped from start.
+2. **Date Range Filters:** Added types but didn't implement UI. Partial work left in codebase.
+3. **localStorage Hook Creation:** Built hook without integration plan, now unused.
+4. **Reset Button:** Never implemented despite being in success criteria.
+
+**What We Should Have Done Differently:**
+
+1. **Research Before Building:** Should have investigated TanStack Table state management before creating localStorage hook
+2. **Scope Earlier:** Column reordering should have been evaluated for necessity before installing react-dnd
+3. **Integration First:** Should have wired localStorage alongside feature development, not after
+4. **Success Criteria Review:** Should have reviewed all 17 criteria before starting to catch unrealistic assumptions
+
+**Technical Insights:**
+
+1. **TanStack Table State:** Uses internal state with optional controlled mode. `useReactTable` returns table instance with all state getters.
+2. **Column Extension Pattern:** Intersection types work for union-based types, interfaces don't.
+3. **Chakra UI Integration:** TanStack Table headless design makes Chakra UI integration straightforward via `flexRender`.
+4. **Responsive Design:** Filters hidden on mobile (`display={{ base: 'none', md: 'flex' }}`) maintains clean UI.
+5. **Code Reduction:** Moving from 3 manual tables to 1 reusable component reduced total LOC despite added features.
+
+**Single Most Valuable Change:**
+
+**Implementation:** Create pre-implementation research checklist that includes:
+1. Does library have built-in state management?
+2. What's the integration pattern with our UI framework?
+3. Are there existing examples in codebase?
+4. What's the complexity of each feature?
+5. Can features be added incrementally?
+
+**Why:** Would have caught localStorage integration needs, column reorder complexity, and state management patterns BEFORE starting implementation. Estimated savings: 2-3 hours of rework and deferred features.
+
+**Patterns to Remember:**
+
+1. **TDD Without Unit Tests:** Use TypeScript compilation as verification
+2. **Union Type Extension:** Use intersection types, not interfaces
+3. **TanStack Table State:** Built-in state management requires onStateChange for persistence
+4. **Incremental Migration:** One component at a time reduces risk
+5. **Chakra UI Integration:** flexRender bridges headless libraries to Chakra
+
+**Migration Checklist:**
+
+```bash
+When migrating existing UI to new library:
+1. Research library's state management approach
+2. Find integration examples with your UI framework
+3. Verify extension points (types, state, render)
+4. Plan controlled vs uncontrolled components
+5. Test state persistence patterns early
+6. Migrate one instance at a time
+7. Keep old implementation until new one verified
+```

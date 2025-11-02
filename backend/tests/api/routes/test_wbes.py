@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.config import settings
+from tests.utils.cost_element import create_random_cost_element
 from tests.utils.project import create_random_project
 from tests.utils.wbe import create_random_wbe
 
@@ -186,3 +187,28 @@ def test_delete_wbe_not_found(
     assert response.status_code == 404
     content = response.json()
     assert content["detail"] == "WBE not found"
+
+
+def test_delete_wbe_with_cost_elements_should_fail(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test deleting a WBE with cost elements should be blocked."""
+    wbe = create_random_wbe(db)
+    # Create a cost element for this WBE
+    create_random_cost_element(db, wbe.wbe_id)
+
+    response = client.delete(
+        f"{settings.API_V1_STR}/wbes/{wbe.wbe_id}",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 400
+    content = response.json()
+    assert "Cannot delete WBE" in content["detail"]
+    assert "existing cost element(s)" in content["detail"]
+
+    # Verify WBE still exists
+    response = client.get(
+        f"{settings.API_V1_STR}/wbes/{wbe.wbe_id}",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200

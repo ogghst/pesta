@@ -108,6 +108,17 @@ def delete_project(
     project = session.get(Project, id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+
+    # Check if project has WBEs
+    wbes_count = session.exec(
+        select(func.count()).select_from(WBE).where(WBE.project_id == id)
+    ).one()
+    if wbes_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete project with {wbes_count} existing WBE(s). Delete WBEs first.",
+        )
+
     session.delete(project)
     session.commit()
     return Message(message="Project deleted successfully")
