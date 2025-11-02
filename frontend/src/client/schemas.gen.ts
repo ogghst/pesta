@@ -190,6 +190,125 @@ export const CostElementPublicSchema = {
     description: 'Public cost element schema for API responses.'
 } as const;
 
+export const CostElementTypePublicSchema = {
+    properties: {
+        type_code: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Type Code'
+        },
+        type_name: {
+            type: 'string',
+            maxLength: 200,
+            title: 'Type Name'
+        },
+        category_type: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Category Type'
+        },
+        tracks_hours: {
+            type: 'boolean',
+            title: 'Tracks Hours',
+            default: false
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        display_order: {
+            type: 'integer',
+            title: 'Display Order',
+            default: 0
+        },
+        is_active: {
+            type: 'boolean',
+            title: 'Is Active',
+            default: true
+        },
+        cost_element_type_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Type Id'
+        },
+        department_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department Id'
+        },
+        department_code: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department Code'
+        },
+        department_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department Name'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['type_code', 'type_name', 'category_type', 'cost_element_type_id', 'created_at', 'updated_at'],
+    title: 'CostElementTypePublic',
+    description: 'Public cost element type schema for API responses.'
+} as const;
+
+export const CostElementTypesPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/CostElementTypePublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'CostElementTypesPublic',
+    description: 'Schema for list of cost element types.'
+} as const;
+
 export const CostElementUpdateSchema = {
     properties: {
         department_code: {

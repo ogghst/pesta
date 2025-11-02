@@ -8,6 +8,8 @@ from app.models import (
     CostElementType,
     CostElementTypeCreate,
     CostElementTypePublic,
+    Department,
+    DepartmentCreate,
 )
 
 
@@ -119,6 +121,9 @@ def test_cost_element_type_public_schema() -> None:
         tracks_hours=True,
         display_order=10,
         is_active=True,
+        department_id=None,
+        department_code=None,
+        department_name=None,
         created_at=now,
         updated_at=now,
     )
@@ -126,3 +131,64 @@ def test_cost_element_type_public_schema() -> None:
     assert cet_public.cost_element_type_id == cet_id
     assert cet_public.type_code == "sw_pc"
     assert cet_public.category_type == "software"
+    assert cet_public.department_id is None
+
+
+def test_cost_element_type_department_relationship(db: Session) -> None:
+    """Test that CostElementType can have a department relationship."""
+    # Create a department first
+    dept_in = DepartmentCreate(
+        department_code="TEST_DEPT",
+        department_name="Test Department",
+        description="Test department for cost element types",
+        is_active=True,
+    )
+    dept = Department.model_validate(dept_in)
+    db.add(dept)
+    db.commit()
+    db.refresh(dept)
+
+    # Create a cost element type with department
+    unique_code = f"test_dept_{uuid.uuid4().hex[:8]}"
+    cet_in = CostElementTypeCreate(
+        type_code=unique_code,
+        type_name="Test Type with Department",
+        category_type="software",
+        tracks_hours=True,
+        display_order=1,
+        is_active=True,
+    )
+    cet = CostElementType.model_validate(cet_in)
+    cet.department_id = dept.department_id
+    db.add(cet)
+    db.commit()
+    db.refresh(cet)
+
+    # Verify relationship
+    assert cet.department_id == dept.department_id
+    assert cet.department is not None
+    assert cet.department.department_code == "TEST_DEPT"
+    assert cet.department.department_name == "Test Department"
+
+
+def test_cost_element_type_without_department(db: Session) -> None:
+    """Test that CostElementType can exist without a department (nullable)."""
+    unique_code = f"test_no_dept_{uuid.uuid4().hex[:8]}"
+    cet_in = CostElementTypeCreate(
+        type_code=unique_code,
+        type_name="Test Type without Department",
+        category_type="other",
+        tracks_hours=False,
+        display_order=1,
+        is_active=True,
+    )
+    cet = CostElementType.model_validate(cet_in)
+    # department_id should be None by default
+    assert cet.department_id is None
+    db.add(cet)
+    db.commit()
+    db.refresh(cet)
+
+    # Verify it was saved with null department
+    assert cet.department_id is None
+    assert cet.department is None

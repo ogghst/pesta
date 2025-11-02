@@ -47,6 +47,33 @@ export type CostElementsPublic = {
 };
 
 /**
+ * Public cost element type schema for API responses.
+ */
+export type CostElementTypePublic = {
+    type_code: string;
+    type_name: string;
+    category_type: string;
+    tracks_hours?: boolean;
+    description?: (string | null);
+    display_order?: number;
+    is_active?: boolean;
+    cost_element_type_id: string;
+    department_id?: (string | null);
+    department_code?: (string | null);
+    department_name?: (string | null);
+    created_at: string;
+    updated_at: string;
+};
+
+/**
+ * Schema for list of cost element types.
+ */
+export type CostElementTypesPublic = {
+    data: Array<CostElementTypePublic>;
+    count: number;
+};
+
+/**
  * Schema for updating a cost element.
  */
 export type CostElementUpdate = {
@@ -336,6 +363,8 @@ export type CostElementsDeleteCostElementData = {
 };
 
 export type CostElementsDeleteCostElementResponse = (Message);
+
+export type CostElementTypesReadCostElementTypesResponse = (CostElementTypesPublic);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;

@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesReadWbeData, WbesReadWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse } from './types.gen';
+import type { CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, CostElementTypesReadCostElementTypesResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesReadWbeData, WbesReadWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse } from './types.gen';
 
 export class CostElementsService {
     /**
@@ -114,6 +114,21 @@ export class CostElementsService {
             errors: {
                 422: 'Validation Error'
             }
+        });
+    }
+}
+
+export class CostElementTypesService {
+    /**
+     * Read Cost Element Types
+     * Retrieve active cost element types.
+     * @returns CostElementTypesPublic Successful Response
+     * @throws ApiError
+     */
+    public static readCostElementTypes(): CancelablePromise<CostElementTypesReadCostElementTypesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/cost-element-types/'
         });
     }
 }

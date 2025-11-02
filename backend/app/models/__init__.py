@@ -62,6 +62,7 @@ from app.models.cost_element_type import (
     CostElementTypeBase,
     CostElementTypeCreate,
     CostElementTypePublic,
+    CostElementTypesPublic,
     CostElementTypeUpdate,
 )
 from app.models.cost_registration import (
@@ -195,6 +196,7 @@ __all__ = [
     "CostElementTypeBase",
     "CostElementTypeCreate",
     "CostElementTypePublic",
+    "CostElementTypesPublic",
     "CostElementTypeUpdate",
     # Project Phase models
     "ProjectPhase",

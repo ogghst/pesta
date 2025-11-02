@@ -38,7 +38,7 @@
 | E1-003 | Application Framework Setup | Create basic app structure with navigation and page templates | ✅ Done | Complete! Full CRUD APIs for Projects, WBEs, and Cost Elements. Frontend navigation with nested detail views. Template import API for bulk project creation. All tests passing. |
 | E1-004 | Project Creation Interface | Build UI for creating projects with essential metadata | ✅ Done | Complete! Modal form with all 10 fields (required + optional). Status & Project Manager dropdowns. Integrated into projects page. All validation working. |
 | E1-005 | WBE Creation Interface | Build UI for creating work breakdown elements within projects | ✅ Done | Complete! Modal form with all 7 fields (machine_type required, others optional). Status dropdown with 5 options. Revenue allocation validation. Integrated into project detail page. Matches AddProject pattern. Navigation fix: Added Outlet to parent route for nested routing. |
-| E1-006 | Cost Element Creation Interface | Build UI for creating cost elements within WBEs | ⏳ Todo | Sprint 1 deliverable. Department-level budget tracking. |
+| E1-006 | Cost Element Creation Interface | Build UI for creating cost elements within WBEs | ✅ Done | Complete! Modal form with all 8 fields (department_code, department_name, cost_element_type_id required; others optional). Created backend API for cost element types with filtering by is_active. Integrated into WBE detail page. Follows AddWBE pattern. 13 tests passing. |
 | E1-007 | Data Validation Rules | Implement validation logic for project hierarchy integrity | ⏳ Todo | Rules defined in data model. Need implementation in business logic layer. |
 
 ---
@@ -129,16 +129,16 @@
 | Category | Done | In Progress | Todo | Total |
 |----------|------|-------------|------|-------|
 | Documentation | 5 | 0 | 0 | 5 |
-| Epic 1 | 5 | 0 | 2 | 7 |
+| Epic 1 | 6 | 0 | 1 | 7 |
 | Epic 2 | 0 | 0 | 6 | 6 |
 | Epic 3 | 0 | 0 | 7 | 7 |
 | Epic 4 | 0 | 0 | 11 | 11 |
 | Epic 5 | 0 | 0 | 7 | 7 |
 | Testing & QA | 0 | 0 | 5 | 5 |
 | Deployment | 0 | 0 | 3 | 3 |
-| **Total** | **9** | **0** | **42** | **51** |
+| **Total** | **10** | **0** | **41** | **51** |
 
-**Overall Completion:** 17.6% (9/51 tasks)
+**Overall Completion:** 19.6% (10/51 tasks)
 
 **Note:** See `E1-001_COMPLETION_SUMMARY.md` for detailed completion report with full statistics.
 
@@ -276,11 +276,11 @@ The MVP development is structured across six two-week sprints, each building on 
 
 ### Sprint 1: Foundation and Data Model Implementation (Current)
 
-- **Status:** 🔄 In Progress (5/8 tasks complete)
-- **Completed Tasks:** E1-001, E1-002, E1-003, E1-004, E1-005
-- **In Progress:** Next up: E1-006 (Cost Element Creation Interface)
+- **Status:** 🔄 In Progress (6/8 tasks complete)
+- **Completed Tasks:** E1-001, E1-002, E1-003, E1-004, E1-005, E1-006
+- **In Progress:** Next up: E1-007 (Data Validation Rules)
 - **Blockers:** None
-- **Progress:** 62.5% of Sprint 1 complete (5/8 tasks)
+- **Progress:** 75% of Sprint 1 complete (6/8 tasks)
 - **Key Achievements:**
   - ✅ Complete database schema with all 19 models implemented
 - ✅ All migrations applied and tested
@@ -326,6 +326,7 @@ The MVP development is structured across six two-week sprints, each building on 
 
 ### Recent Updates
 
+- **2025-11-02:** ✅ **E1-006 COMPLETE!** Cost Element Creation Interface implemented. Modal form with all 8 fields (department_code, department_name, cost_element_type_id required; budget_bac, revenue_plan, status, notes optional). Created missing backend API endpoint for cost element types (GET /api/v1/cost-element-types/) with filtering by is_active and ordering by display_order. Integrated AddCostElement component into WBE detail page. Follows established AddWBE/AddProject patterns. 2 new backend tests added, 13 total tests passing. Frontend client regenerated with CostElementTypesService. Full TDD implementation from RED to GREEN. Node.js upgraded to v24.11.0 for compatibility.
 - **2025-11-02:** ✅ **E1-005 COMPLETE!** WBE Creation Interface implemented. Modal form following AddProject pattern with all 7 fields (machine_type required, others optional). Status dropdown with 5 options (designing, in-production, shipped, commissioning, completed). Revenue allocation validation (min >= 0). Integrated into project detail page. Navigation fix: Discovered and fixed TanStack Router nested route issue - parent routes must render `<Outlet />` for child routes to render. Typed route navigation pattern used for type safety.
 - **2025-11-02:** ✅ **E1-004 COMPLETE!** Project Creation Interface implemented. Modal form with all 10 fields (required + optional). Status dropdown with 4 predefined values. Project Manager dropdown loads all active users. Full validation with React Hook Form. Toast notifications on success/error. Query invalidation refreshes projects list. Matches existing AddUser pattern perfectly.
 - **2025-11-01:** ✅ **DOC-005 COMPLETE!** Development environment setup finalized. Environment scaffolded using ready-made template from FastAPI GitHub repository. Includes Docker Compose infrastructure, dependency management (uv for Python, npm for Node.js), CI/CD workflows (GitHub Actions), pre-commit hooks, and comprehensive documentation. All development tools and workflows are configured and ready for use.
@@ -349,9 +350,9 @@ The MVP development is structured across six two-week sprints, each building on 
 
 ### Next Steps
 
-1. **Immediate:** ✅ WBE Creation Interface complete - Begin E1-006 (Cost Element Creation Interface)
-2. **Short-term:** Build UI interface for Cost Element creation (following same pattern)
-3. **Medium-term:** Implement data validation rules and hierarchy integrity
+1. **Immediate:** ✅ Cost Element Creation Interface complete - Begin E1-007 (Data Validation Rules)
+2. **Short-term:** Implement data validation rules and hierarchy integrity
+3. **Medium-term:** Complete Sprint 1, begin Sprint 2 budget allocation features
 
 ---
 

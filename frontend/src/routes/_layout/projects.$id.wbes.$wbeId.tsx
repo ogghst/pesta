@@ -15,6 +15,7 @@ import { z } from "zod"
 
 import { CostElementsService, ProjectsService, WbesService } from "@/client"
 import PendingItems from "@/components/Pending/PendingItems"
+import AddCostElement from "@/components/Projects/AddCostElement"
 import {
   PaginationItems,
   PaginationNextTrigger,
@@ -221,9 +222,10 @@ function WBEDetail() {
         {project.project_name} - {wbe.machine_type}
       </Heading>
       <Box mt={4}>
-        <Heading size="md" mb={4}>
-          Cost Elements
-        </Heading>
+        <Flex alignItems="center" justifyContent="space-between" mb={4}>
+          <Heading size="md">Cost Elements</Heading>
+          <AddCostElement wbeId={wbe.wbe_id} />
+        </Flex>
         <CostElementsTable wbeId={wbe.wbe_id} />
       </Box>
     </Container>

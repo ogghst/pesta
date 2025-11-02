@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
+    cost_element_types,
     cost_elements,
     login,
     private,
@@ -18,6 +19,7 @@ api_router.include_router(utils.router)
 api_router.include_router(projects.router)
 api_router.include_router(wbes.router)
 api_router.include_router(cost_elements.router)
+api_router.include_router(cost_element_types.router)
 
 
 if settings.ENVIRONMENT == "local":

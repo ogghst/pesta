@@ -3,7 +3,9 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
+
+from app.models.department import Department
 
 
 class CostElementTypeBase(SQLModel):
@@ -44,6 +46,11 @@ class CostElementType(CostElementTypeBase, table=True):
     cost_element_type_id: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True
     )
+    department_id: uuid.UUID | None = Field(
+        default=None,
+        foreign_key="department.department_id",
+        nullable=True,
+    )
     created_at: datetime = Field(
         default_factory=datetime.utcnow, sa_column=Column(DateTime(timezone=True))
     )
@@ -51,10 +58,23 @@ class CostElementType(CostElementTypeBase, table=True):
         default_factory=datetime.utcnow, sa_column=Column(DateTime(timezone=True))
     )
 
+    # Relationships
+    department: Department | None = Relationship()
+
 
 class CostElementTypePublic(CostElementTypeBase):
     """Public cost element type schema for API responses."""
 
     cost_element_type_id: uuid.UUID
+    department_id: uuid.UUID | None = None
+    department_code: str | None = None
+    department_name: str | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class CostElementTypesPublic(SQLModel):
+    """Schema for list of cost element types."""
+
+    data: list[CostElementTypePublic]
+    count: int
