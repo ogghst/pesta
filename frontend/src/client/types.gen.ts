@@ -9,15 +9,70 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+/**
+ * Schema for creating a new cost element.
+ */
+export type CostElementCreate = {
+    department_code: string;
+    department_name: string;
+    budget_bac?: (number | string);
+    revenue_plan?: (number | string);
+    status?: string;
+    notes?: (string | null);
+    wbe_id: string;
+    cost_element_type_id: string;
+};
+
+/**
+ * Public cost element schema for API responses.
+ */
+export type CostElementPublic = {
+    department_code: string;
+    department_name: string;
+    budget_bac?: string;
+    revenue_plan?: string;
+    status?: string;
+    notes?: (string | null);
+    cost_element_id: string;
+    wbe_id: string;
+    cost_element_type_id: string;
+};
+
+/**
+ * Schema for list of cost elements.
+ */
+export type CostElementsPublic = {
+    data: Array<CostElementPublic>;
+    count: number;
+};
+
+/**
+ * Schema for updating a cost element.
+ */
+export type CostElementUpdate = {
+    department_code?: (string | null);
+    department_name?: (string | null);
+    budget_bac?: (number | string | null);
+    revenue_plan?: (number | string | null);
+    status?: (string | null);
+    notes?: (string | null);
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
+/**
+ * Schema for creating a new item.
+ */
 export type ItemCreate = {
     title: string;
     description?: (string | null);
 };
 
+/**
+ * Public item schema for API responses.
+ */
 export type ItemPublic = {
     title: string;
     description?: (string | null);
@@ -25,20 +80,32 @@ export type ItemPublic = {
     owner_id: string;
 };
 
+/**
+ * Schema for list of items.
+ */
 export type ItemsPublic = {
     data: Array<ItemPublic>;
     count: number;
 };
 
+/**
+ * Schema for updating an item.
+ */
 export type ItemUpdate = {
     title?: (string | null);
     description?: (string | null);
 };
 
+/**
+ * Generic message response.
+ */
 export type Message = {
     message: string;
 };
 
+/**
+ * Password reset request.
+ */
 export type NewPassword = {
     token: string;
     new_password: string;
@@ -51,16 +118,95 @@ export type PrivateUserCreate = {
     is_verified?: boolean;
 };
 
+/**
+ * Schema for creating a new project.
+ */
+export type ProjectCreate = {
+    project_name: string;
+    customer_name: string;
+    contract_value?: (number | string);
+    project_code?: (string | null);
+    pricelist_code?: (string | null);
+    start_date: string;
+    planned_completion_date: string;
+    actual_completion_date?: (string | null);
+    status?: string;
+    notes?: (string | null);
+    project_manager_id: string;
+};
+
+/**
+ * Public project schema for API responses.
+ */
+export type ProjectPublic = {
+    project_name: string;
+    customer_name: string;
+    contract_value?: string;
+    project_code?: (string | null);
+    pricelist_code?: (string | null);
+    start_date: string;
+    planned_completion_date: string;
+    actual_completion_date?: (string | null);
+    status?: string;
+    notes?: (string | null);
+    project_id: string;
+    project_manager_id: string;
+};
+
+/**
+ * Schema for list of projects.
+ */
+export type ProjectsPublic = {
+    data: Array<ProjectPublic>;
+    count: number;
+};
+
+/**
+ * Template for creating a complete project hierarchy.
+ */
+export type ProjectTemplate = {
+    project: {
+        [key: string]: unknown;
+    };
+    wbes?: Array<WBETemplateItem>;
+};
+
+/**
+ * Schema for updating a project.
+ */
+export type ProjectUpdate = {
+    project_name?: (string | null);
+    customer_name?: (string | null);
+    contract_value?: (number | string | null);
+    project_code?: (string | null);
+    pricelist_code?: (string | null);
+    start_date?: (string | null);
+    planned_completion_date?: (string | null);
+    actual_completion_date?: (string | null);
+    project_manager_id?: (string | null);
+    status?: (string | null);
+    notes?: (string | null);
+};
+
+/**
+ * JSON payload containing access token.
+ */
 export type Token = {
     access_token: string;
     token_type?: string;
 };
 
+/**
+ * Schema for password update.
+ */
 export type UpdatePassword = {
     current_password: string;
     new_password: string;
 };
 
+/**
+ * Schema for creating a new user.
+ */
 export type UserCreate = {
     email: string;
     is_active?: boolean;
@@ -69,6 +215,9 @@ export type UserCreate = {
     password: string;
 };
 
+/**
+ * Public user schema for API responses.
+ */
 export type UserPublic = {
     email: string;
     is_active?: boolean;
@@ -77,17 +226,26 @@ export type UserPublic = {
     id: string;
 };
 
+/**
+ * Schema for user registration.
+ */
 export type UserRegister = {
     email: string;
     password: string;
     full_name?: (string | null);
 };
 
+/**
+ * Schema for list of users.
+ */
 export type UsersPublic = {
     data: Array<UserPublic>;
     count: number;
 };
 
+/**
+ * Schema for updating a user.
+ */
 export type UserUpdate = {
     email?: (string | null);
     is_active?: boolean;
@@ -96,6 +254,9 @@ export type UserUpdate = {
     password?: (string | null);
 };
 
+/**
+ * Schema for updating own user profile.
+ */
 export type UserUpdateMe = {
     full_name?: (string | null);
     email?: (string | null);
@@ -106,6 +267,101 @@ export type ValidationError = {
     msg: string;
     type: string;
 };
+
+/**
+ * Schema for creating a new WBE.
+ */
+export type WBECreate = {
+    machine_type: string;
+    serial_number?: (string | null);
+    contracted_delivery_date?: (string | null);
+    revenue_allocation?: (number | string);
+    status?: string;
+    notes?: (string | null);
+    project_id: string;
+};
+
+/**
+ * Public WBE schema for API responses.
+ */
+export type WBEPublic = {
+    machine_type: string;
+    serial_number?: (string | null);
+    contracted_delivery_date?: (string | null);
+    revenue_allocation?: string;
+    status?: string;
+    notes?: (string | null);
+    wbe_id: string;
+    project_id: string;
+};
+
+/**
+ * Schema for list of WBEs.
+ */
+export type WBEsPublic = {
+    data: Array<WBEPublic>;
+    count: number;
+};
+
+/**
+ * WBE with nested cost elements.
+ */
+export type WBETemplateItem = {
+    wbe: {
+        [key: string]: unknown;
+    };
+    cost_elements?: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+/**
+ * Schema for updating a WBE.
+ */
+export type WBEUpdate = {
+    machine_type?: (string | null);
+    serial_number?: (string | null);
+    contracted_delivery_date?: (string | null);
+    revenue_allocation?: (number | string | null);
+    status?: (string | null);
+    notes?: (string | null);
+};
+
+export type CostElementsReadCostElementsData = {
+    limit?: number;
+    skip?: number;
+    /**
+     * Filter by WBE ID
+     */
+    wbeId?: (string | null);
+};
+
+export type CostElementsReadCostElementsResponse = (CostElementsPublic);
+
+export type CostElementsCreateCostElementData = {
+    requestBody: CostElementCreate;
+};
+
+export type CostElementsCreateCostElementResponse = (CostElementPublic);
+
+export type CostElementsReadCostElementData = {
+    id: string;
+};
+
+export type CostElementsReadCostElementResponse = (CostElementPublic);
+
+export type CostElementsUpdateCostElementData = {
+    id: string;
+    requestBody: CostElementUpdate;
+};
+
+export type CostElementsUpdateCostElementResponse = (CostElementPublic);
+
+export type CostElementsDeleteCostElementData = {
+    id: string;
+};
+
+export type CostElementsDeleteCostElementResponse = (Message);
 
 export type ItemsReadItemsData = {
     limit?: number;
@@ -171,6 +427,44 @@ export type PrivateCreateUserData = {
 
 export type PrivateCreateUserResponse = (UserPublic);
 
+export type ProjectsReadProjectsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type ProjectsReadProjectsResponse = (ProjectsPublic);
+
+export type ProjectsCreateProjectData = {
+    requestBody: ProjectCreate;
+};
+
+export type ProjectsCreateProjectResponse = (ProjectPublic);
+
+export type ProjectsReadProjectData = {
+    id: string;
+};
+
+export type ProjectsReadProjectResponse = (ProjectPublic);
+
+export type ProjectsUpdateProjectData = {
+    id: string;
+    requestBody: ProjectUpdate;
+};
+
+export type ProjectsUpdateProjectResponse = (ProjectPublic);
+
+export type ProjectsDeleteProjectData = {
+    id: string;
+};
+
+export type ProjectsDeleteProjectResponse = (Message);
+
+export type ProjectsCreateProjectFromTemplateData = {
+    requestBody: ProjectTemplate;
+};
+
+export type ProjectsCreateProjectFromTemplateResponse = (ProjectPublic);
+
 export type UsersReadUsersData = {
     limit?: number;
     skip?: number;
@@ -232,3 +526,39 @@ export type UtilsTestEmailData = {
 export type UtilsTestEmailResponse = (Message);
 
 export type UtilsHealthCheckResponse = (boolean);
+
+export type WbesReadWbesData = {
+    limit?: number;
+    /**
+     * Filter by project ID
+     */
+    projectId?: (string | null);
+    skip?: number;
+};
+
+export type WbesReadWbesResponse = (WBEsPublic);
+
+export type WbesCreateWbeData = {
+    requestBody: WBECreate;
+};
+
+export type WbesCreateWbeResponse = (WBEPublic);
+
+export type WbesReadWbeData = {
+    id: string;
+};
+
+export type WbesReadWbeResponse = (WBEPublic);
+
+export type WbesUpdateWbeData = {
+    id: string;
+    requestBody: WBEUpdate;
+};
+
+export type WbesUpdateWbeResponse = (WBEPublic);
+
+export type WbesDeleteWbeData = {
+    id: string;
+};
+
+export type WbesDeleteWbeResponse = (Message);

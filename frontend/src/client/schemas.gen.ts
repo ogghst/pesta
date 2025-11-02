@@ -55,6 +55,246 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const CostElementCreateSchema = {
+    properties: {
+        department_code: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Department Code'
+        },
+        department_name: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Department Name'
+        },
+        budget_bac: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                }
+            ],
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        revenue_plan: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                }
+            ],
+            title: 'Revenue Plan',
+            default: '0.00'
+        },
+        status: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Status',
+            default: 'planned'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        },
+        wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Wbe Id'
+        },
+        cost_element_type_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Type Id'
+        }
+    },
+    type: 'object',
+    required: ['department_code', 'department_name', 'wbe_id', 'cost_element_type_id'],
+    title: 'CostElementCreate',
+    description: 'Schema for creating a new cost element.'
+} as const;
+
+export const CostElementPublicSchema = {
+    properties: {
+        department_code: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Department Code'
+        },
+        department_name: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Department Name'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        revenue_plan: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Revenue Plan',
+            default: '0.00'
+        },
+        status: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Status',
+            default: 'planned'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        },
+        cost_element_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Id'
+        },
+        wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Wbe Id'
+        },
+        cost_element_type_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Type Id'
+        }
+    },
+    type: 'object',
+    required: ['department_code', 'department_name', 'cost_element_id', 'wbe_id', 'cost_element_type_id'],
+    title: 'CostElementPublic',
+    description: 'Public cost element schema for API responses.'
+} as const;
+
+export const CostElementUpdateSchema = {
+    properties: {
+        department_code: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department Code'
+        },
+        department_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department Name'
+        },
+        budget_bac: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Budget Bac'
+        },
+        revenue_plan: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Revenue Plan'
+        },
+        status: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Status'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        }
+    },
+    type: 'object',
+    title: 'CostElementUpdate',
+    description: 'Schema for updating a cost element.'
+} as const;
+
+export const CostElementsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/CostElementPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'CostElementsPublic',
+    description: 'Schema for list of cost elements.'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
@@ -92,7 +332,8 @@ export const ItemCreateSchema = {
     },
     type: 'object',
     required: ['title'],
-    title: 'ItemCreate'
+    title: 'ItemCreate',
+    description: 'Schema for creating a new item.'
 } as const;
 
 export const ItemPublicSchema = {
@@ -128,7 +369,8 @@ export const ItemPublicSchema = {
     },
     type: 'object',
     required: ['title', 'id', 'owner_id'],
-    title: 'ItemPublic'
+    title: 'ItemPublic',
+    description: 'Public item schema for API responses.'
 } as const;
 
 export const ItemUpdateSchema = {
@@ -160,7 +402,8 @@ export const ItemUpdateSchema = {
         }
     },
     type: 'object',
-    title: 'ItemUpdate'
+    title: 'ItemUpdate',
+    description: 'Schema for updating an item.'
 } as const;
 
 export const ItemsPublicSchema = {
@@ -179,7 +422,8 @@ export const ItemsPublicSchema = {
     },
     type: 'object',
     required: ['data', 'count'],
-    title: 'ItemsPublic'
+    title: 'ItemsPublic',
+    description: 'Schema for list of items.'
 } as const;
 
 export const MessageSchema = {
@@ -191,7 +435,8 @@ export const MessageSchema = {
     },
     type: 'object',
     required: ['message'],
-    title: 'Message'
+    title: 'Message',
+    description: 'Generic message response.'
 } as const;
 
 export const NewPasswordSchema = {
@@ -209,7 +454,8 @@ export const NewPasswordSchema = {
     },
     type: 'object',
     required: ['token', 'new_password'],
-    title: 'NewPassword'
+    title: 'NewPassword',
+    description: 'Password reset request.'
 } as const;
 
 export const PrivateUserCreateSchema = {
@@ -237,6 +483,388 @@ export const PrivateUserCreateSchema = {
     title: 'PrivateUserCreate'
 } as const;
 
+export const ProjectCreateSchema = {
+    properties: {
+        project_name: {
+            type: 'string',
+            maxLength: 200,
+            title: 'Project Name'
+        },
+        customer_name: {
+            type: 'string',
+            maxLength: 200,
+            title: 'Customer Name'
+        },
+        contract_value: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                }
+            ],
+            title: 'Contract Value',
+            default: '0.00'
+        },
+        project_code: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Code'
+        },
+        pricelist_code: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Pricelist Code'
+        },
+        start_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Start Date'
+        },
+        planned_completion_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Planned Completion Date'
+        },
+        actual_completion_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Actual Completion Date'
+        },
+        status: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Status',
+            default: 'active'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        },
+        project_manager_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Manager Id'
+        }
+    },
+    type: 'object',
+    required: ['project_name', 'customer_name', 'start_date', 'planned_completion_date', 'project_manager_id'],
+    title: 'ProjectCreate',
+    description: 'Schema for creating a new project.'
+} as const;
+
+export const ProjectPublicSchema = {
+    properties: {
+        project_name: {
+            type: 'string',
+            maxLength: 200,
+            title: 'Project Name'
+        },
+        customer_name: {
+            type: 'string',
+            maxLength: 200,
+            title: 'Customer Name'
+        },
+        contract_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Contract Value',
+            default: '0.00'
+        },
+        project_code: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Code'
+        },
+        pricelist_code: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Pricelist Code'
+        },
+        start_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Start Date'
+        },
+        planned_completion_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Planned Completion Date'
+        },
+        actual_completion_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Actual Completion Date'
+        },
+        status: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Status',
+            default: 'active'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        },
+        project_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Id'
+        },
+        project_manager_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Manager Id'
+        }
+    },
+    type: 'object',
+    required: ['project_name', 'customer_name', 'start_date', 'planned_completion_date', 'project_id', 'project_manager_id'],
+    title: 'ProjectPublic',
+    description: 'Public project schema for API responses.'
+} as const;
+
+export const ProjectTemplateSchema = {
+    properties: {
+        project: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Project'
+        },
+        wbes: {
+            items: {
+                '$ref': '#/components/schemas/WBETemplateItem'
+            },
+            type: 'array',
+            title: 'Wbes',
+            default: []
+        }
+    },
+    type: 'object',
+    required: ['project'],
+    title: 'ProjectTemplate',
+    description: 'Template for creating a complete project hierarchy.'
+} as const;
+
+export const ProjectUpdateSchema = {
+    properties: {
+        project_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 200
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Name'
+        },
+        customer_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 200
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Customer Name'
+        },
+        contract_value: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contract Value'
+        },
+        project_code: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Code'
+        },
+        pricelist_code: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Pricelist Code'
+        },
+        start_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Start Date'
+        },
+        planned_completion_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Planned Completion Date'
+        },
+        actual_completion_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Actual Completion Date'
+        },
+        project_manager_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Manager Id'
+        },
+        status: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Status'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        }
+    },
+    type: 'object',
+    title: 'ProjectUpdate',
+    description: 'Schema for updating a project.'
+} as const;
+
+export const ProjectsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/ProjectPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'ProjectsPublic',
+    description: 'Schema for list of projects.'
+} as const;
+
 export const TokenSchema = {
     properties: {
         access_token: {
@@ -251,7 +879,8 @@ export const TokenSchema = {
     },
     type: 'object',
     required: ['access_token'],
-    title: 'Token'
+    title: 'Token',
+    description: 'JSON payload containing access token.'
 } as const;
 
 export const UpdatePasswordSchema = {
@@ -271,7 +900,8 @@ export const UpdatePasswordSchema = {
     },
     type: 'object',
     required: ['current_password', 'new_password'],
-    title: 'UpdatePassword'
+    title: 'UpdatePassword',
+    description: 'Schema for password update.'
 } as const;
 
 export const UserCreateSchema = {
@@ -313,7 +943,8 @@ export const UserCreateSchema = {
     },
     type: 'object',
     required: ['email', 'password'],
-    title: 'UserCreate'
+    title: 'UserCreate',
+    description: 'Schema for creating a new user.'
 } as const;
 
 export const UserPublicSchema = {
@@ -354,7 +985,8 @@ export const UserPublicSchema = {
     },
     type: 'object',
     required: ['email', 'id'],
-    title: 'UserPublic'
+    title: 'UserPublic',
+    description: 'Public user schema for API responses.'
 } as const;
 
 export const UserRegisterSchema = {
@@ -386,7 +1018,8 @@ export const UserRegisterSchema = {
     },
     type: 'object',
     required: ['email', 'password'],
-    title: 'UserRegister'
+    title: 'UserRegister',
+    description: 'Schema for user registration.'
 } as const;
 
 export const UserUpdateSchema = {
@@ -441,7 +1074,8 @@ export const UserUpdateSchema = {
         }
     },
     type: 'object',
-    title: 'UserUpdate'
+    title: 'UserUpdate',
+    description: 'Schema for updating a user.'
 } as const;
 
 export const UserUpdateMeSchema = {
@@ -473,7 +1107,8 @@ export const UserUpdateMeSchema = {
         }
     },
     type: 'object',
-    title: 'UserUpdateMe'
+    title: 'UserUpdateMe',
+    description: 'Schema for updating own user profile.'
 } as const;
 
 export const UsersPublicSchema = {
@@ -492,7 +1127,8 @@ export const UsersPublicSchema = {
     },
     type: 'object',
     required: ['data', 'count'],
-    title: 'UsersPublic'
+    title: 'UsersPublic',
+    description: 'Schema for list of users.'
 } as const;
 
 export const ValidationErrorSchema = {
@@ -523,4 +1159,273 @@ export const ValidationErrorSchema = {
     type: 'object',
     required: ['loc', 'msg', 'type'],
     title: 'ValidationError'
+} as const;
+
+export const WBECreateSchema = {
+    properties: {
+        machine_type: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Machine Type'
+        },
+        serial_number: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Serial Number'
+        },
+        contracted_delivery_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contracted Delivery Date'
+        },
+        revenue_allocation: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                }
+            ],
+            title: 'Revenue Allocation',
+            default: '0.00'
+        },
+        status: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Status',
+            default: 'designing'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        },
+        project_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Id'
+        }
+    },
+    type: 'object',
+    required: ['machine_type', 'project_id'],
+    title: 'WBECreate',
+    description: 'Schema for creating a new WBE.'
+} as const;
+
+export const WBEPublicSchema = {
+    properties: {
+        machine_type: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Machine Type'
+        },
+        serial_number: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Serial Number'
+        },
+        contracted_delivery_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contracted Delivery Date'
+        },
+        revenue_allocation: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Revenue Allocation',
+            default: '0.00'
+        },
+        status: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Status',
+            default: 'designing'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        },
+        wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Wbe Id'
+        },
+        project_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Id'
+        }
+    },
+    type: 'object',
+    required: ['machine_type', 'wbe_id', 'project_id'],
+    title: 'WBEPublic',
+    description: 'Public WBE schema for API responses.'
+} as const;
+
+export const WBETemplateItemSchema = {
+    properties: {
+        wbe: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Wbe'
+        },
+        cost_elements: {
+            items: {
+                additionalProperties: true,
+                type: 'object'
+            },
+            type: 'array',
+            title: 'Cost Elements',
+            default: []
+        }
+    },
+    type: 'object',
+    required: ['wbe'],
+    title: 'WBETemplateItem',
+    description: 'WBE with nested cost elements.'
+} as const;
+
+export const WBEUpdateSchema = {
+    properties: {
+        machine_type: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Machine Type'
+        },
+        serial_number: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Serial Number'
+        },
+        contracted_delivery_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contracted Delivery Date'
+        },
+        revenue_allocation: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Revenue Allocation'
+        },
+        status: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Status'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        }
+    },
+    type: 'object',
+    title: 'WBEUpdate',
+    description: 'Schema for updating a WBE.'
+} as const;
+
+export const WBEsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/WBEPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'WBEsPublic',
+    description: 'Schema for list of WBEs.'
 } as const;
