@@ -50,7 +50,10 @@ const EditUser = ({ user }: EditUserProps) => {
   } = useForm<UserUpdateForm>({
     mode: "onBlur",
     criteriaMode: "all",
-    defaultValues: user,
+    defaultValues: {
+      ...user,
+      role: user.role || "controller",
+    },
   })
 
   const mutation = useMutation({
@@ -70,10 +73,11 @@ const EditUser = ({ user }: EditUserProps) => {
   })
 
   const onSubmit: SubmitHandler<UserUpdateForm> = async (data) => {
-    if (data.password === "") {
-      data.password = undefined
+    const { confirm_password, ...userData } = data
+    if (userData.password === "") {
+      userData.password = undefined
     }
-    mutation.mutate(data)
+    mutation.mutate(userData)
   }
 
   return (
@@ -162,15 +166,26 @@ const EditUser = ({ user }: EditUserProps) => {
             <Flex mt={4} direction="column" gap={4}>
               <Controller
                 control={control}
-                name="is_superuser"
+                name="role"
                 render={({ field }) => (
-                  <Field disabled={field.disabled} colorPalette="teal">
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={({ checked }) => field.onChange(checked)}
+                  <Field label="Role">
+                    <select
+                      {...field}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "4px",
+                        border: "1px solid #e2e8f0",
+                      }}
                     >
-                      Is superuser?
-                    </Checkbox>
+                      <option value="controller">Controller</option>
+                      <option value="project_manager">Project Manager</option>
+                      <option value="department_manager">
+                        Department Manager
+                      </option>
+                      <option value="executive_viewer">Executive Viewer</option>
+                      <option value="admin">Admin</option>
+                    </select>
                   </Field>
                 )}
               />

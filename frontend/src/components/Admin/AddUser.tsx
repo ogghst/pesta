@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 import { FaPlus } from "react-icons/fa"
-import { type UserCreate, UsersService } from "@/client"
+import { type UserCreate, type UserRole, UsersService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { emailPattern, handleError } from "@/utils"
@@ -50,7 +50,7 @@ const AddUser = () => {
       full_name: "",
       password: "",
       confirm_password: "",
-      is_superuser: false,
+      role: "controller" as UserRole,
       is_active: false,
     },
   })
@@ -72,7 +72,8 @@ const AddUser = () => {
   })
 
   const onSubmit: SubmitHandler<UserCreateForm> = (data) => {
-    mutation.mutate(data)
+    const { confirm_password, ...userData } = data
+    mutation.mutate(userData)
   }
 
   return (
@@ -167,15 +168,26 @@ const AddUser = () => {
             <Flex mt={4} direction="column" gap={4}>
               <Controller
                 control={control}
-                name="is_superuser"
+                name="role"
                 render={({ field }) => (
-                  <Field disabled={field.disabled} colorPalette="teal">
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={({ checked }) => field.onChange(checked)}
+                  <Field label="Role" required>
+                    <select
+                      {...field}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "4px",
+                        border: "1px solid #e2e8f0",
+                      }}
                     >
-                      Is superuser?
-                    </Checkbox>
+                      <option value="controller">Controller</option>
+                      <option value="project_manager">Project Manager</option>
+                      <option value="department_manager">
+                        Department Manager
+                      </option>
+                      <option value="executive_viewer">Executive Viewer</option>
+                      <option value="admin">Admin</option>
+                    </select>
                   </Field>
                 )}
               />

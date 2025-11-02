@@ -791,7 +791,7 @@ export const UserCreateSchema = {
     properties: {
         email: {
             type: 'string',
-            maxLength: 255,
+            maxLength: 200,
             format: 'email',
             title: 'Email'
         },
@@ -800,16 +800,27 @@ export const UserCreateSchema = {
             title: 'Is Active',
             default: true
         },
-        is_superuser: {
-            type: 'boolean',
-            title: 'Is Superuser',
-            default: false
+        role: {
+            '$ref': '#/components/schemas/UserRole',
+            default: 'controller'
+        },
+        department: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department'
         },
         full_name: {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 255
+                    maxLength: 200
                 },
                 {
                     type: 'null'
@@ -834,7 +845,7 @@ export const UserPublicSchema = {
     properties: {
         email: {
             type: 'string',
-            maxLength: 255,
+            maxLength: 200,
             format: 'email',
             title: 'Email'
         },
@@ -843,16 +854,27 @@ export const UserPublicSchema = {
             title: 'Is Active',
             default: true
         },
-        is_superuser: {
-            type: 'boolean',
-            title: 'Is Superuser',
-            default: false
+        role: {
+            '$ref': '#/components/schemas/UserRole',
+            default: 'controller'
+        },
+        department: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department'
         },
         full_name: {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 255
+                    maxLength: 200
                 },
                 {
                     type: 'null'
@@ -876,7 +898,7 @@ export const UserRegisterSchema = {
     properties: {
         email: {
             type: 'string',
-            maxLength: 255,
+            maxLength: 200,
             format: 'email',
             title: 'Email'
         },
@@ -890,7 +912,7 @@ export const UserRegisterSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 255
+                    maxLength: 200
                 },
                 {
                     type: 'null'
@@ -905,13 +927,20 @@ export const UserRegisterSchema = {
     description: 'Schema for user registration.'
 } as const;
 
+export const UserRoleSchema = {
+    type: 'string',
+    enum: ['admin', 'project_manager', 'department_manager', 'controller', 'executive_viewer'],
+    title: 'UserRole',
+    description: 'User role enumeration.'
+} as const;
+
 export const UserUpdateSchema = {
     properties: {
         email: {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 255,
+                    maxLength: 200,
                     format: 'email'
                 },
                 {
@@ -925,16 +954,33 @@ export const UserUpdateSchema = {
             title: 'Is Active',
             default: true
         },
-        is_superuser: {
-            type: 'boolean',
-            title: 'Is Superuser',
-            default: false
+        role: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/UserRole'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        department: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department'
         },
         full_name: {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 255
+                    maxLength: 200
                 },
                 {
                     type: 'null'
@@ -967,7 +1013,7 @@ export const UserUpdateMeSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 255
+                    maxLength: 200
                 },
                 {
                     type: 'null'
@@ -979,7 +1025,7 @@ export const UserUpdateMeSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 255,
+                    maxLength: 200,
                     format: 'email'
                 },
                 {

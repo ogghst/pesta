@@ -176,7 +176,8 @@ export type UpdatePassword = {
 export type UserCreate = {
     email: string;
     is_active?: boolean;
-    is_superuser?: boolean;
+    role?: UserRole;
+    department?: (string | null);
     full_name?: (string | null);
     password: string;
 };
@@ -187,7 +188,8 @@ export type UserCreate = {
 export type UserPublic = {
     email: string;
     is_active?: boolean;
-    is_superuser?: boolean;
+    role?: UserRole;
+    department?: (string | null);
     full_name?: (string | null);
     id: string;
 };
@@ -200,6 +202,11 @@ export type UserRegister = {
     password: string;
     full_name?: (string | null);
 };
+
+/**
+ * User role enumeration.
+ */
+export type UserRole = 'admin' | 'project_manager' | 'department_manager' | 'controller' | 'executive_viewer';
 
 /**
  * Schema for list of users.
@@ -215,7 +222,8 @@ export type UsersPublic = {
 export type UserUpdate = {
     email?: (string | null);
     is_active?: boolean;
-    is_superuser?: boolean;
+    role?: (UserRole | null);
+    department?: (string | null);
     full_name?: (string | null);
     password?: (string | null);
 };
