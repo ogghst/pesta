@@ -171,6 +171,7 @@ const EditUser = ({ user }: EditUserProps) => {
                   <Field label="Role">
                     <select
                       {...field}
+                      value={field.value || ""}
                       style={{
                         width: "100%",
                         padding: "8px",

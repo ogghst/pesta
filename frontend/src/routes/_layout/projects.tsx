@@ -13,6 +13,7 @@ import { z } from "zod"
 
 import { ProjectsService } from "@/client"
 import PendingItems from "@/components/Pending/PendingItems"
+import AddProject from "@/components/Projects/AddProject"
 import {
   PaginationItems,
   PaginationNextTrigger,
@@ -153,6 +154,7 @@ function Projects() {
       <Heading size="lg" pt={12}>
         Projects Management
       </Heading>
+      <AddProject />
       <ProjectsTable />
     </Container>
   )
