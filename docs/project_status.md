@@ -274,7 +274,7 @@ The MVP development is structured across six two-week sprints, each building on 
 
 ## Current Sprint Status
 
-### Sprint 1: Foundation and Data Model Implementation
+### Sprint 1: Foundation and Data Model Implementation (Current)
 
 - **Status:** 🔄 In Progress (3/8 tasks complete)
 - **Completed Tasks:** E1-001, E1-002, E1-003, E1-004
@@ -358,86 +358,71 @@ The MVP development is structured across six two-week sprints, each building on 
 
 This section captures key learnings from development sessions to prevent repeating mistakes and improve our workflow.
 
-### Session: E1-004 Project Creation Interface (2025-11-02)
-
-**Objective:** Implement project creation UI following existing patterns.
-
-**What We Accomplished:**
-
-- Created AddProject component following AddUser pattern perfectly
-- Fixed EditUser.tsx TypeScript issue discovered during build
-- Integrated component into projects page
-- Rebuilt and deployed frontend successfully
-- All validation and dropdowns working correctly
-
-**Critical Moments:**
-
-1. **TypeScript Error Discovery:** During first build, discovered pre-existing EditUser.tsx error that blocked compilation
-   - **Significance:** Caught a latent bug that would have caused issues later
-   - **Learning:** Always run full build/test cycle before claiming "no compilation errors"
-
-2. **Docker Cache Issue:** Initial restart didn't load new frontend build
-   - **Significance:** Wasted ~15 minutes debugging why button wasn't showing
-   - **Learning:** Need to use `docker compose build --no-cache` or `up -d --force-recreate` to ensure fresh builds
-
-3. **Pattern Following Success:** AddUser.tsx pattern worked perfectly with minimal adaptation
-   - **Significance:** Validated architectural consistency approach
-   - **Learning:** Existing patterns are battle-tested and should be followed religiously
-
-**Collaboration Effectiveness:**
-
-- **Most Effective:** User's clear clarifications (project manager: all users, status: dropdown)
-- **Communication Gap:** User had to point out missing button - should have verified with screenshot earlier
-- **Best Prompts:** High-level analysis followed by specific clarifications
-- **Human Value:** Catching the missing UI element saved significant debugging time
-
-**Wasted Effort:**
-
-- Docker cache issues cost ~20 minutes
-- Should have run `docker compose up -d --force-recreate` immediately after build
-- Could have checked container filesystem earlier to verify new assets were loaded
+### Session 1: E1-004 Project Creation Interface (2025-11-02)
 
 **Process Improvements That Worked:**
 
 - High-level analysis before implementation (PLA_1 pattern)
-- Reusing AddUser.tsx as reference
+- Reusing existing components as reference (AddUser.tsx pattern)
 - TypeScript strict checking caught issues early
 - Working agreements (TDD mindset) kept focus on quality
-
-**Process Improvements Needed:**
-
-- Add Docker rebuild checklist to development workflow
-- Include visual verification step in completion criteria
-- Document common Docker cache gotchas
-
-**Technical Insights:**
-
-- Chakra UI Dialog pattern with DialogTrigger/DialogContent is consistent across codebase
-- React Hook Form Controller needed for native select elements with null handling
-- TanStack Query invalidateQueries pattern is established and reliable
-- Docker layer caching can cause stale assets even after "successful" rebuilds
 
 **Key Patterns to Remember:**
 
 1. Modal forms: DialogRoot → DialogTrigger (Button) → DialogContent → Form
-2. useQuery needs arrow function wrapper: `queryFn: () => Service.method()`
-3. useMutation pattern: mutationFn → onSuccess (toast, reset, close) → onSettled (invalidate)
-4. Status/project manager dropdowns use Controller with value={field.value || ""}
+2. useQuery needs arrow function: `queryFn: () => Service.method()`
+3. useMutation: mutationFn → onSuccess (toast, reset, close) → onSettled (invalidate)
+4. React Hook Form Controller: `value={field.value || ""}` for nullable selects
+5. React Hook Form: mode="onBlur" for optimal UX, criteriaMode="all" for validation
 
-**Most Valuable Change for Next Session:**
-
-**Docker Build Verification Checklist** to add to workflow:
+**Docker Build Checklist:**
 
 ```bash
 After Docker build:
-1. Run: docker compose up -d --force-recreate <service>
-2. Verify: docker compose exec <service> ls <expected-files>
-3. Check logs: docker compose logs <service> --tail=20
-4. Hard refresh browser to clear cache
-5. Take screenshot to verify UI changes
+1. docker compose up -d --force-recreate <service>
+2. docker compose exec <service> ls <expected-files>
+3. docker compose logs <service> --tail=20
+4. Hard refresh browser (Ctrl+F5)
+5. Screenshot to verify UI changes
 ```
 
-This would have prevented the Docker cache issue entirely.
+### Session 2: E1-004 Permission Bug Fix (2025-11-02)
+
+**Critical Learning:** Always check logs FIRST before theorizing root causes.
+
+**Process Improvements That Worked:**
+
+- Direct database access via Docker exec for quick operations
+- Python one-liner for database queries: `python -c "..."`
+- Verification step after fixes
+
+**Debugging Workflow Checklist:**
+
+```bash
+When debugging unexpected behavior:
+1. Check backend logs: docker compose logs backend --tail=100
+2. Check frontend browser console for errors
+3. Check network tab for failed requests (status codes)
+4. Identify failing endpoint and check its permissions
+5. THEN review code and form hypotheses
+6. Verify with additional logging/testing
+```
+
+**Key Technical Patterns:**
+
+1. Debugging order: Logs → Network → Code (NOT Code → Theory → Logs)
+2. Permission dependencies: Check `dependencies=[Depends(...)]` in route decorators
+3. 403 vs 401: 403 = authenticated but insufficient privileges, 401 = not authenticated
+4. Role-based access: Understand permission model before implementing features
+5. JWT tokens contain user role - changes require logout/login to update
+
+**Architectural Concern:**
+
+Current design requires admin access to see project manager dropdown. Consider alternatives:
+
+- Public endpoint `/api/v1/users/list-for-selection` (dropdown-only data)
+- UI-level filtering by role
+- Separate permission like "can_view_users"
 
 ---
 

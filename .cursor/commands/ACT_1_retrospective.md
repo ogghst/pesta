@@ -13,7 +13,7 @@ Reflect on this coding session to improve future interactions:
    - Our approach significantly impacted success or failure
    - A decision or intervention changed the trajectory
    - We discovered something important about the problem
-   
+
    For each moment:
    - What happened?
    - Why was it significant?
@@ -49,3 +49,5 @@ Reflect on this coding session to improve future interactions:
    - How specifically should we implement it?
 
 Be specific and actionable in your recommendations.
+
+Add the process improvement that worked and to remember for next session to docs/project_status.md in lesson learned chapter
