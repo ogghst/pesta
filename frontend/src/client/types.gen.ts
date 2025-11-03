@@ -10,6 +10,28 @@ export type Body_login_login_access_token = {
 };
 
 /**
+ * Public schema for budget summary response.
+ */
+export type BudgetSummaryPublic = {
+    level: string;
+    revenue_limit: string;
+    total_revenue_allocated?: string;
+    total_budget_bac?: string;
+    total_revenue_plan?: string;
+    project_id?: (string | null);
+    wbe_id?: (string | null);
+    calculated_at?: string;
+    /**
+     * Calculate remaining revenue (revenue_limit - total_revenue_allocated).
+     */
+    readonly remaining_revenue: string;
+    /**
+     * Calculate revenue utilization percentage.
+     */
+    readonly revenue_utilization_percent: number;
+};
+
+/**
  * Schema for creating a new cost element.
  */
 export type CostElementCreate = {
@@ -363,6 +385,18 @@ export type WBEUpdate = {
     status?: (string | null);
     notes?: (string | null);
 };
+
+export type BudgetSummaryGetProjectBudgetSummaryData = {
+    projectId: string;
+};
+
+export type BudgetSummaryGetProjectBudgetSummaryResponse = (BudgetSummaryPublic);
+
+export type BudgetSummaryGetWbeBudgetSummaryData = {
+    wbeId: string;
+};
+
+export type BudgetSummaryGetWbeBudgetSummaryResponse = (BudgetSummaryPublic);
 
 export type CostElementsReadCostElementsData = {
     limit?: number;

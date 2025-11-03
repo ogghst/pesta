@@ -55,6 +55,83 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const BudgetSummaryPublicSchema = {
+    properties: {
+        level: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Level'
+        },
+        revenue_limit: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Revenue Limit'
+        },
+        total_revenue_allocated: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Total Revenue Allocated',
+            default: '0.00'
+        },
+        total_budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Total Budget Bac',
+            default: '0.00'
+        },
+        total_revenue_plan: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Total Revenue Plan',
+            default: '0.00'
+        },
+        project_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Id'
+        },
+        wbe_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Wbe Id'
+        },
+        calculated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Calculated At'
+        },
+        remaining_revenue: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Remaining Revenue',
+            description: 'Calculate remaining revenue (revenue_limit - total_revenue_allocated).',
+            readOnly: true
+        },
+        revenue_utilization_percent: {
+            type: 'number',
+            title: 'Revenue Utilization Percent',
+            description: 'Calculate revenue utilization percentage.',
+            readOnly: true
+        }
+    },
+    type: 'object',
+    required: ['level', 'revenue_limit', 'remaining_revenue', 'revenue_utilization_percent'],
+    title: 'BudgetSummaryPublic',
+    description: 'Public schema for budget summary response.'
+} as const;
+
 export const CostElementCreateSchema = {
     properties: {
         department_code: {

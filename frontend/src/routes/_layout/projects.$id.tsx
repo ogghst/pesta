@@ -23,6 +23,7 @@ import { DataTable } from "@/components/DataTable/DataTable"
 import type { ColumnDefExtended } from "@/components/DataTable/types"
 import PendingItems from "@/components/Pending/PendingItems"
 import AddWBE from "@/components/Projects/AddWBE"
+import BudgetSummary from "@/components/Projects/BudgetSummary"
 import DeleteWBE from "@/components/Projects/DeleteWBE"
 import EditWBE from "@/components/Projects/EditWBE"
 
@@ -259,6 +260,9 @@ function ProjectDetail() {
         </Text>
       </Flex>
       <Heading size="lg">{project.project_name}</Heading>
+      <Box mt={4}>
+        <BudgetSummary level="project" projectId={project.project_id} />
+      </Box>
       <Box mt={4}>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>
           <Heading size="md">Work Breakdown Elements</Heading>

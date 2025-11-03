@@ -17,6 +17,7 @@ import { DataTable } from "@/components/DataTable/DataTable"
 import type { ColumnDefExtended } from "@/components/DataTable/types"
 import PendingItems from "@/components/Pending/PendingItems"
 import AddCostElement from "@/components/Projects/AddCostElement"
+import BudgetSummary from "@/components/Projects/BudgetSummary"
 import DeleteCostElement from "@/components/Projects/DeleteCostElement"
 import EditCostElement from "@/components/Projects/EditCostElement"
 
@@ -256,6 +257,9 @@ function WBEDetail() {
       <Heading size="lg">
         {project.project_name} - {wbe.machine_type}
       </Heading>
+      <Box mt={4}>
+        <BudgetSummary level="wbe" wbeId={wbe.wbe_id} />
+      </Box>
       <Box mt={4}>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>
           <Heading size="md">Cost Elements</Heading>

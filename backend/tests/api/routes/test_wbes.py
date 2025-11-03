@@ -257,3 +257,137 @@ def test_create_wbe_exceeds_project_contract_value(
     assert response.status_code == 400
     content = response.json()
     assert "exceeds project contract value" in content["detail"]
+
+
+def test_update_wbe_exceeds_project_contract_value(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test updating a WBE revenue_allocation that causes total to exceed limit."""
+    from decimal import Decimal
+
+    from app import crud
+    from app.models import WBE, Project, ProjectCreate, UserCreate, WBECreate
+
+    # Create project with specific contract_value
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date.today(),
+        planned_completion_date=date.today() + timedelta(days=365),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create two WBEs within limit
+    wbe1_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Machine 1",
+        revenue_allocation=Decimal("30000.00"),
+        status="designing",
+    )
+    wbe1 = WBE.model_validate(wbe1_in)
+    db.add(wbe1)
+    db.commit()
+    db.refresh(wbe1)
+
+    wbe2_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Machine 2",
+        revenue_allocation=Decimal("40000.00"),
+        status="designing",
+    )
+    wbe2 = WBE.model_validate(wbe2_in)
+    db.add(wbe2)
+    db.commit()
+    db.refresh(wbe2)
+
+    # Try to update second WBE to exceed limit (total would be 30000 + 70000 = 100000)
+    # But we try 70001 to exceed
+    update_data = {
+        "revenue_allocation": 70001.00,  # Total would be 30000 + 70001 = 100001, exceeding 100000
+    }
+    response = client.put(
+        f"{settings.API_V1_STR}/wbes/{wbe2.wbe_id}",
+        headers=superuser_token_headers,
+        json=update_data,
+    )
+    assert response.status_code == 400
+    content = response.json()
+    assert "exceeds project contract value" in content["detail"]
+
+
+def test_update_wbe_within_project_contract_value(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test updating a WBE revenue_allocation that stays within limit."""
+    from decimal import Decimal
+
+    from app import crud
+    from app.models import WBE, Project, ProjectCreate, UserCreate, WBECreate
+
+    # Create project with specific contract_value
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date.today(),
+        planned_completion_date=date.today() + timedelta(days=365),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create two WBEs within limit
+    wbe1_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Machine 1",
+        revenue_allocation=Decimal("30000.00"),
+        status="designing",
+    )
+    wbe1 = WBE.model_validate(wbe1_in)
+    db.add(wbe1)
+    db.commit()
+    db.refresh(wbe1)
+
+    wbe2_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Machine 2",
+        revenue_allocation=Decimal("40000.00"),
+        status="designing",
+    )
+    wbe2 = WBE.model_validate(wbe2_in)
+    db.add(wbe2)
+    db.commit()
+    db.refresh(wbe2)
+
+    # Update second WBE to stay within limit (total would be 30000 + 50000 = 80000, within 100000)
+    update_data = {
+        "revenue_allocation": 50000.00,
+    }
+    response = client.put(
+        f"{settings.API_V1_STR}/wbes/{wbe2.wbe_id}",
+        headers=superuser_token_headers,
+        json=update_data,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert float(content["revenue_allocation"]) == 50000.00
+    assert content["machine_type"] == "Machine 2"
