@@ -1,0 +1,142 @@
+{
+  "project": {
+    "project_name": "PRE_LSI2300157_05_03_ET_01-",
+    "customer_name": "",
+    "contract_value": 1507417.0,
+    "project_code": "PRE_LSI2300157_05_03_ET_01-",
+    "pricelist_code": "LISTINO 118",
+    "start_date": "2025-11-03",
+    "planned_completion_date": "2026-11-03",
+    "project_manager_id": "REPLACE_WITH_VALID_USER_UUID",
+    "status": "active",
+    "notes": "Generated from quotation: PRE_LSI2300157_05_03_ET_01-"
+  },
+  "wbes": [
+    {
+      "wbe": {
+        "machine_type": "PROJECT MANAGER",
+        "serial_number": "PROMAN-001",
+        "contracted_delivery_date": "2026-11-03",
+        "revenue_allocation": 143637.0,
+        "status": "designing",
+        "notes": "WBE generated from category: PROJECT MANAGER"
+      },
+      "cost_elements": [
+        {
+          "department_code": "PM",
+          "department_name": "Project Management",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 419035.76,
+          "revenue_plan": 502842.91,
+          "status": "planned",
+          "notes": "Cost element for Project Management (type: pm_cost) aggregated from category items"
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "PALLET CONVEYORS INFEED 1",
+        "serial_number": "PALCON-002",
+        "contracted_delivery_date": "2026-11-03",
+        "revenue_allocation": 284250.0,
+        "status": "designing",
+        "notes": "WBE generated from category: PALLET CONVEYORS INFEED 1"
+      },
+      "cost_elements": [
+        {
+          "department_code": "MECH",
+          "department_name": "Mechanical Engineering",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 4058.22,
+          "revenue_plan": 4869.86,
+          "status": "planned",
+          "notes": "Cost element for Mechanical Engineering (type: utm_robot) aggregated from category items"
+        },
+        {
+          "department_code": "ELEC",
+          "department_name": "Electrical Engineering",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 2109.56,
+          "revenue_plan": 2531.47,
+          "status": "planned",
+          "notes": "Cost element for Electrical Engineering (type: ute) aggregated from category items"
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Software Development",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 3355.67,
+          "revenue_plan": 4026.8,
+          "status": "planned",
+          "notes": "Cost element for Software Development (type: sw_plc) aggregated from category items"
+        },
+        {
+          "department_code": "ASM",
+          "department_name": "Assembly",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 2913.88,
+          "revenue_plan": 3496.66,
+          "status": "planned",
+          "notes": "Cost element for Assembly (type: mtg_mec) aggregated from category items"
+        },
+        {
+          "department_code": "ASM",
+          "department_name": "Assembly",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 8870.97,
+          "revenue_plan": 10645.16,
+          "status": "planned",
+          "notes": "Cost element for Assembly (type: cab_ele) aggregated from category items"
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Software Development",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 288.0,
+          "revenue_plan": 345.6,
+          "status": "planned",
+          "notes": "Cost element for Software Development (type: sw_pc) aggregated from category items"
+        },
+        {
+          "department_code": "MECH",
+          "department_name": "Mechanical Engineering",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 152.44,
+          "revenue_plan": 182.93,
+          "status": "planned",
+          "notes": "Cost element for Mechanical Engineering (type: utm_layout) aggregated from category items"
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "SMILE FULL VERSION - SOFTWARE",
+        "serial_number": "SMIFUL-003",
+        "contracted_delivery_date": "2026-11-03",
+        "revenue_allocation": 1079530.0,
+        "status": "designing",
+        "notes": "WBE generated from category: SMILE FULL VERSION - SOFTWARE"
+      },
+      "cost_elements": [
+        {
+          "department_code": "SW",
+          "department_name": "Software Development",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 54720.0,
+          "revenue_plan": 65664.0,
+          "status": "planned",
+          "notes": "Cost element for Software Development (type: sw_pc) aggregated from category items"
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Software Development",
+          "cost_element_type_id": "REPLACE_WITH_VALID_COST_ELEMENT_TYPE_UUID",
+          "budget_bac": 5440.0,
+          "revenue_plan": 6528.0,
+          "status": "planned",
+          "notes": "Cost element for Software Development (type: sw_lgv) aggregated from category items"
+        }
+      ]
+    }
+  ]
+}
