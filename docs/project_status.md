@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-01-27
 **Current Phase:** Sprint 2 Complete - Ready for Sprint 3
-**Overall Progress:** 33% Complete - Sprint 1 Complete, Sprint 2 Complete (4/6 tasks, 2 skipped)
+**Overall Progress:** 33% Complete - Sprint 1 Complete, Sprint 2 Complete (5/6 tasks, 1 skipped)
 
 ---
 
@@ -52,7 +52,7 @@
 | E2-002 | Revenue Allocation UI for Cost Elements | Enhance the cost element screen for distributing contract revenue at both WBE and cost element granularity, ensuring totals reconcile to the contract value. | ✅ Done | Complete! Backend validation: sum of WBE revenue_allocation ≤ project contract_value (hard block). Frontend real-time validation in EditWBE component with visual feedback (total/limit/remaining). Validation hook `useRevenueAllocationValidation` mirrors `useRevenuePlanValidation` pattern. 3 tests passing (create + 2 update validation tests). Full TDD implementation. |
 | E2-003 | Cost Element Schedule Management UI | Enable users to define and manage start/end dates and schedule progression (linear, gaussian, etc.) for each cost element on the cost element screen, forming the planned value baseline. | ✅ Done | Complete! Backend (Phases 1, 2, 5) + Frontend (Phase 3). 32/32 tests passing. CRUD API + auto-creation + client regenerated + EditCostElement schedule section. Full schedule management with start_date, end_date, progression_type, notes. Separate form submission with independent validation. |
 | E2-004 | Budget Reconciliation Logic | Implement logic ensuring budget and revenue totals remain consistent across the project hierarchy, updating in real time as allocations change. | ⏸️ Skipped | Will implement later. Sprint 2 deliverable. Critical for maintaining financial integrity and automatic reconciliation. |
-| E2-005 | Time-Phased Budget Planning | Enable users to define expected timing of cost incurrence, forming the basis for planned value calculation in EVM. | ⏸️ Skipped | Will implement later. Sprint 2 deliverable. Supports time-phased entry and visualization. Note: Partially covered by E2-003 (Cost Element Schedule Management). |
+| E2-005 | Time-Phased Budget Planning | Enable users to define expected timing of cost incurrence, forming the basis for planned value calculation in EVM. | ✅ Done | Complete! Backend API endpoint `/api/v1/projects/{project_id}/cost-elements-with-schedules` with filtering by WBE IDs, cost element IDs, and cost element type IDs. Frontend: BudgetTimelineFilter (context-aware multi-select) and BudgetTimeline (Chart.js visualization with aggregated/multi-line modes). Progression calculations (linear, gaussian, logarithmic) with time series generation and aggregation utilities. Full test coverage. Integrated into dedicated timeline page, project detail page, WBE detail page, and cost element edit dialog. Validation for dates, budgets, and empty states. Full TDD implementation. |
 | E2-006 | Budget Summary Views | Display aggregated total budgets and revenues at project and WBE levels for financial overview. | ✅ Done | Complete! Backend aggregation endpoints (project & WBE level) with 6 tests passing. Frontend BudgetSummary component with react-chartjs-2 visualization: Doughnut chart for revenue utilization, Bar chart for budget vs revenue comparison. 4 summary cards showing key metrics. Integrated into ProjectDetail and WBEDetail pages. Full TDD implementation following plan. |
 
 ---
@@ -162,12 +162,12 @@ The MVP development is structured across six two-week sprints, each building on 
 - ✅ E2-002: Revenue Distribution Interface
 - ✅ E2-003: Cost Element Schedule Implementation
 - ⏸️ E2-004: Budget Reconciliation Logic (skipped - will implement later)
-- ⏸️ E2-005: Time-Phased Budget Planning (skipped - will implement later)
+- ✅ E2-005: Time-Phased Budget Planning
 - ✅ E2-006: Budget Summary Views
 
 **Deliverables:** Users can establish financial baselines for projects, defining total budgets and time-phased plans that establish the planned value baseline essential for earned value calculations.
 
-**Status:** ✅ Complete (E2-001, E2-002, E2-003 & E2-006 complete, E2-004 & E2-005 skipped)
+**Status:** ✅ Complete (E2-001, E2-002, E2-003, E2-005 & E2-006 complete, E2-004 skipped)
 
 ---
 
@@ -308,9 +308,10 @@ The MVP development is structured across six two-week sprints, each building on 
 
 ### Recent Updates
 
+- **2025-01-27:** ✅ **E2-005 COMPLETE!** Time-Phased Budget Planning fully implemented. Backend: API endpoint `/api/v1/projects/{project_id}/cost-elements-with-schedules` with filtering by WBE IDs, cost element IDs, and cost element type IDs. Frontend: BudgetTimelineFilter component (context-aware multi-select with quick filters) and BudgetTimeline component (Chart.js visualization with aggregated/multi-line modes). Progression calculations (linear, gaussian, logarithmic), time series generation (daily/weekly/monthly), and timeline aggregation utilities with full test coverage. Integrated into dedicated timeline page (`/projects/:id/budget-timeline`), project detail page, WBE detail page, and cost element edit dialog. Validation for schedule dates, budgets, and empty states. All phases complete with comprehensive error handling.
 - **2025-01-27:** ✅ **E2-006 COMPLETE!** Budget Summary Views fully implemented. Backend: 2 aggregation endpoints (project & WBE level) with 6 tests passing (3 project + 3 WBE tests including edge cases). Frontend: BudgetSummary component with react-chartjs-2 visualization - Doughnut chart for revenue utilization, Bar chart for budget vs revenue comparison. 4 summary cards showing Revenue Limit, Total Allocated (with utilization %), Total Budget BAC, and Total Revenue Plan. Integrated into ProjectDetail and WBEDetail pages. Full TDD implementation following 6-phase plan. All phases complete.
 - **2025-01-27:** 📋 **E2-006 PLAN COMPLETE!** Budget Summary Views implementation plan created. TDD approach with 6 phases: Backend aggregation endpoint (4-6h), Model schema (1h), Client generation (15m), Frontend component (3-4h), Project integration (1h), WBE integration (1h). Total estimate: 10-13 hours. Plan document: `docs/plans/e2-006-budget-summary-views.plan.md`. Ready to begin Phase 1 with failing tests.
-- **2025-01-27:** ⏸️ **E2-004 & E2-005 SKIPPED!** E2-004 (Budget Reconciliation Logic) and E2-005 (Time-Phased Budget Planning) marked as skipped for later implementation. E2-005 partially covered by E2-003 (Cost Element Schedule Management). Will revisit after Sprint 2 completion. Analysis document available at `docs/analysis/sprint2_next_steps_analysis.md` for E2-004 reference.
+- **2025-01-27:** ⏸️ **E2-004 SKIPPED!** E2-004 (Budget Reconciliation Logic) marked as skipped for later implementation. Will revisit after Sprint 2 completion. Analysis document available at `docs/analysis/sprint2_next_steps_analysis.md` for reference.
 - **2025-01-27:** ✅ **E2-002 COMPLETE!** Revenue Allocation UI for Cost Elements implemented. Backend validation ensures sum of WBE revenue_allocation ≤ project contract_value with hard block on violation. Frontend real-time validation in EditWBE component using `useRevenueAllocationValidation` hook with visual feedback (total/limit/remaining budget). Validation hook mirrors `useRevenuePlanValidation` pattern. Added 2 missing update validation tests (`test_update_wbe_exceeds_project_contract_value`, `test_update_wbe_within_project_contract_value`). 3 total tests passing (1 create + 2 update). Full TDD implementation following established patterns. E2-002 marked complete in project status.
 - **2025-01-XX:** ✅ **E2-002 HIGH-LEVEL ANALYSIS COMPLETE!** Comprehensive analysis document created at `docs/analysis/e2-002_revenue_allocation_ui_analysis.md`. Analysis identifies existing patterns (E2-001 cost element validation, E2-003 schedule management), maps integration touchpoints (WBE routes, EditWBE component), documents reusable abstractions (validation hooks, helper functions), evaluates three alternative approaches (incremental enhancement recommended), and assesses architectural impact. Key finding: Mirror E2-001 pattern but at WBE level - validate sum of WBE revenue_allocation ≤ project contract_value. Ready for review and detailed planning phase.
 - **2025-01-XX:** ✅ **E2-003 COMPLETE!** Full implementation across all phases. Backend: 32/32 tests passing (11 schedule tests + 21 cost element tests including 1 new auto-creation test). Created full CRUD API: GET, POST, PUT, DELETE with validation. Auto-creates initial schedule on CostElement creation with defaults (start_date=today, end_date=project.completion, progression_type="linear"). Helper function `create_initial_schedule_for_cost_element()` follows BudgetAllocation pattern. Frontend: Schedule section added to EditCostElement dialog with fetch, display, and update. Separate schedule form with independent validation. Frontend client regenerated. No regressions, no linter errors, TypeScript compilation clean. UI displays schedule fields (start_date, end_date, progression_type dropdown, notes) with "Update Schedule" button. Full TDD implementation complete.
@@ -342,7 +343,7 @@ The MVP development is structured across six two-week sprints, each building on 
 
 ### Next Steps
 
-1. **Immediate:** ✅ **Sprint 2 COMPLETE!** All Sprint 2 tasks implemented (E2-001, E2-002, E2-003, E2-006) with E2-004 & E2-005 skipped for later
+1. **Immediate:** ✅ **Sprint 2 COMPLETE!** All Sprint 2 tasks implemented (E2-001, E2-002, E2-003, E2-005, E2-006) with E2-004 skipped for later
 2. **Short-term:** Begin Sprint 3 tasks (Cost Registration, Cost History, Earned Value Recording)
 3. **Medium-term:** Complete Sprint 3 and proceed to Sprint 4 (EVM Calculations)
 
