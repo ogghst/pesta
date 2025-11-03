@@ -18,6 +18,7 @@ import {
 } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
+import { useRevenuePlanValidation } from "@/hooks/useRevenuePlanValidation"
 import { handleError } from "@/utils"
 import {
   DialogBody,
@@ -55,6 +56,8 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
     reset,
     setValue,
     watch,
+    setError,
+    clearErrors,
     formState: { errors, isValid, isSubmitting },
   } = useForm<CostElementCreate>({
     mode: "onBlur",
@@ -73,6 +76,40 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
 
   // Watch cost_element_type_id to auto-populate department fields
   const selectedTypeId = watch("cost_element_type_id")
+
+  // Watch revenue_plan for real-time validation
+  const revenuePlanValue = watch("revenue_plan")
+
+  // Validate revenue_plan against WBE limit (no exclude_cost_element_id for new elements)
+  const revenueValidation = useRevenuePlanValidation(
+    wbeId,
+    null,
+    revenuePlanValue !== undefined ? Number(revenuePlanValue) : undefined,
+  )
+
+  // Update form error state based on validation (using useEffect to avoid infinite loops)
+  useEffect(() => {
+    if (revenueValidation.errorMessage && revenuePlanValue !== undefined) {
+      setError("revenue_plan", {
+        type: "manual",
+        message: revenueValidation.errorMessage,
+      })
+    } else if (
+      !revenueValidation.errorMessage &&
+      errors.revenue_plan?.type === "manual"
+    ) {
+      clearErrors("revenue_plan")
+    }
+  }, [
+    revenueValidation.errorMessage,
+    revenuePlanValue,
+    setError,
+    clearErrors,
+    errors.revenue_plan?.type,
+  ])
+
+  // Form is valid only if React Hook Form validation passes AND revenue validation passes
+  const isFormValid = isValid && revenueValidation.isValid
 
   // Auto-populate department fields when cost element type changes
   useEffect(() => {
@@ -265,8 +302,10 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
               </Field>
 
               <Field
-                invalid={!!errors.revenue_plan}
-                errorText={errors.revenue_plan?.message}
+                invalid={!!errors.revenue_plan || !revenueValidation.isValid}
+                errorText={
+                  errors.revenue_plan?.message || revenueValidation.errorMessage
+                }
                 label="Revenue Plan"
               >
                 <Input
@@ -280,6 +319,27 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
                   type="number"
                   step="0.01"
                 />
+                {revenuePlanValue !== undefined &&
+                  revenueValidation.limit > 0 && (
+                    <Text fontSize="xs" color="gray.600" mt={1}>
+                      Total: €
+                      {revenueValidation.currentTotal.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      / Limit: €
+                      {revenueValidation.limit.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      ({revenueValidation.remaining >= 0 ? "+" : ""}€
+                      {revenueValidation.remaining.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      remaining)
+                    </Text>
+                  )}
               </Field>
 
               <Field
@@ -333,7 +393,7 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
             <Button
               variant="solid"
               type="submit"
-              disabled={!isValid || isSubmitting}
+              disabled={!isFormValid || isSubmitting}
               loading={isSubmitting}
             >
               Save

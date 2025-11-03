@@ -8,7 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 import {
@@ -18,6 +18,7 @@ import {
 } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
+import { useRevenuePlanValidation } from "@/hooks/useRevenuePlanValidation"
 import { handleError } from "@/utils"
 import {
   DialogBody,
@@ -44,6 +45,9 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
     register,
     handleSubmit,
     reset,
+    watch,
+    setError,
+    clearErrors,
     formState: { errors, isValid, isSubmitting },
   } = useForm<CostElementUpdate>({
     mode: "onBlur",
@@ -57,6 +61,40 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
       notes: costElement.notes,
     },
   })
+
+  // Watch revenue_plan for real-time validation
+  const revenuePlanValue = watch("revenue_plan")
+
+  // Validate revenue_plan against WBE limit
+  const revenueValidation = useRevenuePlanValidation(
+    costElement.wbe_id,
+    costElement.cost_element_id,
+    revenuePlanValue !== undefined ? Number(revenuePlanValue) : undefined,
+  )
+
+  // Update form error state based on validation (using useEffect to avoid infinite loops)
+  useEffect(() => {
+    if (revenueValidation.errorMessage && revenuePlanValue !== undefined) {
+      setError("revenue_plan", {
+        type: "manual",
+        message: revenueValidation.errorMessage,
+      })
+    } else if (
+      !revenueValidation.errorMessage &&
+      errors.revenue_plan?.type === "manual"
+    ) {
+      clearErrors("revenue_plan")
+    }
+  }, [
+    revenueValidation.errorMessage,
+    revenuePlanValue,
+    setError,
+    clearErrors,
+    errors.revenue_plan?.type,
+  ])
+
+  // Form is valid only if React Hook Form validation passes AND revenue validation passes
+  const isFormValid = isValid && revenueValidation.isValid
 
   const mutation = useMutation({
     mutationFn: (data: CostElementUpdate) =>
@@ -153,8 +191,10 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
               </Field>
 
               <Field
-                invalid={!!errors.revenue_plan}
-                errorText={errors.revenue_plan?.message}
+                invalid={!!errors.revenue_plan || !revenueValidation.isValid}
+                errorText={
+                  errors.revenue_plan?.message || revenueValidation.errorMessage
+                }
                 label="Revenue Plan"
               >
                 <Input
@@ -168,6 +208,27 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
                   type="number"
                   step="0.01"
                 />
+                {revenuePlanValue !== undefined &&
+                  revenueValidation.limit > 0 && (
+                    <Text fontSize="xs" color="gray.600" mt={1}>
+                      Total: €
+                      {revenueValidation.currentTotal.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      / Limit: €
+                      {revenueValidation.limit.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      ({revenueValidation.remaining >= 0 ? "+" : ""}€
+                      {revenueValidation.remaining.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      remaining)
+                    </Text>
+                  )}
               </Field>
 
               <Field
@@ -222,7 +283,7 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
             <Button
               variant="solid"
               type="submit"
-              disabled={!isValid || isSubmitting}
+              disabled={!isFormValid || isSubmitting}
               loading={isSubmitting}
             >
               Save
