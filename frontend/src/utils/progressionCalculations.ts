@@ -36,7 +36,6 @@ export function calculateLinearProgression(
   }
 
   let previousBudget = 0.0
-  let _previousDate = startDate
 
   return timePoints.map((date) => {
     // Calculate days elapsed from start date
@@ -51,7 +50,6 @@ export function calculateLinearProgression(
     // Calculate period budget (difference from previous period)
     const periodBudget = cumulativeBudget - previousBudget
     previousBudget = cumulativeBudget
-    _previousDate = date
 
     return {
       date,

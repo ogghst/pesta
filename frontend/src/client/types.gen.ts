@@ -143,6 +143,22 @@ export type CostElementUpdate = {
     notes?: (string | null);
 };
 
+/**
+ * Public cost element schema with nested schedule for API responses.
+ */
+export type CostElementWithSchedulePublic = {
+    department_code: string;
+    department_name: string;
+    budget_bac?: string;
+    revenue_plan?: string;
+    status?: string;
+    notes?: (string | null);
+    cost_element_id: string;
+    wbe_id: string;
+    cost_element_type_id: string;
+    schedule?: (CostElementSchedulePublic | null);
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -397,6 +413,24 @@ export type BudgetSummaryGetWbeBudgetSummaryData = {
 };
 
 export type BudgetSummaryGetWbeBudgetSummaryResponse = (BudgetSummaryPublic);
+
+export type BudgetTimelineGetCostElementsWithSchedulesData = {
+    /**
+     * Filter by cost element IDs
+     */
+    costElementIds?: (Array<(string)> | null);
+    /**
+     * Filter by cost element type IDs
+     */
+    costElementTypeIds?: (Array<(string)> | null);
+    projectId: string;
+    /**
+     * Filter by WBE IDs
+     */
+    wbeIds?: (Array<(string)> | null);
+};
+
+export type BudgetTimelineGetCostElementsWithSchedulesResponse = (Array<CostElementWithSchedulePublic>);
 
 export type CostElementsReadCostElementsData = {
     limit?: number;

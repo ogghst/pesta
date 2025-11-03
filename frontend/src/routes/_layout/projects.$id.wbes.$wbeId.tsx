@@ -9,15 +9,23 @@ import {
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { useState } from "react"
 import { FiChevronRight, FiTag } from "react-icons/fi"
 import { z } from "zod"
-import type { CostElementPublic } from "@/client"
-import { CostElementsService, ProjectsService, WbesService } from "@/client"
+import type { CostElementPublic, CostElementWithSchedulePublic } from "@/client"
+import {
+  BudgetTimelineService,
+  CostElementsService,
+  ProjectsService,
+  WbesService,
+} from "@/client"
 import { DataTable } from "@/components/DataTable/DataTable"
 import type { ColumnDefExtended } from "@/components/DataTable/types"
 import PendingItems from "@/components/Pending/PendingItems"
 import AddCostElement from "@/components/Projects/AddCostElement"
 import BudgetSummary from "@/components/Projects/BudgetSummary"
+import BudgetTimeline from "@/components/Projects/BudgetTimeline"
+import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
 import DeleteCostElement from "@/components/Projects/DeleteCostElement"
 import EditCostElement from "@/components/Projects/EditCostElement"
 
@@ -203,6 +211,42 @@ function WBEDetail() {
     ...getWBEQueryOptions({ id: wbeId }),
   })
 
+  // Budget Timeline state - pre-select current WBE
+  const [filter, setFilter] = useState<{
+    wbeIds?: string[]
+    costElementIds?: string[]
+    costElementTypeIds?: string[]
+  }>({
+    wbeIds: [wbeId],
+  })
+
+  // Fetch cost elements with schedules based on filter
+  const { data: costElements, isLoading: isLoadingCostElements } = useQuery<
+    CostElementWithSchedulePublic[]
+  >({
+    queryFn: () =>
+      BudgetTimelineService.getCostElementsWithSchedules({
+        projectId: projectId,
+        wbeIds: filter.wbeIds?.length ? filter.wbeIds : undefined,
+        costElementIds: filter.costElementIds?.length
+          ? filter.costElementIds
+          : undefined,
+        costElementTypeIds: filter.costElementTypeIds?.length
+          ? filter.costElementTypeIds
+          : undefined,
+      }),
+    queryKey: ["cost-elements-with-schedules", { projectId, ...filter }],
+    enabled: !!projectId && !!wbeId,
+  })
+
+  const handleFilterChange = (newFilter: {
+    wbeIds?: string[]
+    costElementIds?: string[]
+    costElementTypeIds?: string[]
+  }) => {
+    setFilter(newFilter)
+  }
+
   if (isLoadingProject || isLoadingWBE) {
     return (
       <Container maxW="full">
@@ -259,6 +303,35 @@ function WBEDetail() {
       </Heading>
       <Box mt={4}>
         <BudgetSummary level="wbe" wbeId={wbe.wbe_id} />
+      </Box>
+      <Box mt={4}>
+        <Heading size="md" mb={4}>
+          Budget Timeline
+        </Heading>
+        <BudgetTimelineFilter
+          projectId={projectId}
+          context="wbe"
+          initialFilters={{ wbeIds: [wbeId] }}
+          onFilterChange={handleFilterChange}
+        />
+        {isLoadingCostElements ? (
+          <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface" mt={4}>
+            <Text>Loading cost elements...</Text>
+          </Box>
+        ) : costElements && costElements.length === 0 ? (
+          <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface" mt={4}>
+            <Text color="fg.muted">
+              No cost elements found matching the selected filters.
+            </Text>
+          </Box>
+        ) : (
+          <Box mt={4}>
+            <BudgetTimeline
+              costElements={costElements || []}
+              viewMode="aggregated"
+            />
+          </Box>
+        )}
       </Box>
       <Box mt={4}>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>

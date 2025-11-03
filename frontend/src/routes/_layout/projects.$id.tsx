@@ -15,15 +15,18 @@ import {
   useNavigate,
   useRouterState,
 } from "@tanstack/react-router"
+import { useState } from "react"
 import { FiBox, FiChevronRight } from "react-icons/fi"
 import { z } from "zod"
-import type { WBEPublic } from "@/client"
-import { ProjectsService, WbesService } from "@/client"
+import type { CostElementWithSchedulePublic, WBEPublic } from "@/client"
+import { BudgetTimelineService, ProjectsService, WbesService } from "@/client"
 import { DataTable } from "@/components/DataTable/DataTable"
 import type { ColumnDefExtended } from "@/components/DataTable/types"
 import PendingItems from "@/components/Pending/PendingItems"
 import AddWBE from "@/components/Projects/AddWBE"
 import BudgetSummary from "@/components/Projects/BudgetSummary"
+import BudgetTimeline from "@/components/Projects/BudgetTimeline"
+import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
 import DeleteWBE from "@/components/Projects/DeleteWBE"
 import EditWBE from "@/components/Projects/EditWBE"
 
@@ -212,10 +215,45 @@ function ProjectDetail() {
     select: (state) => state.location.pathname,
   })
   const isWBERoute = location.includes("/wbes/")
+  const isBudgetTimelineRoute = location.includes("/budget-timeline")
 
   const { data: project, isLoading: isLoadingProject } = useQuery({
     ...getProjectQueryOptions({ id }),
   })
+
+  // Budget Timeline state
+  const [filter, setFilter] = useState<{
+    wbeIds?: string[]
+    costElementIds?: string[]
+    costElementTypeIds?: string[]
+  }>({})
+
+  // Fetch cost elements with schedules based on filter
+  const { data: costElements, isLoading: isLoadingCostElements } = useQuery<
+    CostElementWithSchedulePublic[]
+  >({
+    queryFn: () =>
+      BudgetTimelineService.getCostElementsWithSchedules({
+        projectId: id,
+        wbeIds: filter.wbeIds?.length ? filter.wbeIds : undefined,
+        costElementIds: filter.costElementIds?.length
+          ? filter.costElementIds
+          : undefined,
+        costElementTypeIds: filter.costElementTypeIds?.length
+          ? filter.costElementTypeIds
+          : undefined,
+      }),
+    queryKey: ["cost-elements-with-schedules", { projectId: id, ...filter }],
+    enabled: !!id,
+  })
+
+  const handleFilterChange = (newFilter: {
+    wbeIds?: string[]
+    costElementIds?: string[]
+    costElementTypeIds?: string[]
+  }) => {
+    setFilter(newFilter)
+  }
 
   if (isLoadingProject) {
     return (
@@ -237,8 +275,8 @@ function ProjectDetail() {
     )
   }
 
-  // If we're on a WBE detail route, render Outlet for child route
-  if (isWBERoute) {
+  // If we're on a WBE detail route or budget timeline route, render Outlet for child route
+  if (isWBERoute || isBudgetTimelineRoute) {
     return <Outlet />
   }
 
@@ -262,6 +300,48 @@ function ProjectDetail() {
       <Heading size="lg">{project.project_name}</Heading>
       <Box mt={4}>
         <BudgetSummary level="project" projectId={project.project_id} />
+      </Box>
+      <Box mt={4}>
+        <Flex alignItems="center" justifyContent="space-between" mb={4}>
+          <Heading size="md">Budget Timeline</Heading>
+          <Link
+            to="/projects/$id/budget-timeline"
+            as
+            any
+            params={{ id: project.project_id } as any}
+          >
+            <Text
+              fontSize="sm"
+              color="blue.500"
+              _hover={{ textDecoration: "underline" }}
+            >
+              View Full Timeline →
+            </Text>
+          </Link>
+        </Flex>
+        <BudgetTimelineFilter
+          projectId={project.project_id}
+          context="project"
+          onFilterChange={handleFilterChange}
+        />
+        {isLoadingCostElements ? (
+          <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface" mt={4}>
+            <Text>Loading cost elements...</Text>
+          </Box>
+        ) : costElements && costElements.length === 0 ? (
+          <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface" mt={4}>
+            <Text color="fg.muted">
+              No cost elements found matching the selected filters.
+            </Text>
+          </Box>
+        ) : (
+          <Box mt={4}>
+            <BudgetTimeline
+              costElements={costElements || []}
+              viewMode="aggregated"
+            />
+          </Box>
+        )}
       </Box>
       <Box mt={4}>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>

@@ -19,6 +19,7 @@ import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutProjectsRouteImport } from './routes/_layout/projects'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutProjectsIdRouteImport } from './routes/_layout/projects.$id'
+import { Route as LayoutProjectsIdBudgetTimelineRouteImport } from './routes/_layout/projects.$id.budget-timeline'
 import { Route as LayoutProjectsIdWbesWbeIdRouteImport } from './routes/_layout/projects.$id.wbes.$wbeId'
 
 const SignupRoute = SignupRouteImport.update({
@@ -70,6 +71,12 @@ const LayoutProjectsIdRoute = LayoutProjectsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => LayoutProjectsRoute,
 } as any)
+const LayoutProjectsIdBudgetTimelineRoute =
+  LayoutProjectsIdBudgetTimelineRouteImport.update({
+    id: '/budget-timeline',
+    path: '/budget-timeline',
+    getParentRoute: () => LayoutProjectsIdRoute,
+  } as any)
 const LayoutProjectsIdWbesWbeIdRoute =
   LayoutProjectsIdWbesWbeIdRouteImport.update({
     id: '/wbes/$wbeId',
@@ -87,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof LayoutSettingsRoute
   '/': typeof LayoutIndexRoute
   '/projects/$id': typeof LayoutProjectsIdRouteWithChildren
+  '/projects/$id/budget-timeline': typeof LayoutProjectsIdBudgetTimelineRoute
   '/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRoute
 }
 export interface FileRoutesByTo {
@@ -99,6 +107,7 @@ export interface FileRoutesByTo {
   '/settings': typeof LayoutSettingsRoute
   '/': typeof LayoutIndexRoute
   '/projects/$id': typeof LayoutProjectsIdRouteWithChildren
+  '/projects/$id/budget-timeline': typeof LayoutProjectsIdBudgetTimelineRoute
   '/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRoute
 }
 export interface FileRoutesById {
@@ -113,6 +122,7 @@ export interface FileRoutesById {
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/projects/$id': typeof LayoutProjectsIdRouteWithChildren
+  '/_layout/projects/$id/budget-timeline': typeof LayoutProjectsIdBudgetTimelineRoute
   '/_layout/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRoute
 }
 export interface FileRouteTypes {
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/'
     | '/projects/$id'
+    | '/projects/$id/budget-timeline'
     | '/projects/$id/wbes/$wbeId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/'
     | '/projects/$id'
+    | '/projects/$id/budget-timeline'
     | '/projects/$id/wbes/$wbeId'
   id:
     | '__root__'
@@ -152,6 +164,7 @@ export interface FileRouteTypes {
     | '/_layout/settings'
     | '/_layout/'
     | '/_layout/projects/$id'
+    | '/_layout/projects/$id/budget-timeline'
     | '/_layout/projects/$id/wbes/$wbeId'
   fileRoutesById: FileRoutesById
 }
@@ -235,6 +248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutProjectsIdRouteImport
       parentRoute: typeof LayoutProjectsRoute
     }
+    '/_layout/projects/$id/budget-timeline': {
+      id: '/_layout/projects/$id/budget-timeline'
+      path: '/budget-timeline'
+      fullPath: '/projects/$id/budget-timeline'
+      preLoaderRoute: typeof LayoutProjectsIdBudgetTimelineRouteImport
+      parentRoute: typeof LayoutProjectsIdRoute
+    }
     '/_layout/projects/$id/wbes/$wbeId': {
       id: '/_layout/projects/$id/wbes/$wbeId'
       path: '/wbes/$wbeId'
@@ -246,10 +266,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface LayoutProjectsIdRouteChildren {
+  LayoutProjectsIdBudgetTimelineRoute: typeof LayoutProjectsIdBudgetTimelineRoute
   LayoutProjectsIdWbesWbeIdRoute: typeof LayoutProjectsIdWbesWbeIdRoute
 }
 
 const LayoutProjectsIdRouteChildren: LayoutProjectsIdRouteChildren = {
+  LayoutProjectsIdBudgetTimelineRoute: LayoutProjectsIdBudgetTimelineRoute,
   LayoutProjectsIdWbesWbeIdRoute: LayoutProjectsIdWbesWbeIdRoute,
 }
 

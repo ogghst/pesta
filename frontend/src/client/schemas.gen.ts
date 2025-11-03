@@ -633,6 +633,79 @@ export const CostElementUpdateSchema = {
     description: 'Schema for updating a cost element.'
 } as const;
 
+export const CostElementWithSchedulePublicSchema = {
+    properties: {
+        department_code: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Department Code'
+        },
+        department_name: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Department Name'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        revenue_plan: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Revenue Plan',
+            default: '0.00'
+        },
+        status: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Status',
+            default: 'planned'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        },
+        cost_element_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Id'
+        },
+        wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Wbe Id'
+        },
+        cost_element_type_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Type Id'
+        },
+        schedule: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/CostElementSchedulePublic'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        }
+    },
+    type: 'object',
+    required: ['department_code', 'department_name', 'cost_element_id', 'wbe_id', 'cost_element_type_id'],
+    title: 'CostElementWithSchedulePublic',
+    description: 'Public cost element schema with nested schedule for API responses.'
+} as const;
+
 export const CostElementsPublicSchema = {
     properties: {
         data: {

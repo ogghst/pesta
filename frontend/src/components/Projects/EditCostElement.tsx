@@ -1,7 +1,9 @@
 import {
+  Box,
   Button,
   DialogActionTrigger,
   DialogTitle,
+  Heading,
   Input,
   Separator,
   Text,
@@ -14,6 +16,7 @@ import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 import {
   ApiError,
+  BudgetTimelineService,
   type CostElementPublic,
   type CostElementScheduleBase,
   type CostElementSchedulePublic,
@@ -21,6 +24,8 @@ import {
   type CostElementScheduleUpdate,
   CostElementsService,
   type CostElementUpdate,
+  type CostElementWithSchedulePublic,
+  WbesService,
 } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
 import { useRevenuePlanValidation } from "@/hooks/useRevenuePlanValidation"
@@ -35,6 +40,8 @@ import {
   DialogTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
+import BudgetTimeline from "./BudgetTimeline"
+import BudgetTimelineFilter from "./BudgetTimelineFilter"
 
 interface EditCostElementProps {
   costElement: CostElementPublic
@@ -44,6 +51,13 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+
+  // Fetch the WBE to get project_id for timeline
+  const { data: wbe } = useQuery({
+    queryKey: ["wbe", costElement.wbe_id],
+    queryFn: () => WbesService.readWbe({ id: costElement.wbe_id }),
+    enabled: isOpen && !!costElement.wbe_id,
+  })
 
   // Fetch the schedule for this cost element
   const { data: scheduleData } = useQuery<CostElementSchedulePublic | null>({
@@ -64,6 +78,54 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
     enabled: isOpen, // Only fetch when dialog is open
     retry: false, // Don't retry on 404
   })
+
+  // Budget Timeline state - pre-select current cost element
+  const [filter, setFilter] = useState<{
+    wbeIds?: string[]
+    costElementIds?: string[]
+    costElementTypeIds?: string[]
+  }>({
+    costElementIds: [costElement.cost_element_id],
+  })
+
+  // Fetch cost elements with schedules based on filter
+  const { data: costElements, isLoading: isLoadingCostElements } = useQuery<
+    CostElementWithSchedulePublic[]
+  >({
+    queryFn: () =>
+      BudgetTimelineService.getCostElementsWithSchedules({
+        projectId: wbe?.project_id || "",
+        wbeIds: filter.wbeIds?.length ? filter.wbeIds : undefined,
+        costElementIds: filter.costElementIds?.length
+          ? filter.costElementIds
+          : undefined,
+        costElementTypeIds: filter.costElementTypeIds?.length
+          ? filter.costElementTypeIds
+          : undefined,
+      }),
+    queryKey: [
+      "cost-elements-with-schedules",
+      { projectId: wbe?.project_id, ...filter },
+    ],
+    enabled: isOpen && !!wbe?.project_id,
+  })
+
+  const handleFilterChange = (newFilter: {
+    wbeIds?: string[]
+    costElementIds?: string[]
+    costElementTypeIds?: string[]
+  }) => {
+    setFilter(newFilter)
+  }
+
+  // Update filter when cost element changes
+  useEffect(() => {
+    if (isOpen) {
+      setFilter({
+        costElementIds: [costElement.cost_element_id],
+      })
+    }
+  }, [isOpen, costElement.cost_element_id])
 
   const {
     control,
@@ -240,7 +302,7 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
 
   return (
     <DialogRoot
-      size={{ base: "xs", md: "lg" }}
+      size={{ base: "xs", md: "xl" }}
       placement="center"
       open={isOpen}
       onOpenChange={({ open }) => setIsOpen(open)}
@@ -461,6 +523,46 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
                 </Field>
               </VStack>
             </VStack>
+
+            {/* Budget Timeline Section */}
+            {wbe?.project_id && (
+              <VStack gap={4} mt={6}>
+                <Separator />
+                <Heading size="sm" width="full">
+                  Budget Timeline
+                </Heading>
+                <Text fontSize="sm" color="fg.muted" width="full">
+                  Visualize how budget is distributed over time for this cost
+                  element
+                </Text>
+                <BudgetTimelineFilter
+                  projectId={wbe.project_id}
+                  context="cost-element"
+                  initialFilters={{
+                    costElementIds: [costElement.cost_element_id],
+                  }}
+                  onFilterChange={handleFilterChange}
+                />
+                {isLoadingCostElements ? (
+                  <Box
+                    p={4}
+                    borderWidth="1px"
+                    borderRadius="lg"
+                    bg="bg.surface"
+                    width="full"
+                  >
+                    <Text>Loading timeline...</Text>
+                  </Box>
+                ) : (
+                  <Box width="full">
+                    <BudgetTimeline
+                      costElements={costElements || []}
+                      viewMode="aggregated"
+                    />
+                  </Box>
+                )}
+              </VStack>
+            )}
           </DialogBody>
 
           <DialogFooter gap={2}>
