@@ -47,12 +47,12 @@
 
 | Task ID | Task Name | Description | Status | Notes |
 |---------|-----------|-------------|--------|-------|
-| E2-001 | Budget Allocation Interface | Build UI for assigning budgets to cost elements with validation | ⏳ Todo | Sprint 2 deliverable. Requires real-time validation to prevent over-allocation. |
-| E2-002 | Revenue Distribution Interface | Build UI for allocating contract value across WBEs and cost elements | ⏳ Todo | Sprint 2 deliverable. Must maintain reconciliation to total contract value. |
-| E2-003 | Budget Reconciliation Logic | Implement logic ensuring totals remain consistent across hierarchy | ⏳ Todo | Sprint 2 deliverable. Critical for data integrity. Defined in validation rules. |
-| E2-004 | Cost Element Schedule Implementation | Build schedule baseline system with start date, end date, progression type | ⏳ Todo | Sprint 2 deliverable. Required for Planned Value calculation. Supports linear, gaussian, logarithmic progression. |
-| E2-005 | Time-Phased Budget Planning | Enable users to define when costs are expected to be incurred | ⏳ Todo | Sprint 2 deliverable. Establishes planned value baseline for EVM calculations. |
-| E2-006 | Budget Summary Views | Display total budgets and revenues at project and WBE levels | ⏳ Todo | Sprint 2 deliverable. Provides financial overview. |
+| E2-001 | Budget Allocation UI for Cost Elements | Enhance the cost element screen to allow users to allocate departmental/project budgets at the cost element level, with real-time validation to prevent over-allocation. | ⏳ Todo | Sprint 2 deliverable. Supports editing/creating budget allocation per cost element; validates total against WBE/project limits. |
+| E2-002 | Revenue Allocation UI for Cost Elements | Enhance the cost element screen for distributing contract revenue at both WBE and cost element granularity, ensuring totals reconcile to the contract value. | ⏳ Todo | Sprint 2 deliverable. Enables direct allocation and editing of revenue at the cost element level with top-down reconciliation. |
+| E2-003 | Cost Element Schedule Management UI | Enable users to define and manage start/end dates and schedule progression (linear, gaussian, etc.) for each cost element on the cost element screen, forming the planned value baseline. | ⏳ Todo | Sprint 2 deliverable. Allows time-phased controls for each cost element supporting EVM planning. |
+| E2-004 | Budget Reconciliation Logic | Implement logic ensuring budget and revenue totals remain consistent across the project hierarchy, updating in real time as allocations change. | ⏳ Todo | Sprint 2 deliverable. Critical for maintaining financial integrity and automatic reconciliation. |
+| E2-005 | Time-Phased Budget Planning | Enable users to define expected timing of cost incurrence, forming the basis for planned value calculation in EVM. | ⏳ Todo | Sprint 2 deliverable. Supports time-phased entry and visualization. |
+| E2-006 | Budget Summary Views | Display aggregated total budgets and revenues at project and WBE levels for financial overview. | ⏳ Todo | Sprint 2 deliverable. Summarizes budget/revenue status for review. |
 
 ---
 
@@ -123,24 +123,6 @@
 | DEP-003 | Deployment Preparation | Prepare deployment scripts and environment configuration | ⏳ Todo | Sprint 6 deliverable. Production deployment readiness. |
 
 ---
-
-## Summary Statistics
-
-| Category | Done | In Progress | Todo | Total |
-|----------|------|-------------|------|-------|
-| Documentation | 5 | 0 | 0 | 5 |
-| Epic 1 | 5 | 0 | 1 | 6 |
-| Epic 2 | 0 | 0 | 6 | 6 |
-| Epic 3 | 0 | 0 | 7 | 7 |
-| Epic 4 | 0 | 0 | 11 | 11 |
-| Epic 5 | 0 | 0 | 7 | 7 |
-| Testing & QA | 0 | 0 | 5 | 5 |
-| Deployment | 0 | 0 | 3 | 3 |
-| **Total** | **10** | **0** | **41** | **51** |
-
-**Overall Completion:** 19.6% (10/51 tasks)
-
-**Note:** See `E1-001_COMPLETION_SUMMARY.md` for detailed completion report with full statistics.
 
 ---
 
