@@ -31,7 +31,6 @@ class CostRegistrationCreate(CostRegistrationBase):
     """Schema for creating a new cost registration."""
 
     cost_element_id: uuid.UUID
-    created_by_id: uuid.UUID
 
 
 class CostRegistrationUpdate(SQLModel):
@@ -86,3 +85,10 @@ class CostRegistrationPublic(CostRegistrationBase):
     created_by_id: uuid.UUID
     created_at: datetime
     last_modified_at: datetime
+
+
+class CostRegistrationsPublic(SQLModel):
+    """Public cost registrations list schema."""
+
+    data: list[CostRegistrationPublic]
+    count: int

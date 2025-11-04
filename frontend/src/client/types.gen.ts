@@ -32,6 +32,22 @@ export type BudgetSummaryPublic = {
 };
 
 /**
+ * Public cost categories list schema.
+ */
+export type CostCategoriesPublic = {
+    data: Array<CostCategoryPublic>;
+    count: number;
+};
+
+/**
+ * Public cost category schema for API responses.
+ */
+export type CostCategoryPublic = {
+    name: string;
+    code: string;
+};
+
+/**
  * Schema for creating a new cost element.
  */
 export type CostElementCreate = {
@@ -157,6 +173,56 @@ export type CostElementWithSchedulePublic = {
     wbe_id: string;
     cost_element_type_id: string;
     schedule?: (CostElementSchedulePublic | null);
+};
+
+/**
+ * Schema for creating a new cost registration.
+ */
+export type CostRegistrationCreate = {
+    registration_date: string;
+    amount?: (number | string);
+    cost_category: string;
+    invoice_number?: (string | null);
+    description: string;
+    is_quality_cost?: boolean;
+    cost_element_id: string;
+};
+
+/**
+ * Public cost registration schema for API responses.
+ */
+export type CostRegistrationPublic = {
+    registration_date: string;
+    amount?: string;
+    cost_category: string;
+    invoice_number?: (string | null);
+    description: string;
+    is_quality_cost?: boolean;
+    cost_registration_id: string;
+    cost_element_id: string;
+    created_by_id: string;
+    created_at: string;
+    last_modified_at: string;
+};
+
+/**
+ * Public cost registrations list schema.
+ */
+export type CostRegistrationsPublic = {
+    data: Array<CostRegistrationPublic>;
+    count: number;
+};
+
+/**
+ * Schema for updating a cost registration.
+ */
+export type CostRegistrationUpdate = {
+    registration_date?: (string | null);
+    amount?: (number | string | null);
+    cost_category?: (string | null);
+    invoice_number?: (string | null);
+    description?: (string | null);
+    is_quality_cost?: (boolean | null);
 };
 
 export type HTTPValidationError = {
@@ -432,6 +498,8 @@ export type BudgetTimelineGetCostElementsWithSchedulesData = {
 
 export type BudgetTimelineGetCostElementsWithSchedulesResponse = (Array<CostElementWithSchedulePublic>);
 
+export type CostCategoriesReadCostCategoriesResponse = (CostCategoriesPublic);
+
 export type CostElementsReadCostElementsData = {
     limit?: number;
     skip?: number;
@@ -501,6 +569,42 @@ export type CostElementSchedulesDeleteScheduleData = {
 export type CostElementSchedulesDeleteScheduleResponse = (Message);
 
 export type CostElementTypesReadCostElementTypesResponse = (CostElementTypesPublic);
+
+export type CostRegistrationsReadCostRegistrationsData = {
+    /**
+     * Filter by cost element ID
+     */
+    costElementId?: (string | null);
+    limit?: number;
+    skip?: number;
+};
+
+export type CostRegistrationsReadCostRegistrationsResponse = (CostRegistrationsPublic);
+
+export type CostRegistrationsCreateCostRegistrationData = {
+    requestBody: CostRegistrationCreate;
+};
+
+export type CostRegistrationsCreateCostRegistrationResponse = (CostRegistrationPublic);
+
+export type CostRegistrationsReadCostRegistrationData = {
+    id: string;
+};
+
+export type CostRegistrationsReadCostRegistrationResponse = (CostRegistrationPublic);
+
+export type CostRegistrationsUpdateCostRegistrationData = {
+    id: string;
+    requestBody: CostRegistrationUpdate;
+};
+
+export type CostRegistrationsUpdateCostRegistrationResponse = (CostRegistrationPublic);
+
+export type CostRegistrationsDeleteCostRegistrationData = {
+    id: string;
+};
+
+export type CostRegistrationsDeleteCostRegistrationResponse = (Message);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;

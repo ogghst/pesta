@@ -3,9 +3,11 @@ from fastapi import APIRouter
 from app.api.routes import (
     budget_summary,
     budget_timeline,
+    cost_categories,
     cost_element_schedules,
     cost_element_types,
     cost_elements,
+    cost_registrations,
     login,
     private,
     projects,
@@ -24,6 +26,8 @@ api_router.include_router(wbes.router)
 api_router.include_router(cost_elements.router)
 api_router.include_router(cost_element_schedules.router)
 api_router.include_router(cost_element_types.router)
+api_router.include_router(cost_categories.router)
+api_router.include_router(cost_registrations.router)
 api_router.include_router(budget_summary.router)
 api_router.include_router(budget_timeline.router)
 

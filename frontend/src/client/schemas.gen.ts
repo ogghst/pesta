@@ -132,6 +132,43 @@ export const BudgetSummaryPublicSchema = {
     description: 'Public schema for budget summary response.'
 } as const;
 
+export const CostCategoriesPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/CostCategoryPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'CostCategoriesPublic',
+    description: 'Public cost categories list schema.'
+} as const;
+
+export const CostCategoryPublicSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        code: {
+            type: 'string',
+            title: 'Code'
+        }
+    },
+    type: 'object',
+    required: ['name', 'code'],
+    title: 'CostCategoryPublic',
+    description: 'Public cost category schema for API responses.'
+} as const;
+
 export const CostElementCreateSchema = {
     properties: {
         department_code: {
@@ -724,6 +761,236 @@ export const CostElementsPublicSchema = {
     required: ['data', 'count'],
     title: 'CostElementsPublic',
     description: 'Schema for list of cost elements.'
+} as const;
+
+export const CostRegistrationCreateSchema = {
+    properties: {
+        registration_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Registration Date'
+        },
+        amount: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                }
+            ],
+            title: 'Amount',
+            default: '0.00'
+        },
+        cost_category: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Cost Category'
+        },
+        invoice_number: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Invoice Number'
+        },
+        description: {
+            type: 'string',
+            title: 'Description'
+        },
+        is_quality_cost: {
+            type: 'boolean',
+            title: 'Is Quality Cost',
+            default: false
+        },
+        cost_element_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Id'
+        }
+    },
+    type: 'object',
+    required: ['registration_date', 'cost_category', 'description', 'cost_element_id'],
+    title: 'CostRegistrationCreate',
+    description: 'Schema for creating a new cost registration.'
+} as const;
+
+export const CostRegistrationPublicSchema = {
+    properties: {
+        registration_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Registration Date'
+        },
+        amount: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Amount',
+            default: '0.00'
+        },
+        cost_category: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Cost Category'
+        },
+        invoice_number: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Invoice Number'
+        },
+        description: {
+            type: 'string',
+            title: 'Description'
+        },
+        is_quality_cost: {
+            type: 'boolean',
+            title: 'Is Quality Cost',
+            default: false
+        },
+        cost_registration_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Registration Id'
+        },
+        cost_element_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Id'
+        },
+        created_by_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Created By Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        last_modified_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Last Modified At'
+        }
+    },
+    type: 'object',
+    required: ['registration_date', 'cost_category', 'description', 'cost_registration_id', 'cost_element_id', 'created_by_id', 'created_at', 'last_modified_at'],
+    title: 'CostRegistrationPublic',
+    description: 'Public cost registration schema for API responses.'
+} as const;
+
+export const CostRegistrationUpdateSchema = {
+    properties: {
+        registration_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Registration Date'
+        },
+        amount: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Amount'
+        },
+        cost_category: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cost Category'
+        },
+        invoice_number: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Invoice Number'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        is_quality_cost: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Quality Cost'
+        }
+    },
+    type: 'object',
+    title: 'CostRegistrationUpdate',
+    description: 'Schema for updating a cost registration.'
+} as const;
+
+export const CostRegistrationsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/CostRegistrationPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'CostRegistrationsPublic',
+    description: 'Public cost registrations list schema.'
 } as const;
 
 export const HTTPValidationErrorSchema = {

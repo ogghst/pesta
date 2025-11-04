@@ -9,7 +9,13 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useNavigate,
+  useRouterState,
+} from "@tanstack/react-router"
 import { useState } from "react"
 import { FiChevronRight, FiTag } from "react-icons/fi"
 import { z } from "zod"
@@ -172,6 +178,20 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
   const costElements = data?.data ?? []
   const count = data?.count ?? 0
 
+  const { id: projectId } = Route.useParams()
+
+  const handleRowClick = (costElement: CostElementPublic) => {
+    navigate({
+      to: "/projects/$id/wbes/$wbeId/cost-elements/$costElementId",
+      params: {
+        id: projectId,
+        wbeId: wbeId,
+        costElementId: costElement.cost_element_id,
+      },
+      search: { tab: "cost-registrations" } as any,
+    })
+  }
+
   if (!isLoading && costElements.length === 0) {
     return (
       <EmptyState.Root>
@@ -195,6 +215,7 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
       data={costElements}
       columns={costElementsColumns}
       tableId="cost-elements-table"
+      onRowClick={handleRowClick}
       isLoading={isLoading}
       count={count}
       page={page}
@@ -207,6 +228,12 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
 function WBEDetail() {
   const { id: projectId, wbeId } = Route.useParams()
   const navigate = useNavigate({ from: Route.fullPath })
+  const location = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+
+  // Check if we're on a cost element detail route (child route)
+  const isCostElementRoute = location.includes("/cost-elements/")
 
   const { tab } = Route.useSearch()
 
@@ -282,6 +309,11 @@ function WBEDetail() {
         </EmptyState.Root>
       </Container>
     )
+  }
+
+  // If we're on a cost element detail route (child route), render Outlet for child route
+  if (isCostElementRoute) {
+    return <Outlet />
   }
 
   return (

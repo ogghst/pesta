@@ -21,6 +21,7 @@ import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutProjectsIdRouteImport } from './routes/_layout/projects.$id'
 import { Route as LayoutProjectsIdBudgetTimelineRouteImport } from './routes/_layout/projects.$id.budget-timeline'
 import { Route as LayoutProjectsIdWbesWbeIdRouteImport } from './routes/_layout/projects.$id.wbes.$wbeId'
+import { Route as LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRouteImport } from './routes/_layout/projects.$id.wbes.$wbeId.cost-elements.$costElementId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -83,6 +84,12 @@ const LayoutProjectsIdWbesWbeIdRoute =
     path: '/wbes/$wbeId',
     getParentRoute: () => LayoutProjectsIdRoute,
   } as any)
+const LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRoute =
+  LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRouteImport.update({
+    id: '/cost-elements/$costElementId',
+    path: '/cost-elements/$costElementId',
+    getParentRoute: () => LayoutProjectsIdWbesWbeIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
@@ -95,7 +102,8 @@ export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
   '/projects/$id': typeof LayoutProjectsIdRouteWithChildren
   '/projects/$id/budget-timeline': typeof LayoutProjectsIdBudgetTimelineRoute
-  '/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRoute
+  '/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRouteWithChildren
+  '/projects/$id/wbes/$wbeId/cost-elements/$costElementId': typeof LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -108,7 +116,8 @@ export interface FileRoutesByTo {
   '/': typeof LayoutIndexRoute
   '/projects/$id': typeof LayoutProjectsIdRouteWithChildren
   '/projects/$id/budget-timeline': typeof LayoutProjectsIdBudgetTimelineRoute
-  '/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRoute
+  '/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRouteWithChildren
+  '/projects/$id/wbes/$wbeId/cost-elements/$costElementId': typeof LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,7 +132,8 @@ export interface FileRoutesById {
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/projects/$id': typeof LayoutProjectsIdRouteWithChildren
   '/_layout/projects/$id/budget-timeline': typeof LayoutProjectsIdBudgetTimelineRoute
-  '/_layout/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRoute
+  '/_layout/projects/$id/wbes/$wbeId': typeof LayoutProjectsIdWbesWbeIdRouteWithChildren
+  '/_layout/projects/$id/wbes/$wbeId/cost-elements/$costElementId': typeof LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/projects/$id'
     | '/projects/$id/budget-timeline'
     | '/projects/$id/wbes/$wbeId'
+    | '/projects/$id/wbes/$wbeId/cost-elements/$costElementId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/projects/$id'
     | '/projects/$id/budget-timeline'
     | '/projects/$id/wbes/$wbeId'
+    | '/projects/$id/wbes/$wbeId/cost-elements/$costElementId'
   id:
     | '__root__'
     | '/_layout'
@@ -166,6 +178,7 @@ export interface FileRouteTypes {
     | '/_layout/projects/$id'
     | '/_layout/projects/$id/budget-timeline'
     | '/_layout/projects/$id/wbes/$wbeId'
+    | '/_layout/projects/$id/wbes/$wbeId/cost-elements/$costElementId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,17 +275,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutProjectsIdWbesWbeIdRouteImport
       parentRoute: typeof LayoutProjectsIdRoute
     }
+    '/_layout/projects/$id/wbes/$wbeId/cost-elements/$costElementId': {
+      id: '/_layout/projects/$id/wbes/$wbeId/cost-elements/$costElementId'
+      path: '/cost-elements/$costElementId'
+      fullPath: '/projects/$id/wbes/$wbeId/cost-elements/$costElementId'
+      preLoaderRoute: typeof LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRouteImport
+      parentRoute: typeof LayoutProjectsIdWbesWbeIdRoute
+    }
   }
 }
 
+interface LayoutProjectsIdWbesWbeIdRouteChildren {
+  LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRoute: typeof LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRoute
+}
+
+const LayoutProjectsIdWbesWbeIdRouteChildren: LayoutProjectsIdWbesWbeIdRouteChildren =
+  {
+    LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRoute:
+      LayoutProjectsIdWbesWbeIdCostElementsCostElementIdRoute,
+  }
+
+const LayoutProjectsIdWbesWbeIdRouteWithChildren =
+  LayoutProjectsIdWbesWbeIdRoute._addFileChildren(
+    LayoutProjectsIdWbesWbeIdRouteChildren,
+  )
+
 interface LayoutProjectsIdRouteChildren {
   LayoutProjectsIdBudgetTimelineRoute: typeof LayoutProjectsIdBudgetTimelineRoute
-  LayoutProjectsIdWbesWbeIdRoute: typeof LayoutProjectsIdWbesWbeIdRoute
+  LayoutProjectsIdWbesWbeIdRoute: typeof LayoutProjectsIdWbesWbeIdRouteWithChildren
 }
 
 const LayoutProjectsIdRouteChildren: LayoutProjectsIdRouteChildren = {
   LayoutProjectsIdBudgetTimelineRoute: LayoutProjectsIdBudgetTimelineRoute,
-  LayoutProjectsIdWbesWbeIdRoute: LayoutProjectsIdWbesWbeIdRoute,
+  LayoutProjectsIdWbesWbeIdRoute: LayoutProjectsIdWbesWbeIdRouteWithChildren,
 }
 
 const LayoutProjectsIdRouteWithChildren =

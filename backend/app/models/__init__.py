@@ -45,6 +45,10 @@ from app.models.change_order import (
     ChangeOrderPublic,
     ChangeOrderUpdate,
 )
+from app.models.cost_category import (
+    CostCategoriesPublic,
+    CostCategoryPublic,
+)
 from app.models.cost_element import (
     CostElement,
     CostElementBase,
@@ -73,6 +77,7 @@ from app.models.cost_registration import (
     CostRegistrationBase,
     CostRegistrationCreate,
     CostRegistrationPublic,
+    CostRegistrationsPublic,
     CostRegistrationUpdate,
 )
 from app.models.department import (
@@ -201,6 +206,9 @@ __all__ = [
     "CostElementTypePublic",
     "CostElementTypesPublic",
     "CostElementTypeUpdate",
+    # Cost Category models
+    "CostCategoryPublic",
+    "CostCategoriesPublic",
     # Project Phase models
     "ProjectPhase",
     "ProjectPhaseBase",
@@ -277,6 +285,7 @@ __all__ = [
     "CostRegistrationBase",
     "CostRegistrationCreate",
     "CostRegistrationPublic",
+    "CostRegistrationsPublic",
     "CostRegistrationUpdate",
     # Cost Element Schedule models
     "CostElementSchedule",
