@@ -3,7 +3,282 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BudgetSummaryGetProjectBudgetSummaryData, BudgetSummaryGetProjectBudgetSummaryResponse, BudgetSummaryGetWbeBudgetSummaryData, BudgetSummaryGetWbeBudgetSummaryResponse, BudgetTimelineGetCostElementsWithSchedulesData, BudgetTimelineGetCostElementsWithSchedulesResponse, CostCategoriesReadCostCategoriesResponse, CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, CostElementSchedulesReadScheduleByCostElementData, CostElementSchedulesReadScheduleByCostElementResponse, CostElementSchedulesCreateScheduleData, CostElementSchedulesCreateScheduleResponse, CostElementSchedulesUpdateScheduleData, CostElementSchedulesUpdateScheduleResponse, CostElementSchedulesDeleteScheduleData, CostElementSchedulesDeleteScheduleResponse, CostElementTypesReadCostElementTypesResponse, CostRegistrationsReadCostRegistrationsData, CostRegistrationsReadCostRegistrationsResponse, CostRegistrationsCreateCostRegistrationData, CostRegistrationsCreateCostRegistrationResponse, CostRegistrationsReadCostRegistrationData, CostRegistrationsReadCostRegistrationResponse, CostRegistrationsUpdateCostRegistrationData, CostRegistrationsUpdateCostRegistrationResponse, CostRegistrationsDeleteCostRegistrationData, CostRegistrationsDeleteCostRegistrationResponse, CostSummaryGetCostElementCostSummaryData, CostSummaryGetCostElementCostSummaryResponse, CostSummaryGetWbeCostSummaryData, CostSummaryGetWbeCostSummaryResponse, CostSummaryGetProjectCostSummaryData, CostSummaryGetProjectCostSummaryResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesReadWbeData, WbesReadWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse } from './types.gen';
+import type { BaselineLogsListBaselineLogsData, BaselineLogsListBaselineLogsResponse, BaselineLogsCreateBaselineLogData, BaselineLogsCreateBaselineLogResponse, BaselineLogsReadBaselineLogData, BaselineLogsReadBaselineLogResponse, BaselineLogsUpdateBaselineLogData, BaselineLogsUpdateBaselineLogResponse, BaselineLogsCancelBaselineLogData, BaselineLogsCancelBaselineLogResponse, BaselineLogsGetBaselineSnapshotSummaryData, BaselineLogsGetBaselineSnapshotSummaryResponse, BaselineLogsGetBaselineCostElementsByWbeData, BaselineLogsGetBaselineCostElementsByWbeResponse, BaselineLogsGetBaselineCostElementsData, BaselineLogsGetBaselineCostElementsResponse, BudgetSummaryGetProjectBudgetSummaryData, BudgetSummaryGetProjectBudgetSummaryResponse, BudgetSummaryGetWbeBudgetSummaryData, BudgetSummaryGetWbeBudgetSummaryResponse, BudgetTimelineGetCostElementsWithSchedulesData, BudgetTimelineGetCostElementsWithSchedulesResponse, CostCategoriesReadCostCategoriesResponse, CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, CostElementSchedulesReadScheduleByCostElementData, CostElementSchedulesReadScheduleByCostElementResponse, CostElementSchedulesCreateScheduleData, CostElementSchedulesCreateScheduleResponse, CostElementSchedulesUpdateScheduleData, CostElementSchedulesUpdateScheduleResponse, CostElementSchedulesDeleteScheduleData, CostElementSchedulesDeleteScheduleResponse, CostElementTypesReadCostElementTypesResponse, CostRegistrationsReadCostRegistrationsData, CostRegistrationsReadCostRegistrationsResponse, CostRegistrationsCreateCostRegistrationData, CostRegistrationsCreateCostRegistrationResponse, CostRegistrationsReadCostRegistrationData, CostRegistrationsReadCostRegistrationResponse, CostRegistrationsUpdateCostRegistrationData, CostRegistrationsUpdateCostRegistrationResponse, CostRegistrationsDeleteCostRegistrationData, CostRegistrationsDeleteCostRegistrationResponse, CostSummaryGetCostElementCostSummaryData, CostSummaryGetCostElementCostSummaryResponse, CostSummaryGetWbeCostSummaryData, CostSummaryGetWbeCostSummaryResponse, CostSummaryGetProjectCostSummaryData, CostSummaryGetProjectCostSummaryResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesReadWbeData, WbesReadWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse } from './types.gen';
+
+export class BaselineLogsService {
+    /**
+     * List Baseline Logs
+     * List all baseline logs for a project.
+     *
+     * Args:
+     * project_id: ID of the project
+     * exclude_cancelled: If True, filter out cancelled baselines
+     *
+     * Returns:
+     * List of BaselineLogPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.excludeCancelled Exclude cancelled baselines
+     * @returns BaselineLogPublic Successful Response
+     * @throws ApiError
+     */
+    public static listBaselineLogs(data: BaselineLogsListBaselineLogsData): CancelablePromise<BaselineLogsListBaselineLogsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/baseline-logs/',
+            path: {
+                project_id: data.projectId
+            },
+            query: {
+                exclude_cancelled: data.excludeCancelled
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Baseline Log
+     * Create a new baseline log for a project.
+     *
+     * This endpoint automatically creates a baseline snapshot with all cost elements
+     * for the project when the baseline is created.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_in: Baseline log creation data (baseline_type, baseline_date, milestone_type, description, is_cancelled)
+     *
+     * Returns:
+     * BaselineLogPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.requestBody
+     * @returns BaselineLogPublic Successful Response
+     * @throws ApiError
+     */
+    public static createBaselineLog(data: BaselineLogsCreateBaselineLogData): CancelablePromise<BaselineLogsCreateBaselineLogResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/projects/{project_id}/baseline-logs/',
+            path: {
+                project_id: data.projectId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Baseline Log
+     * Get a single baseline log by ID.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     *
+     * Returns:
+     * BaselineLogPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @returns BaselineLogPublic Successful Response
+     * @throws ApiError
+     */
+    public static readBaselineLog(data: BaselineLogsReadBaselineLogData): CancelablePromise<BaselineLogsReadBaselineLogResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Baseline Log
+     * Update a baseline log.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     * baseline_in: Baseline log update data
+     *
+     * Returns:
+     * BaselineLogPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @param data.requestBody
+     * @returns BaselineLogPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateBaselineLog(data: BaselineLogsUpdateBaselineLogData): CancelablePromise<BaselineLogsUpdateBaselineLogResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Cancel Baseline Log
+     * Cancel (soft delete) a baseline log by setting is_cancelled=True.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     *
+     * Returns:
+     * BaselineLogPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @returns BaselineLogPublic Successful Response
+     * @throws ApiError
+     */
+    public static cancelBaselineLog(data: BaselineLogsCancelBaselineLogData): CancelablePromise<BaselineLogsCancelBaselineLogResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}/cancel',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Baseline Snapshot Summary
+     * Get baseline snapshot summary with aggregated project values.
+     *
+     * Returns snapshot metadata and aggregated totals from all BaselineCostElement
+     * records for this baseline:
+     * - total_budget_bac: Sum of all budget_bac values
+     * - total_revenue_plan: Sum of all revenue_plan values
+     * - total_actual_ac: Sum of all actual_ac values (handles NULLs)
+     * - total_forecast_eac: Sum of all forecast_eac values (handles NULLs)
+     * - total_earned_ev: Sum of all earned_ev values (handles NULLs)
+     * - cost_element_count: Count of BaselineCostElement records
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     *
+     * Returns:
+     * BaselineSnapshotSummaryPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @returns BaselineSnapshotSummaryPublic Successful Response
+     * @throws ApiError
+     */
+    public static getBaselineSnapshotSummary(data: BaselineLogsGetBaselineSnapshotSummaryData): CancelablePromise<BaselineLogsGetBaselineSnapshotSummaryResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}/snapshot',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Baseline Cost Elements By Wbe
+     * Get baseline cost elements grouped by WBE.
+     *
+     * Returns all WBEs for the project with their associated BaselineCostElement records
+     * for the specified baseline, including aggregated totals per WBE.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     *
+     * Returns:
+     * BaselineCostElementsByWBEPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @returns BaselineCostElementsByWBEPublic Successful Response
+     * @throws ApiError
+     */
+    public static getBaselineCostElementsByWbe(data: BaselineLogsGetBaselineCostElementsByWbeData): CancelablePromise<BaselineLogsGetBaselineCostElementsByWbeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}/cost-elements-by-wbe',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Baseline Cost Elements
+     * Get baseline cost elements as a flat paginated list.
+     *
+     * Returns all BaselineCostElement records for the specified baseline,
+     * including related CostElement and WBE information, with pagination support.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     * skip: Number of records to skip (for pagination)
+     * limit: Maximum number of records to return (1-100)
+     *
+     * Returns:
+     * BaselineCostElementsPublic: Paginated list of baseline cost elements
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @param data.skip
+     * @param data.limit
+     * @returns BaselineCostElementsPublic Successful Response
+     * @throws ApiError
+     */
+    public static getBaselineCostElements(data: BaselineLogsGetBaselineCostElementsData): CancelablePromise<BaselineLogsGetBaselineCostElementsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}/cost-elements',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId
+            },
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
 
 export class BudgetSummaryService {
     /**

@@ -126,8 +126,111 @@ def test_baseline_snapshot_public_schema() -> None:
         department="Engineering",
         is_pmb=False,
         created_by_id=user_id,
+        baseline_id=None,
         created_at=now,
     )
 
     assert snapshot_public.snapshot_id == snapshot_id
     assert snapshot_public.milestone_type == "engineering_complete"
+    assert snapshot_public.baseline_id is None
+
+
+def test_baseline_snapshot_with_baseline_log(db: Session) -> None:
+    """Test that baseline snapshot can be linked to baseline log."""
+    from decimal import Decimal
+
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Baseline Link Test",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create a baseline log
+    from app.models import BaselineLog, BaselineLogCreate
+
+    baseline_in = BaselineLogCreate(
+        baseline_type="schedule",
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        description="Initial baseline",
+        project_id=project.project_id,
+        created_by_id=pm_user.id,
+    )
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    # Create baseline snapshot with baseline_id
+    snapshot_in = BaselineSnapshotCreate(
+        project_id=project.project_id,
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        description="Snapshot linked to baseline",
+        created_by_id=pm_user.id,
+    )
+
+    snapshot = BaselineSnapshot.model_validate(snapshot_in)
+    snapshot.baseline_id = baseline.baseline_id  # Link to baseline log
+    db.add(snapshot)
+    db.commit()
+    db.refresh(snapshot)
+
+    # Verify snapshot is linked
+    assert snapshot.baseline_id == baseline.baseline_id
+    assert hasattr(snapshot, "baseline_log")  # Relationship should exist
+
+
+def test_baseline_snapshot_without_baseline_log(db: Session) -> None:
+    """Test that baseline snapshot can exist without baseline log (nullable)."""
+    from decimal import Decimal
+
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Baseline Optional Test",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create baseline snapshot without baseline_id
+    snapshot_in = BaselineSnapshotCreate(
+        project_id=project.project_id,
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        description="Snapshot without baseline link",
+        created_by_id=pm_user.id,
+    )
+
+    snapshot = BaselineSnapshot.model_validate(snapshot_in)
+    db.add(snapshot)
+    db.commit()
+    db.refresh(snapshot)
+
+    # Verify snapshot exists without baseline_id
+    assert snapshot.baseline_id is None
+    assert snapshot.snapshot_id is not None

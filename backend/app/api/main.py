@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
+    baseline_logs,
     budget_summary,
     budget_timeline,
     cost_categories,
@@ -32,6 +33,7 @@ api_router.include_router(cost_registrations.router)
 api_router.include_router(cost_summary.router)
 api_router.include_router(budget_summary.router)
 api_router.include_router(budget_timeline.router)
+api_router.include_router(baseline_logs.router)
 
 
 if settings.ENVIRONMENT == "local":

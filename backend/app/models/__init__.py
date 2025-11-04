@@ -14,6 +14,17 @@ from app.models.audit_log import (
     AuditLogPublic,
     AuditLogUpdate,
 )
+from app.models.baseline_cost_element import (
+    BaselineCostElement,
+    BaselineCostElementBase,
+    BaselineCostElementCreate,
+    BaselineCostElementPublic,
+    BaselineCostElementsByWBEPublic,
+    BaselineCostElementsPublic,
+    BaselineCostElementUpdate,
+    BaselineCostElementWithCostElementPublic,
+    WBEWithBaselineCostElementsPublic,
+)
 from app.models.baseline_log import (
     BaselineLog,
     BaselineLogBase,
@@ -26,6 +37,7 @@ from app.models.baseline_snapshot import (
     BaselineSnapshotBase,
     BaselineSnapshotCreate,
     BaselineSnapshotPublic,
+    BaselineSnapshotSummaryPublic,
     BaselineSnapshotUpdate,
 )
 from app.models.budget_allocation import (
@@ -258,11 +270,22 @@ __all__ = [
     "BaselineLogCreate",
     "BaselineLogPublic",
     "BaselineLogUpdate",
+    # Baseline Cost Element models
+    "BaselineCostElement",
+    "BaselineCostElementBase",
+    "BaselineCostElementCreate",
+    "BaselineCostElementPublic",
+    "BaselineCostElementUpdate",
+    "BaselineCostElementWithCostElementPublic",
+    "BaselineCostElementsByWBEPublic",
+    "BaselineCostElementsPublic",
+    "WBEWithBaselineCostElementsPublic",
     # Baseline Snapshot models
     "BaselineSnapshot",
     "BaselineSnapshotBase",
     "BaselineSnapshotCreate",
     "BaselineSnapshotPublic",
+    "BaselineSnapshotSummaryPublic",
     "BaselineSnapshotUpdate",
     # Change Order models
     "ChangeOrder",

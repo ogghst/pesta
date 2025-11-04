@@ -25,6 +25,7 @@ import { DataTable } from "@/components/DataTable/DataTable"
 import type { ColumnDefExtended } from "@/components/DataTable/types"
 import PendingItems from "@/components/Pending/PendingItems"
 import AddWBE from "@/components/Projects/AddWBE"
+import BaselineLogsTable from "@/components/Projects/BaselineLogsTable"
 import BudgetSummary from "@/components/Projects/BudgetSummary"
 import BudgetTimeline from "@/components/Projects/BudgetTimeline"
 import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
@@ -35,7 +36,7 @@ import EditWBE from "@/components/Projects/EditWBE"
 const projectDetailSearchSchema = z.object({
   page: z.number().catch(1),
   tab: z
-    .enum(["info", "wbes", "summary", "cost-summary", "timeline"])
+    .enum(["info", "wbes", "summary", "cost-summary", "timeline", "baselines"])
     .catch("wbes"),
 })
 
@@ -267,7 +268,13 @@ function ProjectDetail() {
     navigate({
       search: (prev) => ({
         ...prev,
-        tab: value as "info" | "wbes" | "summary" | "cost-summary" | "timeline",
+        tab: value as
+          | "info"
+          | "wbes"
+          | "summary"
+          | "cost-summary"
+          | "timeline"
+          | "baselines",
       }),
     })
   }
@@ -328,6 +335,7 @@ function ProjectDetail() {
           <Tabs.Trigger value="summary">Budget Summary</Tabs.Trigger>
           <Tabs.Trigger value="cost-summary">Cost Summary</Tabs.Trigger>
           <Tabs.Trigger value="timeline">Budget Timeline</Tabs.Trigger>
+          <Tabs.Trigger value="baselines">Baselines</Tabs.Trigger>
         </Tabs.List>
 
         <Tabs.Content value="info">
@@ -413,6 +421,12 @@ function ProjectDetail() {
                 />
               </Box>
             )}
+          </Box>
+        </Tabs.Content>
+
+        <Tabs.Content value="baselines">
+          <Box mt={4}>
+            <BaselineLogsTable projectId={project.project_id} />
           </Box>
         </Tabs.Content>
       </Tabs.Root>
