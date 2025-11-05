@@ -1478,6 +1478,51 @@ export const CostSummaryPublicSchema = {
     description: 'Public schema for cost summary response.'
 } as const;
 
+export const CostTimelinePointPublicSchema = {
+    properties: {
+        point_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Point Date'
+        },
+        cumulative_cost: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Cumulative Cost'
+        },
+        period_cost: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Period Cost'
+        }
+    },
+    type: 'object',
+    required: ['point_date', 'cumulative_cost', 'period_cost'],
+    title: 'CostTimelinePointPublic',
+    description: 'Public schema for a single cost timeline point.'
+} as const;
+
+export const CostTimelinePublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/CostTimelinePointPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        total_cost: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Total Cost',
+            default: '0.00'
+        }
+    },
+    type: 'object',
+    title: 'CostTimelinePublic',
+    description: 'Public schema for cost timeline response.'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {

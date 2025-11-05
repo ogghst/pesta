@@ -30,6 +30,8 @@ export interface BudgetTimelineFilterProps {
     costElementIds?: string[]
     costElementTypeIds?: string[]
   }
+  displayMode?: "budget" | "costs" | "both"
+  onDisplayModeChange?: (displayMode: "budget" | "costs" | "both") => void
 }
 
 export default function BudgetTimelineFilter({
@@ -37,6 +39,8 @@ export default function BudgetTimelineFilter({
   context,
   onFilterChange,
   initialFilters = {},
+  displayMode = "budget",
+  onDisplayModeChange,
 }: BudgetTimelineFilterProps) {
   // Local state for filter selections
   const [selectedWbeIds, setSelectedWbeIds] = useState<string[]>(
@@ -175,6 +179,41 @@ export default function BudgetTimelineFilter({
         <Text fontWeight="semibold" fontSize="md">
           Filter Budget Timeline
         </Text>
+
+        {/* Display Mode Toggle */}
+        {onDisplayModeChange && (
+          <Box>
+            <Text fontSize="sm" fontWeight="medium" mb={2}>
+              Display Mode
+            </Text>
+            <HStack gap={2}>
+              <Button
+                size="sm"
+                colorPalette={displayMode === "budget" ? "blue" : "gray"}
+                variant={displayMode === "budget" ? "solid" : "outline"}
+                onClick={() => onDisplayModeChange("budget")}
+              >
+                Budget
+              </Button>
+              <Button
+                size="sm"
+                colorPalette={displayMode === "costs" ? "blue" : "gray"}
+                variant={displayMode === "costs" ? "solid" : "outline"}
+                onClick={() => onDisplayModeChange("costs")}
+              >
+                Costs
+              </Button>
+              <Button
+                size="sm"
+                colorPalette={displayMode === "both" ? "blue" : "gray"}
+                variant={displayMode === "both" ? "solid" : "outline"}
+                onClick={() => onDisplayModeChange("both")}
+              >
+                Both
+              </Button>
+            </HStack>
+          </Box>
+        )}
 
         {/* WBE Selector */}
         {showWbeSelector && (

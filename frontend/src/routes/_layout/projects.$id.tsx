@@ -236,23 +236,39 @@ function ProjectDetail() {
     costElementIds?: string[]
     costElementTypeIds?: string[]
   }>({})
+  const [displayMode, setDisplayMode] = useState<"budget" | "costs" | "both">(
+    "budget",
+  )
 
   // Fetch cost elements with schedules based on filter
+  // Normalize filter arrays for consistent query key comparison
+  const normalizedFilter = {
+    wbeIds: filter.wbeIds?.length ? [...filter.wbeIds].sort() : undefined,
+    costElementIds: filter.costElementIds?.length
+      ? [...filter.costElementIds].sort()
+      : undefined,
+    costElementTypeIds: filter.costElementTypeIds?.length
+      ? [...filter.costElementTypeIds].sort()
+      : undefined,
+  }
+
   const { data: costElements, isLoading: isLoadingCostElements } = useQuery<
     CostElementWithSchedulePublic[]
   >({
     queryFn: () =>
       BudgetTimelineService.getCostElementsWithSchedules({
         projectId: id,
-        wbeIds: filter.wbeIds?.length ? filter.wbeIds : undefined,
-        costElementIds: filter.costElementIds?.length
-          ? filter.costElementIds
-          : undefined,
-        costElementTypeIds: filter.costElementTypeIds?.length
-          ? filter.costElementTypeIds
-          : undefined,
+        wbeIds: normalizedFilter.wbeIds,
+        costElementIds: normalizedFilter.costElementIds,
+        costElementTypeIds: normalizedFilter.costElementTypeIds,
       }),
-    queryKey: ["cost-elements-with-schedules", { projectId: id, ...filter }],
+    queryKey: [
+      "cost-elements-with-schedules",
+      id,
+      normalizedFilter.wbeIds,
+      normalizedFilter.costElementIds,
+      normalizedFilter.costElementTypeIds,
+    ],
     enabled: !!id,
   })
 
@@ -390,6 +406,8 @@ function ProjectDetail() {
               projectId={project.project_id}
               context="project"
               onFilterChange={handleFilterChange}
+              displayMode={displayMode}
+              onDisplayModeChange={setDisplayMode}
             />
             {isLoadingCostElements ? (
               <Box
@@ -418,6 +436,10 @@ function ProjectDetail() {
                 <BudgetTimeline
                   costElements={costElements || []}
                   viewMode="aggregated"
+                  displayMode={displayMode}
+                  projectId={project.project_id}
+                  wbeIds={normalizedFilter.wbeIds}
+                  costElementIds={normalizedFilter.costElementIds}
                 />
               </Box>
             )}

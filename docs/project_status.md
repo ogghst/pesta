@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-01-27
 **Current Phase:** Sprint 3 In Progress
-**Overall Progress:** 40% Complete - Sprint 1 Complete, Sprint 2 Complete, Sprint 3 Started (1/7 tasks complete)
+**Overall Progress:** 43% Complete - Sprint 1 Complete, Sprint 2 Complete, Sprint 3 In Progress (2/7 tasks complete)
 
 ---
 
@@ -64,7 +64,7 @@
 | E3-001 | Cost Registration Interface | Build UI for capturing actual expenditures with attributes | ✅ Done | Complete! Backend API with cost categories endpoint and full CRUD for cost registrations. Frontend: cost element detail page with tabbed layout (info, cost-registrations), accessible via row click navigation. CostRegistrationsTable with DataTable component. Add/Edit/Delete components with form validation. Date alert for registrations outside schedule boundaries. Cost categories hardcoded (labor, materials, subcontractors) via dedicated endpoint. All 19 tests passing (3 categories + 13 registrations API + 3 models). |
 | E3-002 | Cost Aggregation Logic | Roll up individual cost transactions to element/WBE/project levels | ✅ Done | Complete! Backend API with 3 aggregation endpoints (cost-element, WBE, project) with optional is_quality_cost filter. Computed field cost_percentage_of_budget. Frontend: reusable CostSummary component integrated into Project, WBE, and Cost Element detail pages with dedicated tabs. Visual status indicators (color-coded) based on budget percentage. All 10 tests passing, no regressions. Follows budget_summary.py pattern. |
 | E3-003 | Cost Validation Rules | Ensure costs recorded against valid elements with appropriate dates | ⏳ Todo | Defined in data model validation rules. |
-| E3-004 | Cost History Views | Display all recorded costs with filtering and sorting | ⏳ Todo | Sprint 3 deliverable. Enables cost tracking and review. |
+| E3-004 | Cost History Views | Display all recorded costs with filtering and sorting | ✅ Done | Complete! Cost history integrated into Budget Timeline component. Backend: time-phased cost aggregation API endpoint `/projects/{project_id}/cost-timeline/` with filtering by WBE IDs, cost element IDs, and date range. Frontend: Enhanced BudgetTimeline component with display mode toggle (budget/costs/both), showing Planned Value (PV) vs Actual Cost (AC) for EVM comparison. Integrated into project, WBE, standalone timeline, and cost element detail pages. Color coding: Blue for PV, Red for AC. All 5 backend tests passing, no regressions. Fixed filter application issue with query key normalization. Full TDD implementation. |
 | E3-005 | Baseline Log Implementation | Build baseline tracking system for schedule and earned value baselines | 🔄 In Progress | Analysis and detailed plan complete. 13 phases defined: model updates, migration, snapshotting logic, CRUD API, frontend components, tab integration. Estimated 18-25 hours. Ready for implementation starting Phase 1. |
 | E3-006 | Earned Value Recording Interface | Build UI for documenting completed work with percentage tracking | ⏳ Todo | Sprint 4 deliverable. Calculates EV = BAC × physical completion %. |
 | E3-007 | Earned Value Baseline Management | Link earned value entries to Baseline Log entries | ⏳ Todo | Required for historical comparison and trend analysis. |

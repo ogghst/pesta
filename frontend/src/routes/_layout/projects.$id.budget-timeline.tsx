@@ -27,6 +27,9 @@ function BudgetTimelinePage() {
     costElementIds?: string[]
     costElementTypeIds?: string[]
   }>({})
+  const [displayMode, setDisplayMode] = useState<"budget" | "costs" | "both">(
+    "budget",
+  )
 
   // Fetch project data
   const { data: project, isLoading: isLoadingProject } = useQuery(
@@ -34,21 +37,34 @@ function BudgetTimelinePage() {
   )
 
   // Fetch cost elements with schedules based on filter
+  // Normalize filter arrays for consistent query key comparison
+  const normalizedFilter = {
+    wbeIds: filter.wbeIds?.length ? [...filter.wbeIds].sort() : undefined,
+    costElementIds: filter.costElementIds?.length
+      ? [...filter.costElementIds].sort()
+      : undefined,
+    costElementTypeIds: filter.costElementTypeIds?.length
+      ? [...filter.costElementTypeIds].sort()
+      : undefined,
+  }
+
   const { data: costElements, isLoading: isLoadingCostElements } = useQuery<
     CostElementWithSchedulePublic[]
   >({
     queryFn: () =>
       BudgetTimelineService.getCostElementsWithSchedules({
         projectId: projectId,
-        wbeIds: filter.wbeIds?.length ? filter.wbeIds : undefined,
-        costElementIds: filter.costElementIds?.length
-          ? filter.costElementIds
-          : undefined,
-        costElementTypeIds: filter.costElementTypeIds?.length
-          ? filter.costElementTypeIds
-          : undefined,
+        wbeIds: normalizedFilter.wbeIds,
+        costElementIds: normalizedFilter.costElementIds,
+        costElementTypeIds: normalizedFilter.costElementTypeIds,
       }),
-    queryKey: ["cost-elements-with-schedules", { projectId, ...filter }],
+    queryKey: [
+      "cost-elements-with-schedules",
+      projectId,
+      normalizedFilter.wbeIds,
+      normalizedFilter.costElementIds,
+      normalizedFilter.costElementTypeIds,
+    ],
     enabled: !!projectId,
   })
 
@@ -113,6 +129,8 @@ function BudgetTimelinePage() {
           projectId={projectId}
           context="standalone"
           onFilterChange={handleFilterChange}
+          displayMode={displayMode}
+          onDisplayModeChange={setDisplayMode}
         />
 
         {/* Timeline Visualization */}
@@ -131,6 +149,10 @@ function BudgetTimelinePage() {
           <BudgetTimeline
             costElements={costElements || []}
             viewMode="aggregated"
+            displayMode={displayMode}
+            projectId={projectId}
+            wbeIds={normalizedFilter.wbeIds}
+            costElementIds={normalizedFilter.costElementIds}
           />
         )}
       </VStack>

@@ -155,6 +155,7 @@ const costElementsColumns: ColumnDefExtended<CostElementPublic>[] = [
         <DeleteCostElement
           id={row.original.cost_element_id}
           departmentName={row.original.department_name}
+          wbeId={row.original.wbe_id}
         />
       </Flex>
     ),
@@ -255,23 +256,39 @@ function WBEDetail() {
   }>({
     wbeIds: [wbeId],
   })
+  const [displayMode, setDisplayMode] = useState<"budget" | "costs" | "both">(
+    "budget",
+  )
 
   // Fetch cost elements with schedules based on filter
+  // Normalize filter arrays for consistent query key comparison
+  const normalizedFilter = {
+    wbeIds: filter.wbeIds?.length ? [...filter.wbeIds].sort() : undefined,
+    costElementIds: filter.costElementIds?.length
+      ? [...filter.costElementIds].sort()
+      : undefined,
+    costElementTypeIds: filter.costElementTypeIds?.length
+      ? [...filter.costElementTypeIds].sort()
+      : undefined,
+  }
+
   const { data: costElements, isLoading: isLoadingCostElements } = useQuery<
     CostElementWithSchedulePublic[]
   >({
     queryFn: () =>
       BudgetTimelineService.getCostElementsWithSchedules({
         projectId: projectId,
-        wbeIds: filter.wbeIds?.length ? filter.wbeIds : undefined,
-        costElementIds: filter.costElementIds?.length
-          ? filter.costElementIds
-          : undefined,
-        costElementTypeIds: filter.costElementTypeIds?.length
-          ? filter.costElementTypeIds
-          : undefined,
+        wbeIds: normalizedFilter.wbeIds,
+        costElementIds: normalizedFilter.costElementIds,
+        costElementTypeIds: normalizedFilter.costElementTypeIds,
       }),
-    queryKey: ["cost-elements-with-schedules", { projectId, ...filter }],
+    queryKey: [
+      "cost-elements-with-schedules",
+      projectId,
+      normalizedFilter.wbeIds,
+      normalizedFilter.costElementIds,
+      normalizedFilter.costElementTypeIds,
+    ],
     enabled: !!projectId && !!wbeId,
   })
 
@@ -411,6 +428,8 @@ function WBEDetail() {
               context="wbe"
               initialFilters={{ wbeIds: [wbeId] }}
               onFilterChange={handleFilterChange}
+              displayMode={displayMode}
+              onDisplayModeChange={setDisplayMode}
             />
             {isLoadingCostElements ? (
               <Box
@@ -439,6 +458,10 @@ function WBEDetail() {
                 <BudgetTimeline
                   costElements={costElements || []}
                   viewMode="aggregated"
+                  displayMode={displayMode}
+                  projectId={projectId}
+                  wbeIds={normalizedFilter.wbeIds}
+                  costElementIds={normalizedFilter.costElementIds}
                 />
               </Box>
             )}

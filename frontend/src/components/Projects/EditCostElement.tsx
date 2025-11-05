@@ -172,6 +172,7 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
       queryClient.invalidateQueries({
         queryKey: ["cost-elements", costElement.cost_element_id],
       })
+      queryClient.invalidateQueries({ queryKey: ["cost-summary"] })
     },
   })
 

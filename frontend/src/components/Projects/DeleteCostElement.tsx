@@ -22,9 +22,14 @@ import { handleError } from "@/utils"
 interface DeleteCostElementProps {
   id: string
   departmentName: string
+  wbeId: string
 }
 
-const DeleteCostElement = ({ id, departmentName }: DeleteCostElementProps) => {
+const DeleteCostElement = ({
+  id,
+  departmentName,
+  wbeId,
+}: DeleteCostElementProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -48,6 +53,7 @@ const DeleteCostElement = ({ id, departmentName }: DeleteCostElementProps) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["cost-elements"] })
+      queryClient.invalidateQueries({ queryKey: ["cost-summary"] })
     },
   })
 

@@ -9,15 +9,24 @@ import {
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { useState } from "react"
 import { z } from "zod"
-import { CostElementsService, ProjectsService, WbesService } from "@/client"
+import type { CostElementWithSchedulePublic } from "@/client"
+import {
+  BudgetTimelineService,
+  CostElementsService,
+  ProjectsService,
+  WbesService,
+} from "@/client"
 import PendingItems from "@/components/Pending/PendingItems"
+import BudgetTimeline from "@/components/Projects/BudgetTimeline"
+import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
 import CostRegistrationsTable from "@/components/Projects/CostRegistrationsTable"
 import CostSummary from "@/components/Projects/CostSummary"
 
 const costElementDetailSearchSchema = z.object({
   tab: z
-    .enum(["info", "cost-registrations", "cost-summary"])
+    .enum(["info", "cost-registrations", "cost-summary", "timeline"])
     .catch("cost-registrations"),
 })
 
@@ -68,11 +77,35 @@ function CostElementDetail() {
     ...getCostElementQueryOptions({ id: costElementId }),
   })
 
+  // Budget Timeline state - pre-select current cost element
+  const [displayMode, setDisplayMode] = useState<"budget" | "costs" | "both">(
+    "budget",
+  )
+
+  // Fetch cost element with schedule for timeline
+  const { data: costElementsWithSchedule, isLoading: isLoadingCostElements } =
+    useQuery<CostElementWithSchedulePublic[]>({
+      queryFn: () =>
+        BudgetTimelineService.getCostElementsWithSchedules({
+          projectId: projectId,
+          costElementIds: [costElementId],
+        }),
+      queryKey: [
+        "cost-elements-with-schedules",
+        { projectId, costElementIds: [costElementId] },
+      ],
+      enabled: !!projectId && !!costElementId,
+    })
+
   const handleTabChange = (value: string) => {
     navigate({
       search: (prev) => ({
         ...prev,
-        tab: value as "info" | "cost-registrations" | "cost-summary",
+        tab: value as
+          | "info"
+          | "cost-registrations"
+          | "cost-summary"
+          | "timeline",
       }),
     })
   }
@@ -142,6 +175,7 @@ function CostElementDetail() {
             Cost Registrations
           </Tabs.Trigger>
           <Tabs.Trigger value="cost-summary">Cost Summary</Tabs.Trigger>
+          <Tabs.Trigger value="timeline">Timeline</Tabs.Trigger>
         </Tabs.List>
 
         <Tabs.Content value="info">
@@ -161,6 +195,57 @@ function CostElementDetail() {
         <Tabs.Content value="cost-summary">
           <Box mt={4}>
             <CostSummary level="cost-element" costElementId={costElementId} />
+          </Box>
+        </Tabs.Content>
+
+        <Tabs.Content value="timeline">
+          <Box mt={4}>
+            <Heading size="md" mb={4}>
+              Budget Timeline
+            </Heading>
+            <BudgetTimelineFilter
+              projectId={projectId}
+              context="cost-element"
+              initialFilters={{ costElementIds: [costElementId] }}
+              onFilterChange={() => {}} // No-op since we're on a single cost element
+              displayMode={displayMode}
+              onDisplayModeChange={setDisplayMode}
+            />
+            {isLoadingCostElements ? (
+              <Box
+                p={4}
+                borderWidth="1px"
+                borderRadius="lg"
+                bg="bg.surface"
+                mt={4}
+              >
+                <Text>Loading cost element timeline...</Text>
+              </Box>
+            ) : costElementsWithSchedule &&
+              costElementsWithSchedule.length === 0 ? (
+              <Box
+                p={4}
+                borderWidth="1px"
+                borderRadius="lg"
+                bg="bg.surface"
+                mt={4}
+              >
+                <Text color="fg.muted">
+                  No schedule found for this cost element. Please add a schedule
+                  to view the timeline.
+                </Text>
+              </Box>
+            ) : (
+              <Box mt={4}>
+                <BudgetTimeline
+                  costElements={costElementsWithSchedule || []}
+                  viewMode="aggregated"
+                  displayMode={displayMode}
+                  projectId={projectId}
+                  costElementIds={[costElementId]}
+                />
+              </Box>
+            )}
           </Box>
         </Tabs.Content>
       </Tabs.Root>

@@ -96,6 +96,10 @@ from app.models.cost_summary import (
     CostSummaryBase,
     CostSummaryPublic,
 )
+from app.models.cost_timeline import (
+    CostTimelinePointPublic,
+    CostTimelinePublic,
+)
 from app.models.department import (
     Department,
     DepartmentBase,
@@ -317,6 +321,9 @@ __all__ = [
     # Cost Summary models
     "CostSummaryBase",
     "CostSummaryPublic",
+    # Cost Timeline models
+    "CostTimelinePointPublic",
+    "CostTimelinePublic",
     # Cost Element Schedule models
     "CostElementSchedule",
     "CostElementScheduleBase",

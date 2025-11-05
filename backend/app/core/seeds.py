@@ -2,6 +2,7 @@
 import json
 import uuid
 from datetime import date
+from decimal import Decimal
 from pathlib import Path
 
 from sqlmodel import Session, select
@@ -9,6 +10,7 @@ from sqlmodel import Session, select
 from app.core.config import settings
 from app.models import (
     WBE,
+    BaselineCostElement,
     BudgetAllocation,
     BudgetAllocationCreate,
     CostElement,
@@ -18,10 +20,14 @@ from app.models import (
     CostElementType,
     CostElementTypeCreate,
     CostRegistration,
+    CostRegistrationCreate,
     Department,
     DepartmentCreate,
+    EarnedValueEntry,
+    Forecast,
     Project,
     ProjectCreate,
+    QualityEvent,
     User,
     WBECreate,
 )
@@ -195,6 +201,14 @@ def _seed_project_from_template(session: Session) -> None:
                 select(CostElement).where(CostElement.wbe_id == wbe.wbe_id)
             ).all()
             for ce in existing_cost_elements:
+                # Delete associated baseline cost elements first (to avoid foreign key violation)
+                existing_baseline_cost_elements = session.exec(
+                    select(BaselineCostElement).where(
+                        BaselineCostElement.cost_element_id == ce.cost_element_id
+                    )
+                ).all()
+                for baseline_cost_element in existing_baseline_cost_elements:
+                    session.delete(baseline_cost_element)
                 # Delete associated budget allocations first (to avoid foreign key violation)
                 existing_budget_allocations = session.exec(
                     select(BudgetAllocation).where(
@@ -219,6 +233,30 @@ def _seed_project_from_template(session: Session) -> None:
                 ).all()
                 for cost_registration in existing_cost_registrations:
                     session.delete(cost_registration)
+                # Delete associated earned value entries (to avoid foreign key violation)
+                existing_earned_value_entries = session.exec(
+                    select(EarnedValueEntry).where(
+                        EarnedValueEntry.cost_element_id == ce.cost_element_id
+                    )
+                ).all()
+                for earned_value_entry in existing_earned_value_entries:
+                    session.delete(earned_value_entry)
+                # Delete associated forecasts (to avoid foreign key violation)
+                existing_forecasts = session.exec(
+                    select(Forecast).where(
+                        Forecast.cost_element_id == ce.cost_element_id
+                    )
+                ).all()
+                for forecast in existing_forecasts:
+                    session.delete(forecast)
+                # Delete associated quality events (to avoid foreign key violation)
+                existing_quality_events = session.exec(
+                    select(QualityEvent).where(
+                        QualityEvent.cost_element_id == ce.cost_element_id
+                    )
+                ).all()
+                for quality_event in existing_quality_events:
+                    session.delete(quality_event)
                 session.delete(ce)
             session.delete(wbe)
         session.flush()
@@ -296,5 +334,32 @@ def _seed_project_from_template(session: Session) -> None:
             )
             schedule = CostElementSchedule.model_validate(schedule_data)
             session.add(schedule)
+
+            # Create cost registrations if provided in seed data
+            cost_registrations_data = ce_data.get("cost_registrations", [])
+            for cr_data in cost_registrations_data:
+                # Convert amount to Decimal if it's a float
+                amount = cr_data.get("amount", 0.0)
+                if isinstance(amount, float):
+                    amount = Decimal(str(amount))
+                elif isinstance(amount, int | str):
+                    amount = Decimal(str(amount))
+                else:
+                    amount = Decimal("0.00")
+
+                cost_registration_data = CostRegistrationCreate(
+                    cost_element_id=ce.cost_element_id,
+                    registration_date=date.fromisoformat(cr_data["registration_date"]),
+                    amount=amount,
+                    cost_category=cr_data["cost_category"],
+                    invoice_number=cr_data.get("invoice_number"),
+                    description=cr_data["description"],
+                    is_quality_cost=cr_data.get("is_quality_cost", False),
+                )
+                # Add created_by_id when creating the model (not in CostRegistrationCreate schema)
+                cr_model_data = cost_registration_data.model_dump()
+                cr_model_data["created_by_id"] = first_superuser.id
+                cost_registration = CostRegistration.model_validate(cr_model_data)
+                session.add(cost_registration)
 
     session.commit()

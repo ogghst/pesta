@@ -335,6 +335,23 @@ export type CostSummaryPublic = {
     readonly cost_percentage_of_budget: number;
 };
 
+/**
+ * Public schema for a single cost timeline point.
+ */
+export type CostTimelinePointPublic = {
+    point_date: string;
+    cumulative_cost: string;
+    period_cost: string;
+};
+
+/**
+ * Public schema for cost timeline response.
+ */
+export type CostTimelinePublic = {
+    data?: Array<CostTimelinePointPublic>;
+    total_cost?: string;
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -822,6 +839,28 @@ export type CostSummaryGetProjectCostSummaryData = {
 };
 
 export type CostSummaryGetProjectCostSummaryResponse = (CostSummaryPublic);
+
+export type CostTimelineGetProjectCostTimelineData = {
+    /**
+     * Filter by cost element IDs
+     */
+    costElementIds?: (Array<(string)> | null);
+    /**
+     * End date for time series
+     */
+    endDate?: (string | null);
+    projectId: string;
+    /**
+     * Start date for time series
+     */
+    startDate?: (string | null);
+    /**
+     * Filter by WBE IDs
+     */
+    wbeIds?: (Array<(string)> | null);
+};
+
+export type CostTimelineGetProjectCostTimelineResponse = (CostTimelinePublic);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;

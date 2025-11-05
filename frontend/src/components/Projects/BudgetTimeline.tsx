@@ -10,8 +10,12 @@ import {
   Tooltip,
 } from "chart.js"
 import "chartjs-adapter-date-fns"
+import { useQuery } from "@tanstack/react-query"
 import { Line } from "react-chartjs-2"
-import type { CostElementWithSchedulePublic } from "@/client"
+import {
+  type CostElementWithSchedulePublic,
+  CostTimelineService,
+} from "@/client"
 import type { TimePeriod } from "@/utils/progressionCalculations"
 import {
   calculateGaussianProgression,
@@ -35,12 +39,45 @@ ChartJS.register(
 export interface BudgetTimelineProps {
   costElements: CostElementWithSchedulePublic[]
   viewMode?: "aggregated" | "multi-line" // Default: "aggregated"
+  displayMode?: "budget" | "costs" | "both" // Default: "budget"
+  projectId?: string // Required for cost timeline fetching
+  wbeIds?: string[] // Optional filter for cost timeline
+  costElementIds?: string[] // Optional filter for cost timeline
 }
 
 export default function BudgetTimeline({
   costElements,
   viewMode = "aggregated",
+  displayMode = "budget",
+  projectId,
+  wbeIds,
+  costElementIds,
 }: BudgetTimelineProps) {
+  // Fetch cost timeline data if displayMode includes "costs"
+  const shouldFetchCosts = displayMode === "costs" || displayMode === "both"
+
+  // Normalize filter arrays for query key (sort to ensure consistent comparison)
+  const normalizedWbeIds = wbeIds?.length ? [...wbeIds].sort() : undefined
+  const normalizedCostElementIds = costElementIds?.length
+    ? [...costElementIds].sort()
+    : undefined
+
+  const { data: costTimelineData, isLoading: isLoadingCosts } = useQuery({
+    queryFn: () =>
+      CostTimelineService.getProjectCostTimeline({
+        projectId: projectId!,
+        wbeIds: normalizedWbeIds,
+        costElementIds: normalizedCostElementIds,
+      }),
+    queryKey: [
+      "cost-timeline",
+      projectId,
+      normalizedWbeIds,
+      normalizedCostElementIds,
+    ],
+    enabled: shouldFetchCosts && !!projectId,
+  })
+
   // Filter out cost elements without schedules
   const elementsWithSchedules = costElements.filter(
     (ce) => ce.schedule !== null && ce.schedule !== undefined,
@@ -136,13 +173,49 @@ export default function BudgetTimeline({
     })
     .filter((timeline): timeline is TimePeriod[] => timeline !== null)
 
+  // Prepare cost timeline data for chart
+  const costTimelinePoints = costTimelineData?.data || []
+  const costData = costTimelinePoints.map((point) => ({
+    x: new Date(point.point_date),
+    y: parseFloat(point.cumulative_cost),
+  }))
+
   // Check if we have any valid timelines after filtering
-  if (timelines.length === 0) {
+  // Also check if we need budget data (displayMode includes "budget")
+  const shouldShowBudget = displayMode === "budget" || displayMode === "both"
+  const shouldShowCosts = displayMode === "costs" || displayMode === "both"
+
+  if (shouldShowBudget && timelines.length === 0 && !shouldShowCosts) {
     return (
       <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface">
         <Text color="fg.muted">
           No valid timelines found. Some cost elements may have invalid schedule
           dates or negative budgets.
+        </Text>
+      </Box>
+    )
+  }
+
+  if (shouldShowCosts && costData.length === 0 && !shouldShowBudget) {
+    return (
+      <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface">
+        <Text color="fg.muted">
+          No cost data available for the selected filters.
+        </Text>
+      </Box>
+    )
+  }
+
+  if (
+    shouldShowBudget &&
+    timelines.length === 0 &&
+    shouldShowCosts &&
+    costData.length === 0
+  ) {
+    return (
+      <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface">
+        <Text color="fg.muted">
+          No budget or cost data available for the selected filters.
         </Text>
       </Box>
     )
@@ -154,108 +227,53 @@ export default function BudgetTimeline({
 
   if (viewMode === "aggregated") {
     // Aggregate all timelines into one
-    const aggregated = aggregateTimelines(timelines)
+    const aggregated = shouldShowBudget ? aggregateTimelines(timelines) : []
 
-    chartData = {
-      labels: aggregated.map((period) => period.date),
-      datasets: [
-        {
-          label: "Aggregated Budget",
-          data: aggregated.map((period) => ({
-            x: period.date,
-            y: period.cumulativeBudget,
-          })),
-          borderColor: "#3182ce", // blue.500
-          backgroundColor: "rgba(49, 130, 206, 0.1)",
-          borderWidth: 2,
-          fill: true,
-        },
-      ],
+    // Build datasets array
+    const datasets: any[] = []
+
+    // Add PV (Planned Value) dataset if showing budget
+    if (shouldShowBudget && aggregated.length > 0) {
+      datasets.push({
+        label: "Planned Value (PV)",
+        data: aggregated.map((period) => ({
+          x: period.date,
+          y: period.cumulativeBudget,
+        })),
+        borderColor: "#3182ce", // blue.500
+        backgroundColor: "rgba(49, 130, 206, 0.1)",
+        borderWidth: 2,
+        fill: false,
+      })
     }
 
-    chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        intersect: false,
-        mode: "index" as const,
-      },
-      plugins: {
-        legend: {
-          display: true,
-          position: "top" as const,
-        },
-        tooltip: {
-          callbacks: {
-            label: (context: any) => {
-              const value = context.parsed.y
-              return `Budget: €${value.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}`
-            },
-          },
-        },
-      },
-      scales: {
-        x: {
-          type: "time" as const,
-          time: {
-            unit: "day" as const,
-            displayFormats: {
-              day: "MMM d, yyyy",
-            },
-          },
-          title: {
-            display: true,
-            text: "Date",
-          },
-        },
-        y: {
-          title: {
-            display: true,
-            text: "Cumulative Budget (€)",
-          },
-          ticks: {
-            callback: (value: number) => {
-              return `€${value.toLocaleString("en-US", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              })}`
-            },
-          },
-        },
-      },
+    // Add AC (Actual Cost) dataset if showing costs
+    if (shouldShowCosts && costData.length > 0) {
+      datasets.push({
+        label: "Actual Cost (AC)",
+        data: costData,
+        borderColor: "#f56565", // red.500
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        fill: false,
+      })
     }
-  } else {
-    // Multi-line mode: one line per cost element
-    const colors = [
-      "#3182ce", // blue.500
-      "#48bb78", // green.500
-      "#ed8936", // orange.500
-      "#9f7aea", // purple.500
-      "#f56565", // red.500
-      "#38b2ac", // teal.500
+
+    // Use combined date range for labels
+    const allDates = [
+      ...(shouldShowBudget ? aggregated.map((p) => p.date) : []),
+      ...(shouldShowCosts
+        ? costTimelinePoints.map((p) => new Date(p.point_date))
+        : []),
     ]
+    const uniqueDates = Array.from(
+      new Set(allDates.map((d) => d.getTime())),
+    ).map((t) => new Date(t))
+    uniqueDates.sort((a, b) => a.getTime() - b.getTime())
 
     chartData = {
-      labels: timelines.flatMap((timeline) =>
-        timeline.map((period) => period.date),
-      ),
-      datasets: elementsWithSchedules.map((ce, index) => {
-        const timeline = timelines[index]
-        return {
-          label: `${ce.department_name} (€${Number(ce.budget_bac).toLocaleString()})`,
-          data: timeline.map((period) => ({
-            x: period.date,
-            y: period.cumulativeBudget,
-          })),
-          borderColor: colors[index % colors.length],
-          backgroundColor: "transparent",
-          borderWidth: 2,
-          fill: false,
-        }
-      }),
+      labels: uniqueDates,
+      datasets,
     }
 
     chartOptions = {
@@ -300,7 +318,137 @@ export default function BudgetTimeline({
         y: {
           title: {
             display: true,
-            text: "Cumulative Budget (€)",
+            text:
+              shouldShowBudget && shouldShowCosts
+                ? "Cumulative Amount (€)"
+                : shouldShowBudget
+                  ? "Cumulative Budget (€)"
+                  : "Cumulative Cost (€)",
+          },
+          ticks: {
+            callback: (value: number) => {
+              return `€${value.toLocaleString("en-US", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}`
+            },
+          },
+        },
+      },
+    }
+  } else {
+    // Multi-line mode: one line per cost element for budget, single line for costs
+    const colors = [
+      "#3182ce", // blue.500
+      "#48bb78", // green.500
+      "#ed8936", // orange.500
+      "#9f7aea", // purple.500
+      "#f56565", // red.500
+      "#38b2ac", // teal.500
+    ]
+
+    // Build datasets array
+    const datasets: any[] = []
+
+    // Add PV (Planned Value) datasets for each cost element if showing budget
+    if (shouldShowBudget) {
+      elementsWithSchedules.forEach((ce, index) => {
+        const timeline = timelines[index]
+        if (timeline) {
+          datasets.push({
+            label: `${ce.department_name} - PV (€${Number(ce.budget_bac).toLocaleString()})`,
+            data: timeline.map((period) => ({
+              x: period.date,
+              y: period.cumulativeBudget,
+            })),
+            borderColor: colors[index % colors.length],
+            backgroundColor: "transparent",
+            borderWidth: 2,
+            fill: false,
+          })
+        }
+      })
+    }
+
+    // Add AC (Actual Cost) dataset if showing costs
+    if (shouldShowCosts && costData.length > 0) {
+      datasets.push({
+        label: "Actual Cost (AC)",
+        data: costData,
+        borderColor: "#f56565", // red.500
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        fill: false,
+      })
+    }
+
+    // Use combined date range for labels
+    const allDates = [
+      ...(shouldShowBudget
+        ? timelines.flatMap((timeline) => timeline.map((period) => period.date))
+        : []),
+      ...(shouldShowCosts
+        ? costTimelinePoints.map((p) => new Date(p.point_date))
+        : []),
+    ]
+    const uniqueDates = Array.from(
+      new Set(allDates.map((d) => d.getTime())),
+    ).map((t) => new Date(t))
+    uniqueDates.sort((a, b) => a.getTime() - b.getTime())
+
+    chartData = {
+      labels: uniqueDates,
+      datasets,
+    }
+
+    chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: "index" as const,
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: "top" as const,
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: any) => {
+              const datasetLabel = context.dataset.label || ""
+              const value = context.parsed.y
+              return `${datasetLabel}: €${value.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          type: "time" as const,
+          time: {
+            unit: "day" as const,
+            displayFormats: {
+              day: "MMM d, yyyy",
+            },
+          },
+          title: {
+            display: true,
+            text: "Date",
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text:
+              shouldShowBudget && shouldShowCosts
+                ? "Cumulative Amount (€)"
+                : shouldShowBudget
+                  ? "Cumulative Budget (€)"
+                  : "Cumulative Cost (€)",
           },
           ticks: {
             callback: (value: number) => {
@@ -318,13 +466,43 @@ export default function BudgetTimeline({
   return (
     <Box borderWidth="1px" borderRadius="lg" p={4} bg="bg.surface" mb={4}>
       <VStack gap={4} align="stretch">
-        <Heading size="md">Budget Timeline</Heading>
+        <Heading size="md">
+          {displayMode === "both"
+            ? "Budget & Cost Timeline"
+            : displayMode === "costs"
+              ? "Cost Timeline"
+              : "Budget Timeline"}
+        </Heading>
         <Box height="400px">
           <Line data={chartData} options={chartOptions} />
         </Box>
         <Text fontSize="sm" color="fg.muted">
-          Showing {elementsWithSchedules.length} cost element(s)
-          {viewMode === "aggregated" ? " (aggregated)" : " (individual lines)"}
+          {displayMode === "both" && (
+            <>
+              Showing {elementsWithSchedules.length} cost element(s) for budget
+              {costTimelineData?.data && costTimelineData.data.length > 0 && (
+                <>
+                  {" "}
+                  and {costTimelineData.data.length} cost point(s) for actual
+                  costs
+                </>
+              )}
+            </>
+          )}
+          {displayMode === "budget" && (
+            <>
+              Showing {elementsWithSchedules.length} cost element(s)
+              {viewMode === "aggregated"
+                ? " (aggregated)"
+                : " (individual lines)"}
+            </>
+          )}
+          {displayMode === "costs" && (
+            <>
+              Showing {costTimelineData?.data?.length || 0} cost point(s) for
+              actual costs
+            </>
+          )}
         </Text>
       </VStack>
     </Box>
