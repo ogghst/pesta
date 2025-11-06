@@ -8,7 +8,7 @@ import type { ColumnDefExtended } from "@/components/DataTable/types"
 import AddBaselineLog from "@/components/Projects/AddBaselineLog"
 import CancelBaselineLog from "@/components/Projects/CancelBaselineLog"
 import EditBaselineLog from "@/components/Projects/EditBaselineLog"
-import ViewBaselineSnapshot from "@/components/Projects/ViewBaselineSnapshot"
+import ViewBaseline from "@/components/Projects/ViewBaseline"
 
 interface BaselineLogsTableProps {
   projectId: string
@@ -164,7 +164,7 @@ function BaselineLogsTable({ projectId }: BaselineLogsTableProps) {
         const baseline = row.original
         return (
           <Flex gap={2}>
-            <ViewBaselineSnapshot
+            <ViewBaseline
               baseline={baseline}
               projectId={projectId}
               trigger={

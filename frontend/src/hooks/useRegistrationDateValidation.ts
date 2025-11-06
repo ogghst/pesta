@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 
 import { CostElementSchedulesService } from "@/client"
+import { ApiError } from "@/client/core/ApiError"
 
 interface UseRegistrationDateValidationResult {
   isValid: boolean

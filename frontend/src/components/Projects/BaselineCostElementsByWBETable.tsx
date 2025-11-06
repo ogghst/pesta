@@ -128,7 +128,7 @@ export default function BaselineCostElementsByWBETable({
   if (isLoading) {
     return (
       <Box>
-        <SkeletonText noOfLines={10} spacing={4} />
+        <SkeletonText noOfLines={10} gap={4} />
       </Box>
     )
   }

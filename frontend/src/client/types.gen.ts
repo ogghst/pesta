@@ -45,6 +45,8 @@ export type BaselineLogBase = {
     milestone_type: string;
     description?: (string | null);
     is_cancelled?: boolean;
+    department?: (string | null);
+    is_pmb?: boolean;
 };
 
 /**
@@ -56,6 +58,8 @@ export type BaselineLogPublic = {
     milestone_type: string;
     description?: (string | null);
     is_cancelled?: boolean;
+    department?: (string | null);
+    is_pmb?: boolean;
     baseline_id: string;
     project_id: string;
     created_by_id: string;
@@ -71,6 +75,8 @@ export type BaselineLogUpdate = {
     milestone_type?: (string | null);
     description?: (string | null);
     is_cancelled?: (boolean | null);
+    department?: (string | null);
+    is_pmb?: (boolean | null);
 };
 
 /**

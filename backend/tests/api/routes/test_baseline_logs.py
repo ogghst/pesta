@@ -7,7 +7,9 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
 from app import crud
-from app.api.routes.baseline_logs import create_baseline_snapshot_for_baseline_log
+from app.api.routes.baseline_logs import (
+    create_baseline_cost_elements_for_baseline_log,
+)
 from app.core.config import settings
 from app.models import (
     WBE,
@@ -32,8 +34,10 @@ from app.models import (
 )
 
 
-def test_create_baseline_snapshot_with_cost_elements(db: Session) -> None:
-    """Test creating baseline snapshot with cost elements."""
+def test_create_baseline_cost_elements_with_cost_elements(db: Session) -> None:
+    """Test creating baseline cost elements with cost elements."""
+    from app.models import BaselineSnapshot
+
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
     password = "testpassword123"
@@ -42,7 +46,7 @@ def test_create_baseline_snapshot_with_cost_elements(db: Session) -> None:
 
     # Create a project
     project_in = ProjectCreate(
-        project_name="Snapshot Test Project",
+        project_name="Cost Elements Test Project",
         customer_name="Test Customer",
         contract_value=Decimal("100000.00"),
         start_date=date(2024, 1, 1),
@@ -115,18 +119,22 @@ def test_create_baseline_snapshot_with_cost_elements(db: Session) -> None:
     db.commit()
     db.refresh(baseline)
 
-    # Create snapshot
-    snapshot = create_baseline_snapshot_for_baseline_log(
+    # Create baseline cost elements (NO BaselineSnapshot)
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
+    db.commit()
+    db.refresh(baseline)
 
-    # Verify snapshot was created
-    assert snapshot.snapshot_id is not None
-    assert snapshot.baseline_id == baseline.baseline_id
-    assert snapshot.project_id == project.project_id
+    # Verify NO BaselineSnapshot was created
+    snapshots = db.exec(
+        select(BaselineSnapshot).where(
+            BaselineSnapshot.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
 
     # Verify BaselineCostElement was created
-
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
             BaselineCostElement.baseline_id == baseline.baseline_id
@@ -142,8 +150,10 @@ def test_create_baseline_snapshot_with_cost_elements(db: Session) -> None:
     assert bce.earned_ev is None  # No earned value yet
 
 
-def test_create_baseline_snapshot_with_no_cost_elements(db: Session) -> None:
-    """Test creating baseline snapshot with no cost elements."""
+def test_create_baseline_cost_elements_with_no_cost_elements(db: Session) -> None:
+    """Test creating baseline cost elements with no cost elements."""
+    from app.models import BaselineSnapshot
+
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
     password = "testpassword123"
@@ -178,17 +188,22 @@ def test_create_baseline_snapshot_with_no_cost_elements(db: Session) -> None:
     db.commit()
     db.refresh(baseline)
 
-    # Create snapshot
-    snapshot = create_baseline_snapshot_for_baseline_log(
+    # Create baseline cost elements (NO BaselineSnapshot)
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
+    db.commit()
+    db.refresh(baseline)
 
-    # Verify snapshot was created
-    assert snapshot.snapshot_id is not None
-    assert snapshot.baseline_id == baseline.baseline_id
+    # Verify NO BaselineSnapshot was created
+    snapshots = db.exec(
+        select(BaselineSnapshot).where(
+            BaselineSnapshot.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
 
     # Verify no BaselineCostElement was created (no cost elements)
-
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
             BaselineCostElement.baseline_id == baseline.baseline_id
@@ -197,8 +212,10 @@ def test_create_baseline_snapshot_with_no_cost_elements(db: Session) -> None:
     assert len(baseline_cost_elements) == 0
 
 
-def test_create_baseline_snapshot_aggregates_actual_cost(db: Session) -> None:
-    """Test that snapshot aggregates actual cost from cost registrations."""
+def test_create_baseline_cost_elements_aggregates_actual_cost(db: Session) -> None:
+    """Test that baseline cost elements aggregates actual cost from cost registrations."""
+    from app.models import BaselineSnapshot
+
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
     password = "testpassword123"
@@ -302,13 +319,21 @@ def test_create_baseline_snapshot_aggregates_actual_cost(db: Session) -> None:
     db.commit()
     db.refresh(baseline)
 
-    # Create snapshot
-    create_baseline_snapshot_for_baseline_log(
+    # Create baseline cost elements (NO BaselineSnapshot)
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
+    db.commit()
+
+    # Verify NO BaselineSnapshot was created
+    snapshots = db.exec(
+        select(BaselineSnapshot).where(
+            BaselineSnapshot.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
 
     # Verify actual_ac was aggregated
-
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
             BaselineCostElement.baseline_id == baseline.baseline_id
@@ -319,8 +344,12 @@ def test_create_baseline_snapshot_aggregates_actual_cost(db: Session) -> None:
     assert bce.actual_ac == Decimal("15000.00")  # 10000 + 5000
 
 
-def test_create_baseline_snapshot_includes_forecast_eac_if_exists(db: Session) -> None:
-    """Test that snapshot includes forecast EAC if current forecast exists."""
+def test_create_baseline_cost_elements_includes_forecast_eac_if_exists(
+    db: Session,
+) -> None:
+    """Test that baseline cost elements includes forecast EAC if current forecast exists."""
+    from app.models import BaselineSnapshot
+
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
     password = "testpassword123"
@@ -415,13 +444,21 @@ def test_create_baseline_snapshot_includes_forecast_eac_if_exists(db: Session) -
     db.commit()
     db.refresh(baseline)
 
-    # Create snapshot
-    create_baseline_snapshot_for_baseline_log(
+    # Create baseline cost elements (NO BaselineSnapshot)
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
+    db.commit()
+
+    # Verify NO BaselineSnapshot was created
+    snapshots = db.exec(
+        select(BaselineSnapshot).where(
+            BaselineSnapshot.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
 
     # Verify forecast_eac was included
-
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
             BaselineCostElement.baseline_id == baseline.baseline_id
@@ -432,8 +469,12 @@ def test_create_baseline_snapshot_includes_forecast_eac_if_exists(db: Session) -
     assert bce.forecast_eac == Decimal("52000.00")
 
 
-def test_create_baseline_snapshot_includes_earned_ev_if_exists(db: Session) -> None:
-    """Test that snapshot includes earned value if latest earned value entry exists."""
+def test_create_baseline_cost_elements_includes_earned_ev_if_exists(
+    db: Session,
+) -> None:
+    """Test that baseline cost elements includes earned value if latest earned value entry exists."""
+    from app.models import BaselineSnapshot
+
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
     password = "testpassword123"
@@ -537,13 +578,21 @@ def test_create_baseline_snapshot_includes_earned_ev_if_exists(db: Session) -> N
     db.commit()
     db.refresh(baseline)
 
-    # Create snapshot
-    create_baseline_snapshot_for_baseline_log(
+    # Create baseline cost elements (NO BaselineSnapshot)
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
+    db.commit()
+
+    # Verify NO BaselineSnapshot was created
+    snapshots = db.exec(
+        select(BaselineSnapshot).where(
+            BaselineSnapshot.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
 
     # Verify earned_ev was included (should be latest by completion_date)
-
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
             BaselineCostElement.baseline_id == baseline.baseline_id
@@ -1263,3 +1312,305 @@ def test_cancel_baseline_log_already_cancelled(
     assert response.status_code == 200
     content = response.json()
     assert content["is_cancelled"] is True
+
+
+def test_create_baseline_cost_elements_no_snapshot(db: Session) -> None:
+    """Test refactored function creates BaselineCostElement but NOT BaselineSnapshot."""
+    from app.models import BaselineSnapshot
+
+    # Create a user
+    email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    # Create a project
+    project_in = ProjectCreate(
+        project_name="Refactored Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=user.id,
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create a WBE
+    wbe_in = WBECreate(
+        machine_type="Test Machine",
+        project_id=project.project_id,
+    )
+    wbe = WBE.model_validate(wbe_in)
+    db.add(wbe)
+    db.commit()
+    db.refresh(wbe)
+
+    # Create Department and CostElementType
+    unique_dept_code = f"DEPT_{uuid.uuid4().hex[:8]}"
+    dept_in = DepartmentCreate(
+        department_code=unique_dept_code,
+        department_name="Test Department",
+    )
+    dept = Department.model_validate(dept_in)
+    db.add(dept)
+    db.commit()
+    db.refresh(dept)
+
+    unique_type_code = f"TYPE_{uuid.uuid4().hex[:8]}"
+    cost_element_type_in = CostElementTypeCreate(
+        type_code=unique_type_code,
+        type_name="Test Type",
+        category_type="labor",
+        department_id=dept.department_id,
+    )
+    cost_element_type = CostElementType.model_validate(cost_element_type_in)
+    db.add(cost_element_type)
+    db.commit()
+    db.refresh(cost_element_type)
+
+    # Create a cost element
+    cost_element_in = CostElementCreate(
+        department_code=unique_dept_code,
+        department_name="Test Department",
+        budget_bac=Decimal("50000.00"),
+        revenue_plan=Decimal("60000.00"),
+        wbe_id=wbe.wbe_id,
+        cost_element_type_id=cost_element_type.cost_element_type_id,
+    )
+    cost_element = CostElement.model_validate(cost_element_in)
+    db.add(cost_element)
+    db.commit()
+    db.refresh(cost_element)
+
+    # Create a baseline log with department and is_pmb
+    baseline_in = BaselineLogCreate(
+        baseline_type="schedule",
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        description="Initial baseline",
+        department="Engineering",
+        is_pmb=True,
+        project_id=project.project_id,
+        created_by_id=user.id,
+    )
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    # Call refactored function
+    create_baseline_cost_elements_for_baseline_log(
+        session=db,
+        baseline_log=baseline,
+        created_by_id=user.id,
+        department="Engineering",
+        is_pmb=True,
+    )
+    db.commit()
+    db.refresh(baseline)
+
+    # Verify NO BaselineSnapshot was created
+    snapshots = db.exec(
+        select(BaselineSnapshot).where(
+            BaselineSnapshot.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
+
+    # Verify BaselineCostElement WAS created
+    baseline_cost_elements = db.exec(
+        select(BaselineCostElement).where(
+            BaselineCostElement.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert len(baseline_cost_elements) == 1
+    bce = baseline_cost_elements[0]
+    assert bce.cost_element_id == cost_element.cost_element_id
+    assert bce.budget_bac == Decimal("50000.00")
+    assert bce.revenue_plan == Decimal("60000.00")
+
+    # Verify department and is_pmb are set on BaselineLog
+    assert baseline.department == "Engineering"
+    assert baseline.is_pmb is True
+
+
+def test_create_baseline_log_with_department_and_is_pmb_via_api(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test POST endpoint accepts department and is_pmb and does NOT create BaselineSnapshot."""
+    from app.models import BaselineSnapshot
+
+    # Create a user
+    email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    # Create a project
+    project_in = ProjectCreate(
+        project_name="API Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=user.id,
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create baseline via API with department and is_pmb
+    data = {
+        "baseline_type": "combined",
+        "baseline_date": "2024-01-15",
+        "milestone_type": "kickoff",
+        "description": "PMB baseline",
+        "department": "Engineering",
+        "is_pmb": True,
+    }
+    response = client.post(
+        f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["department"] == "Engineering"
+    assert content["is_pmb"] is True
+    baseline_id = uuid.UUID(content["baseline_id"])
+
+    # Verify NO BaselineSnapshot was created
+    snapshots = db.exec(
+        select(BaselineSnapshot).where(BaselineSnapshot.baseline_id == baseline_id)
+    ).all()
+    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created via API"
+
+
+def test_get_baseline_snapshot_summary_uses_baseline_log_data(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test GET snapshot endpoint returns BaselineLog data without requiring BaselineSnapshot."""
+    from app.models import BaselineSnapshot
+
+    # Create a user
+    email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    # Create a project
+    project_in = ProjectCreate(
+        project_name="Summary Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=user.id,
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create a WBE and cost element
+    wbe_in = WBECreate(
+        machine_type="Test Machine",
+        project_id=project.project_id,
+    )
+    wbe = WBE.model_validate(wbe_in)
+    db.add(wbe)
+    db.commit()
+    db.refresh(wbe)
+
+    unique_dept_code = f"DEPT_{uuid.uuid4().hex[:8]}"
+    dept_in = DepartmentCreate(
+        department_code=unique_dept_code,
+        department_name="Test Department",
+    )
+    dept = Department.model_validate(dept_in)
+    db.add(dept)
+    db.commit()
+    db.refresh(dept)
+
+    unique_type_code = f"TYPE_{uuid.uuid4().hex[:8]}"
+    cost_element_type_in = CostElementTypeCreate(
+        type_code=unique_type_code,
+        type_name="Test Type",
+        category_type="labor",
+        department_id=dept.department_id,
+    )
+    cost_element_type = CostElementType.model_validate(cost_element_type_in)
+    db.add(cost_element_type)
+    db.commit()
+    db.refresh(cost_element_type)
+
+    cost_element_in = CostElementCreate(
+        department_code=unique_dept_code,
+        department_name="Test Department",
+        budget_bac=Decimal("50000.00"),
+        revenue_plan=Decimal("60000.00"),
+        wbe_id=wbe.wbe_id,
+        cost_element_type_id=cost_element_type.cost_element_type_id,
+    )
+    cost_element = CostElement.model_validate(cost_element_in)
+    db.add(cost_element)
+    db.commit()
+    db.refresh(cost_element)
+
+    # Create baseline log with department and is_pmb (NO BaselineSnapshot)
+    baseline_in = BaselineLogCreate(
+        baseline_type="schedule",
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        description="Test baseline",
+        department="Engineering",
+        is_pmb=True,
+        project_id=project.project_id,
+        created_by_id=user.id,
+    )
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    # Create BaselineCostElement directly (no BaselineSnapshot)
+    from app.models import BaselineCostElementCreate
+
+    bce_in = BaselineCostElementCreate(
+        baseline_id=baseline.baseline_id,
+        cost_element_id=cost_element.cost_element_id,
+        budget_bac=Decimal("50000.00"),
+        revenue_plan=Decimal("60000.00"),
+    )
+    bce = BaselineCostElement.model_validate(bce_in)
+    db.add(bce)
+    db.commit()
+
+    # Verify NO BaselineSnapshot exists
+    snapshots = db.exec(
+        select(BaselineSnapshot).where(
+            BaselineSnapshot.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert len(snapshots) == 0
+
+    # Call GET snapshot endpoint - should work without BaselineSnapshot
+    response = client.get(
+        f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/{baseline.baseline_id}/snapshot",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+
+    # Verify response uses BaselineLog data (not BaselineSnapshot)
+    assert content["baseline_id"] == str(baseline.baseline_id)
+    assert content["baseline_date"] == "2024-01-15"
+    assert content["milestone_type"] == "kickoff"
+    assert content["description"] == "Test baseline"
+    assert content["total_budget_bac"] == "50000.00"
+    assert content["total_revenue_plan"] == "60000.00"
+    assert content["cost_element_count"] == 1

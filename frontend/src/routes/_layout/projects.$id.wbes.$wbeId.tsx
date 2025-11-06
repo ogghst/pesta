@@ -301,16 +301,12 @@ function WBEDetail() {
   }
 
   const handleTabChange = (value: string) => {
+    const currentSearch = Route.useSearch()
     navigate({
-      search: (prev) => ({
-        ...prev,
-        tab: value as
-          | "info"
-          | "cost-elements"
-          | "summary"
-          | "cost-summary"
-          | "timeline",
-      }),
+      search: {
+        page: currentSearch.page,
+        tab: value,
+      } as any,
     })
   }
 

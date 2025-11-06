@@ -163,6 +163,7 @@ const EditBaselineLog = ({ baseline, projectId }: EditBaselineLogProps) => {
                       render={({ field }) => (
                         <select
                           {...field}
+                          value={field.value ?? ""}
                           style={{
                             width: "100%",
                             padding: "8px",
@@ -200,6 +201,7 @@ const EditBaselineLog = ({ baseline, projectId }: EditBaselineLogProps) => {
                       render={({ field }) => (
                         <select
                           {...field}
+                          value={field.value ?? ""}
                           style={{
                             width: "100%",
                             padding: "8px",

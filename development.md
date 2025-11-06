@@ -12,11 +12,11 @@ docker compose watch
 
 Frontend, built with Docker, with routes handled based on the path: http://localhost:5173
 
-Backend, JSON based web API based on OpenAPI: http://localhost:8000
+Backend, JSON based web API based on OpenAPI: http://localhost:8010
 
-Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost:8000/docs
+Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost:8010/docs
 
-Adminer, database web administration: http://localhost:8080
+Adminer, database web administration: http://localhost:6080
 
 Traefik UI, to see how the routes are being handled by the proxy: http://localhost:8090
 
@@ -38,7 +38,7 @@ docker compose logs backend
 
 The Docker Compose files are configured so that each of the services is available in a different port in `localhost`.
 
-For the backend and frontend, they use the same port that would be used by their local development server, so, the backend is at `http://localhost:8000` and the frontend at `http://localhost:5173`.
+For the backend and frontend, they use the same port that would be used by their local development server, so, the backend is at `http://localhost:8010` and the frontend at `http://localhost:5173`.
 
 This way, you could turn off a Docker Compose service and start its local development service, and everything would keep working, because it all uses the same ports.
 
@@ -176,13 +176,13 @@ Development URLs, for local development.
 
 Frontend: http://localhost:5173
 
-Backend: http://localhost:8000
+Backend: http://localhost:8010
 
-Automatic Interactive Docs (Swagger UI): http://localhost:8000/docs
+Automatic Interactive Docs (Swagger UI): http://localhost:8010/docs
 
-Automatic Alternative Docs (ReDoc): http://localhost:8000/redoc
+Automatic Alternative Docs (ReDoc): http://localhost:8010/redoc
 
-Adminer: http://localhost:8080
+Adminer: http://localhost:6080
 
 Traefik UI: http://localhost:8090
 
@@ -200,7 +200,7 @@ Automatic Interactive Docs (Swagger UI): http://api.localhost.tiangolo.com/docs
 
 Automatic Alternative Docs (ReDoc): http://api.localhost.tiangolo.com/redoc
 
-Adminer: http://localhost.tiangolo.com:8080
+Adminer: http://localhost.tiangolo.com:6080
 
 Traefik UI: http://localhost.tiangolo.com:8090
 

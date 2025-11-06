@@ -62,7 +62,7 @@ export default function BudgetTimeline({
     ? [...costElementIds].sort()
     : undefined
 
-  const { data: costTimelineData, isLoading: isLoadingCosts } = useQuery({
+  const { data: costTimelineData } = useQuery({
     queryFn: () =>
       CostTimelineService.getProjectCostTimeline({
         projectId: projectId!,

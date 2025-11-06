@@ -100,7 +100,7 @@ function BudgetTimelinePage() {
           <Link
             to="/projects/$id"
             params={{ id: projectId } as any}
-            search={{ page: 1 }}
+            search={{ page: 1, tab: "wbes" } as any}
             style={{ textDecoration: "none" }}
           >
             <Text

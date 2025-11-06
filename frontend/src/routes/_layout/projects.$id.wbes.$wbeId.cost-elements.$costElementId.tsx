@@ -30,8 +30,6 @@ const costElementDetailSearchSchema = z.object({
     .catch("cost-registrations"),
 })
 
-const _PER_PAGE = 10
-
 function getProjectQueryOptions({ id }: { id: string }) {
   return {
     queryFn: () => ProjectsService.readProject({ id }),
@@ -99,14 +97,9 @@ function CostElementDetail() {
 
   const handleTabChange = (value: string) => {
     navigate({
-      search: (prev) => ({
-        ...prev,
-        tab: value as
-          | "info"
-          | "cost-registrations"
-          | "cost-summary"
-          | "timeline",
-      }),
+      search: {
+        tab: value,
+      } as any,
     })
   }
 

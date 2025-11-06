@@ -11,19 +11,19 @@ import {
 } from "@/components/ui/dialog"
 import BaselineCostElementsByWBETable from "./BaselineCostElementsByWBETable"
 import BaselineCostElementsTable from "./BaselineCostElementsTable"
-import BaselineSnapshotSummary from "./BaselineSnapshotSummary"
+import BaselineSummary from "./BaselineSummary"
 
-interface ViewBaselineSnapshotProps {
+interface ViewBaselineProps {
   baseline: BaselineLogPublic
   projectId: string
   trigger?: React.ReactNode
 }
 
-export default function ViewBaselineSnapshot({
+export default function ViewBaseline({
   baseline,
   projectId,
   trigger,
-}: ViewBaselineSnapshotProps) {
+}: ViewBaselineProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("by-wbe")
 
@@ -46,7 +46,7 @@ export default function ViewBaselineSnapshot({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>View Baseline Snapshot</DialogTitle>
+          <DialogTitle>View Baseline</DialogTitle>
           {baseline.description && (
             <Box mt={2}>
               <Box as="span" fontSize="sm" color="gray.600">
@@ -71,7 +71,7 @@ export default function ViewBaselineSnapshot({
 
             <Tabs.Content value="summary">
               <Box mt={4}>
-                <BaselineSnapshotSummary
+                <BaselineSummary
                   projectId={projectId}
                   baselineId={baselineId}
                 />

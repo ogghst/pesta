@@ -176,6 +176,23 @@ export const BaselineLogBaseSchema = {
             type: 'boolean',
             title: 'Is Cancelled',
             default: false
+        },
+        department: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department'
+        },
+        is_pmb: {
+            type: 'boolean',
+            title: 'Is Pmb',
+            default: false
         }
     },
     type: 'object',
@@ -215,6 +232,23 @@ export const BaselineLogPublicSchema = {
         is_cancelled: {
             type: 'boolean',
             title: 'Is Cancelled',
+            default: false
+        },
+        department: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department'
+        },
+        is_pmb: {
+            type: 'boolean',
+            title: 'Is Pmb',
             default: false
         },
         baseline_id: {
@@ -303,6 +337,29 @@ export const BaselineLogUpdateSchema = {
                 }
             ],
             title: 'Is Cancelled'
+        },
+        department: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Department'
+        },
+        is_pmb: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Pmb'
         }
     },
     type: 'object',

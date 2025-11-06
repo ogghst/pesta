@@ -10,15 +10,15 @@ import { useQuery } from "@tanstack/react-query"
 import type { BaselineSnapshotSummaryPublic } from "@/client"
 import { BaselineLogsService } from "@/client"
 
-interface BaselineSnapshotSummaryProps {
+interface BaselineSummaryProps {
   projectId: string
   baselineId: string
 }
 
-export default function BaselineSnapshotSummary({
+export default function BaselineSummary({
   projectId,
   baselineId,
-}: BaselineSnapshotSummaryProps) {
+}: BaselineSummaryProps) {
   const queryKey = ["baseline-snapshot-summary", projectId, baselineId]
 
   const { data: summary, isLoading } = useQuery<BaselineSnapshotSummaryPublic>({
@@ -51,7 +51,7 @@ export default function BaselineSnapshotSummary({
     return (
       <Box mb={6}>
         <Heading size="md" mb={4}>
-          Baseline Snapshot Summary
+          Baseline Summary
         </Heading>
         <Grid
           templateColumns={{

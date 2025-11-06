@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app import crud
-from app.api.routes.baseline_logs import create_baseline_snapshot_for_baseline_log
+from app.api.routes.baseline_logs import create_baseline_cost_elements_for_baseline_log
 from app.core.config import settings
 from app.main import app
 from app.models import (
@@ -130,7 +130,7 @@ def test_get_baseline_cost_elements_success(
     db.refresh(baseline)
 
     # Create snapshot (this will create BaselineCostElement records)
-    create_baseline_snapshot_for_baseline_log(
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
 
@@ -253,7 +253,7 @@ def test_get_baseline_cost_elements_pagination(
     db.refresh(baseline)
 
     # Create snapshot
-    create_baseline_snapshot_for_baseline_log(
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
 
@@ -331,7 +331,7 @@ def test_get_baseline_cost_elements_empty(
     db.refresh(baseline)
 
     # Create snapshot (will create no BaselineCostElement records since no cost elements)
-    create_baseline_snapshot_for_baseline_log(
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
 

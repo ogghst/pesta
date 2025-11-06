@@ -139,7 +139,7 @@ function ProjectsTable() {
     navigate({
       to: "/projects/$id",
       params: { id: project.project_id },
-      search: { page: 1 },
+      search: { page: 1, tab: "wbes" } as any,
     })
   }
 

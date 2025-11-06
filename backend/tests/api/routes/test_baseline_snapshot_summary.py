@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app import crud
-from app.api.routes.baseline_logs import create_baseline_snapshot_for_baseline_log
+from app.api.routes.baseline_logs import create_baseline_cost_elements_for_baseline_log
 from app.core.config import settings
 from app.main import app
 from app.models import (
@@ -129,12 +129,14 @@ def test_get_baseline_snapshot_summary(
     db.commit()
     db.refresh(baseline)
 
-    # Create snapshot (this will create BaselineCostElement records)
-    snapshot = create_baseline_snapshot_for_baseline_log(
+    # Create baseline cost elements (this will create BaselineCostElement records, NO BaselineSnapshot)
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
+    db.commit()
+    db.refresh(baseline)
 
-    # Get snapshot summary via API
+    # Get snapshot summary via API (works without BaselineSnapshot)
     response = client.get(
         f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/{baseline.baseline_id}/snapshot",
         headers=superuser_token_headers,
@@ -142,8 +144,10 @@ def test_get_baseline_snapshot_summary(
     assert response.status_code == 200
     content = response.json()
 
-    # Verify response structure
-    assert content["snapshot_id"] == str(snapshot.snapshot_id)
+    # Verify response structure (uses BaselineLog data, snapshot_id = baseline_id for backward compatibility)
+    assert content["snapshot_id"] == str(
+        baseline.baseline_id
+    )  # Uses baseline_id as snapshot_id
     assert content["baseline_id"] == str(baseline.baseline_id)
     assert content["baseline_date"] == "2024-01-15"
     assert content["milestone_type"] == "kickoff"
@@ -248,12 +252,14 @@ def test_get_baseline_snapshot_summary_with_nulls(
     db.commit()
     db.refresh(baseline)
 
-    # Create snapshot
-    create_baseline_snapshot_for_baseline_log(
+    # Create baseline cost elements (NO BaselineSnapshot)
+    create_baseline_cost_elements_for_baseline_log(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
+    db.commit()
+    db.refresh(baseline)
 
-    # Get snapshot summary via API
+    # Get snapshot summary via API (works without BaselineSnapshot)
     response = client.get(
         f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/{baseline.baseline_id}/snapshot",
         headers=superuser_token_headers,

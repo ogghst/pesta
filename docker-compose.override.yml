@@ -11,7 +11,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "80:80"
-      - "8090:8080"
+      - "6080:8080"
     # Duplicate the command from docker-compose.yml to add --api.insecure=true
     command:
       # Enable Docker in Traefik, so that it reads labels from Docker services
@@ -53,12 +53,12 @@ services:
   adminer:
     restart: "no"
     ports:
-      - "8080:8080"
+      - "7080:8080"
 
   backend:
     restart: "no"
     ports:
-      - "8000:8000"
+      - "8010:8000"
     build:
       context: ./backend
     # command: sleep infinity  # Infinite loop to keep container alive doing nothing
@@ -99,7 +99,7 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_API_URL=http://localhost:8000
+        - VITE_API_URL=http://localhost:8010
         - NODE_ENV=development
 
   playwright:
@@ -107,7 +107,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.playwright
       args:
-        - VITE_API_URL=http://backend:8000
+        - VITE_API_URL=http://backend:8010
         - NODE_ENV=production
     ipc: host
     depends_on:
@@ -116,7 +116,7 @@ services:
     env_file:
       - .env
     environment:
-      - VITE_API_URL=http://backend:8000
+      - VITE_API_URL=http://backend:8010
       - MAILCATCHER_HOST=http://mailcatcher:1080
       # For the reports when run locally
       - PLAYWRIGHT_HTML_HOST=0.0.0.0

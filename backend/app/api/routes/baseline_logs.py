@@ -19,8 +19,6 @@ from app.models import (
     BaselineLogBase,
     BaselineLogPublic,
     BaselineLogUpdate,
-    BaselineSnapshot,
-    BaselineSnapshotCreate,
     BaselineSnapshotSummaryPublic,
     CostElement,
     CostRegistration,
@@ -33,16 +31,18 @@ from app.models import (
 router = APIRouter(prefix="/projects", tags=["baseline-logs"])
 
 
-def create_baseline_snapshot_for_baseline_log(
+def create_baseline_cost_elements_for_baseline_log(
     session: Session,
     baseline_log: BaselineLog,
-    created_by_id: uuid.UUID,
-) -> BaselineSnapshot:
+    created_by_id: uuid.UUID,  # noqa: ARG001
+    department: str | None = None,
+    is_pmb: bool | None = None,
+) -> None:
     """
-    Create baseline snapshot and snapshot all cost elements for a baseline log.
+    Create baseline cost elements for a baseline log and set department/is_pmb on BaselineLog.
 
     This function:
-    1. Creates a BaselineSnapshot record linked to the baseline_log
+    1. Sets department and is_pmb on BaselineLog (if provided)
     2. Gets all cost elements for the project (via WBEs)
     3. For each cost element, creates a BaselineCostElement record with:
        - budget_bac and revenue_plan from CostElement
@@ -53,23 +53,20 @@ def create_baseline_snapshot_for_baseline_log(
     Args:
         session: Database session
         baseline_log: The BaselineLog entry to snapshot for
-        created_by_id: User ID creating the snapshot
+        created_by_id: User ID creating the snapshot (unused, kept for compatibility)
+        department: Optional department name to set on BaselineLog
+        is_pmb: Optional flag to set is_pmb on BaselineLog (None = don't update)
 
     Returns:
-        BaselineSnapshot: The created baseline snapshot
+        None
     """
-    # Create BaselineSnapshot record
-    snapshot_in = BaselineSnapshotCreate(
-        project_id=baseline_log.project_id,
-        baseline_date=baseline_log.baseline_date,
-        milestone_type=baseline_log.milestone_type,
-        description=baseline_log.description,
-        created_by_id=created_by_id,
-    )
-    snapshot = BaselineSnapshot.model_validate(snapshot_in)
-    snapshot.baseline_id = baseline_log.baseline_id  # Link to baseline log
-    session.add(snapshot)
-    session.flush()  # Flush to get snapshot_id before creating cost elements
+    # Set department and is_pmb on BaselineLog if provided
+    if department is not None:
+        baseline_log.department = department
+    if is_pmb is not None:
+        baseline_log.is_pmb = is_pmb
+    session.add(baseline_log)
+    session.flush()  # Flush to ensure BaselineLog changes are saved
 
     # Get all cost elements for the project via WBEs
     wbes = session.exec(
@@ -134,8 +131,6 @@ def create_baseline_snapshot_for_baseline_log(
         session.add(baseline_cost_element)
 
     session.commit()
-    session.refresh(snapshot)
-    return snapshot
 
 
 @router.get("/{project_id}/baseline-logs/", response_model=list[BaselineLogPublic])
@@ -293,11 +288,13 @@ def create_baseline_log(
     session.add(baseline)
     session.flush()  # Flush to get baseline_id before snapshotting
 
-    # Automatically create snapshot with all cost elements
-    create_baseline_snapshot_for_baseline_log(
+    # Automatically create baseline cost elements (NO BaselineSnapshot)
+    create_baseline_cost_elements_for_baseline_log(
         session=session,
         baseline_log=baseline,
         created_by_id=current_user.id,
+        department=baseline_in.department,
+        is_pmb=baseline_in.is_pmb,
     )
 
     session.commit()
@@ -443,14 +440,6 @@ def get_baseline_snapshot_summary(
     if baseline.project_id != project_id:
         raise HTTPException(status_code=404, detail="Baseline log not found")
 
-    # Get BaselineSnapshot linked to this baseline
-    snapshot = session.exec(
-        select(BaselineSnapshot).where(BaselineSnapshot.baseline_id == baseline_id)
-    ).first()
-
-    if not snapshot:
-        raise HTTPException(status_code=404, detail="Baseline snapshot not found")
-
     # Get all BaselineCostElement records for this baseline
     baseline_cost_elements = session.exec(
         select(BaselineCostElement).where(
@@ -486,13 +475,14 @@ def get_baseline_snapshot_summary(
 
     cost_element_count = len(baseline_cost_elements)
 
-    # Create summary response
+    # Create summary response using BaselineLog data (not BaselineSnapshot)
+    # Use baseline_id as snapshot_id for backward compatibility
     summary = BaselineSnapshotSummaryPublic(
-        snapshot_id=snapshot.snapshot_id,
+        snapshot_id=baseline.baseline_id,  # Use baseline_id instead of snapshot_id
         baseline_id=baseline.baseline_id,
-        baseline_date=snapshot.baseline_date,
-        milestone_type=snapshot.milestone_type,
-        description=snapshot.description,
+        baseline_date=baseline.baseline_date,
+        milestone_type=baseline.milestone_type,
+        description=baseline.description,
         total_budget_bac=total_budget_bac,
         total_revenue_plan=total_revenue_plan,
         total_actual_ac=total_actual_ac,

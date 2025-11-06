@@ -25,11 +25,7 @@ interface DeleteCostElementProps {
   wbeId: string
 }
 
-const DeleteCostElement = ({
-  id,
-  departmentName,
-  wbeId,
-}: DeleteCostElementProps) => {
+const DeleteCostElement = ({ id, departmentName }: DeleteCostElementProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()

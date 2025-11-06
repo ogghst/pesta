@@ -22,6 +22,8 @@ class BaselineLogBase(SQLModel):
     )  # Will be validated as enum in application logic
     description: str | None = Field(default=None)
     is_cancelled: bool = Field(default=False)
+    department: str | None = Field(default=None, max_length=100)
+    is_pmb: bool = Field(default=False)
 
 
 class BaselineLogCreate(BaselineLogBase):
@@ -39,6 +41,8 @@ class BaselineLogUpdate(SQLModel):
     milestone_type: str | None = Field(default=None, max_length=100)
     description: str | None = None
     is_cancelled: bool | None = None
+    department: str | None = Field(default=None, max_length=100)
+    is_pmb: bool | None = None
 
 
 class BaselineLog(BaselineLogBase, table=True):

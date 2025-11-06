@@ -1,4 +1,11 @@
-"""Baseline Snapshot model and related schemas."""
+"""Baseline Snapshot model and related schemas.
+
+.. deprecated:: PLA-1
+    This model is deprecated. Use :class:`BaselineLog` instead.
+    The `department` and `is_pmb` fields have been merged into BaselineLog.
+    New baselines should use BaselineLog directly.
+    This model is kept for backward compatibility and will be removed in a future release.
+"""
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
@@ -14,7 +21,11 @@ from app.models.user import User
 
 
 class BaselineSnapshotBase(SQLModel):
-    """Base baseline snapshot schema with common fields."""
+    """Base baseline snapshot schema with common fields.
+
+    .. deprecated:: PLA-1
+        Use :class:`BaselineLog` instead. This schema is kept for backward compatibility.
+    """
 
     baseline_date: date = Field(sa_column=Column(Date, nullable=False))
     milestone_type: str = Field(
@@ -43,7 +54,17 @@ class BaselineSnapshotUpdate(SQLModel):
 
 
 class BaselineSnapshot(BaselineSnapshotBase, table=True):
-    """Baseline Snapshot database model."""
+    """Baseline Snapshot database model.
+
+    .. deprecated:: PLA-1
+        This model is deprecated. Use :class:`BaselineLog` instead.
+        The `department` and `is_pmb` fields have been merged into BaselineLog.
+        New baselines should use BaselineLog directly.
+        This model is kept for backward compatibility and will be removed in a future release.
+
+        TODO: Remove this model in next major version release.
+        TODO: Create migration to drop BaselineSnapshot table (future).
+    """
 
     snapshot_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     project_id: uuid.UUID = Field(foreign_key="project.project_id", nullable=False)

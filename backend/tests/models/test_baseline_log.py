@@ -9,6 +9,7 @@ from app.models import (
     BaselineLog,
     BaselineLogCreate,
     BaselineLogPublic,
+    BaselineLogUpdate,
     Project,
     ProjectCreate,
     UserCreate,
@@ -254,3 +255,248 @@ def test_baseline_log_milestone_type_enum(db: Session) -> None:
         db.commit()
         db.refresh(baseline)
         assert baseline.milestone_type == milestone_type
+
+
+def test_create_baseline_log_with_department(db: Session) -> None:
+    """Test creating a baseline log entry with department field."""
+    email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    # Create a project
+    project_in = ProjectCreate(
+        project_name="Test Project",
+        customer_name="Test Customer",
+        contract_value=100000.00,
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=user.id,
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create a baseline log with department
+    baseline_in = BaselineLogCreate(
+        baseline_type="schedule",
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        description="Initial schedule baseline",
+        department="Engineering",
+        project_id=project.project_id,
+        created_by_id=user.id,
+    )
+
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    # Verify department field was set
+    assert baseline.department == "Engineering"
+
+
+def test_create_baseline_log_with_is_pmb(db: Session) -> None:
+    """Test creating a baseline log entry with is_pmb field."""
+    email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    # Create a project
+    project_in = ProjectCreate(
+        project_name="Test Project",
+        customer_name="Test Customer",
+        contract_value=100000.00,
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=user.id,
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create a baseline log with is_pmb=True
+    baseline_in = BaselineLogCreate(
+        baseline_type="combined",
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        description="Performance Measurement Baseline",
+        is_pmb=True,
+        project_id=project.project_id,
+        created_by_id=user.id,
+    )
+
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    # Verify is_pmb field was set
+    assert baseline.is_pmb is True
+
+
+def test_create_baseline_log_with_department_and_is_pmb(db: Session) -> None:
+    """Test creating a baseline log entry with both department and is_pmb fields."""
+    email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    # Create a project
+    project_in = ProjectCreate(
+        project_name="Test Project",
+        customer_name="Test Customer",
+        contract_value=100000.00,
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=user.id,
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create a baseline log with both department and is_pmb
+    baseline_in = BaselineLogCreate(
+        baseline_type="combined",
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        description="Performance Measurement Baseline",
+        department="Project Management",
+        is_pmb=True,
+        project_id=project.project_id,
+        created_by_id=user.id,
+    )
+
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    # Verify both fields were set
+    assert baseline.department == "Project Management"
+    assert baseline.is_pmb is True
+
+
+def test_update_baseline_log_with_department(db: Session) -> None:
+    """Test updating a baseline log entry with department field."""
+    email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    # Create a project
+    project_in = ProjectCreate(
+        project_name="Test Project",
+        customer_name="Test Customer",
+        contract_value=100000.00,
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=user.id,
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create a baseline log
+    baseline_in = BaselineLogCreate(
+        baseline_type="schedule",
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        project_id=project.project_id,
+        created_by_id=user.id,
+    )
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    # Update with department
+    update_in = BaselineLogUpdate(department="Engineering")
+    update_dict = update_in.model_dump(exclude_unset=True)
+    for field, value in update_dict.items():
+        setattr(baseline, field, value)
+    db.commit()
+    db.refresh(baseline)
+
+    # Verify department field was updated
+    assert baseline.department == "Engineering"
+
+
+def test_update_baseline_log_with_is_pmb(db: Session) -> None:
+    """Test updating a baseline log entry with is_pmb field."""
+    email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    # Create a project
+    project_in = ProjectCreate(
+        project_name="Test Project",
+        customer_name="Test Customer",
+        contract_value=100000.00,
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=user.id,
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create a baseline log
+    baseline_in = BaselineLogCreate(
+        baseline_type="schedule",
+        baseline_date=date(2024, 1, 15),
+        milestone_type="kickoff",
+        project_id=project.project_id,
+        created_by_id=user.id,
+    )
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    # Update with is_pmb
+    update_in = BaselineLogUpdate(is_pmb=True)
+    update_dict = update_in.model_dump(exclude_unset=True)
+    for field, value in update_dict.items():
+        setattr(baseline, field, value)
+    db.commit()
+    db.refresh(baseline)
+
+    # Verify is_pmb field was updated
+    assert baseline.is_pmb is True
+
+
+def test_baseline_log_public_schema_includes_department_and_is_pmb() -> None:
+    """Test BaselineLogPublic schema includes department and is_pmb fields."""
+    import datetime
+
+    baseline_id = uuid.uuid4()
+    project_id = uuid.uuid4()
+    user_id = uuid.uuid4()
+    now = datetime.datetime.now(datetime.timezone.utc)
+
+    baseline_public = BaselineLogPublic(
+        baseline_id=baseline_id,
+        baseline_type="earned_value",
+        baseline_date=date(2024, 3, 1),
+        milestone_type="engineering_complete",
+        description="Public test baseline",
+        is_cancelled=False,
+        department="Engineering",
+        is_pmb=True,
+        project_id=project_id,
+        created_by_id=user_id,
+        created_at=now,
+    )
+
+    # Verify new fields are included in public schema
+    assert baseline_public.department == "Engineering"
+    assert baseline_public.is_pmb is True
