@@ -31,14 +31,8 @@ from app.models.baseline_log import (
     BaselineLogCreate,
     BaselineLogPublic,
     BaselineLogUpdate,
-)
-from app.models.baseline_snapshot import (
-    BaselineSnapshot,
-    BaselineSnapshotBase,
-    BaselineSnapshotCreate,
-    BaselineSnapshotPublic,
     BaselineSnapshotSummaryPublic,
-    BaselineSnapshotUpdate,
+    BaselineSummaryPublic,
 )
 from app.models.budget_allocation import (
     BudgetAllocation,
@@ -284,13 +278,9 @@ __all__ = [
     "BaselineCostElementsByWBEPublic",
     "BaselineCostElementsPublic",
     "WBEWithBaselineCostElementsPublic",
-    # Baseline Snapshot models
-    "BaselineSnapshot",
-    "BaselineSnapshotBase",
-    "BaselineSnapshotCreate",
-    "BaselineSnapshotPublic",
+    # Baseline summary models
+    "BaselineSummaryPublic",
     "BaselineSnapshotSummaryPublic",
-    "BaselineSnapshotUpdate",
     # Change Order models
     "ChangeOrder",
     "ChangeOrderBase",

@@ -1,8 +1,9 @@
 """Baseline Log model and related schemas."""
 import uuid
 from datetime import date, datetime
+from decimal import Decimal
 
-from sqlalchemy import Column, Date, DateTime
+from sqlalchemy import DECIMAL, Column, Date, DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
 # Import for forward references
@@ -69,3 +70,31 @@ class BaselineLogPublic(BaselineLogBase):
     project_id: uuid.UUID
     created_by_id: uuid.UUID
     created_at: datetime
+
+
+class BaselineSummaryPublic(SQLModel):
+    """Public schema for baseline summary with aggregated values."""
+
+    snapshot_id: uuid.UUID
+    baseline_id: uuid.UUID
+    baseline_date: date
+    milestone_type: str
+    description: str | None = None
+    total_budget_bac: Decimal = Field(sa_column=Column(DECIMAL(15, 2), nullable=False))
+    total_revenue_plan: Decimal = Field(
+        sa_column=Column(DECIMAL(15, 2), nullable=False)
+    )
+    total_actual_ac: Decimal | None = Field(
+        default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
+    )
+    total_forecast_eac: Decimal | None = Field(
+        default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
+    )
+    total_earned_ev: Decimal | None = Field(
+        default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
+    )
+    cost_element_count: int = Field(default=0, ge=0)
+
+
+# Backward-compatible alias retained for historical API contract
+BaselineSnapshotSummaryPublic = BaselineSummaryPublic

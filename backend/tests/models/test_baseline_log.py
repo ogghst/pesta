@@ -16,6 +16,13 @@ from app.models import (
 )
 
 
+def test_baseline_snapshot_model_removed() -> None:
+    """PLA-1 cleanup requires BaselineSnapshot model removal."""
+    import app.models as models
+
+    assert getattr(models, "BaselineSnapshot", None) is None
+
+
 def test_create_baseline_log(db: Session) -> None:
     """Test creating a baseline log entry."""
     # Create a user

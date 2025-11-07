@@ -12,7 +12,6 @@ from app.models import (
     AuditLog,
     BaselineCostElement,
     BaselineLog,
-    BaselineSnapshot,
     BudgetAllocation,
     ChangeOrder,
     CostElement,
@@ -71,8 +70,6 @@ def db() -> Generator[Session, None, None]:
         statement = delete(ChangeOrder)  # Must be before Project due to FK
         session.execute(statement)
         statement = delete(ProjectEvent)  # Must be before Project due to FK
-        session.execute(statement)
-        statement = delete(BaselineSnapshot)  # Must be before Project due to FK
         session.execute(statement)
         statement = delete(BaselineLog)  # Must be before Project due to FK
         session.execute(statement)

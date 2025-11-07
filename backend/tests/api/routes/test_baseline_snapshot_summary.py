@@ -432,5 +432,7 @@ def test_get_baseline_snapshot_summary_no_snapshot(
         f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/{baseline.baseline_id}/snapshot",
         headers=superuser_token_headers,
     )
-    assert response.status_code == 404
-    assert "Baseline snapshot not found" in response.json()["detail"]
+    assert response.status_code == 200
+    content = response.json()
+    assert content["baseline_id"] == str(baseline.baseline_id)
+    assert content["cost_element_count"] == 0

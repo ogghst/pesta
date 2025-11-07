@@ -322,6 +322,7 @@
   - Migration file created and documented
   - Rollback script included
   - Data migration script included
+  - Cleanup migration `a8d41cd1b784_remove_baseline_snapshot_table.py` drops legacy table
 
 #### ✅ Migration Steps
 - [x] **Migration Documented**
@@ -359,12 +360,12 @@
    - Review `README.md` for BaselineSnapshot references
    - **Priority:** Low (optional cleanup)
 
-**Future Work (Not Part of This Task):**
-1. 🔮 **BaselineSnapshot Removal** (Future Major Version)
-   - Remove BaselineSnapshot model entirely
-   - Create migration to drop BaselineSnapshot table
-   - Remove BaselineSnapshot tests
-   - **Priority:** Future (marked with TODO comments)
+**Recent Cleanup (Post-Merge):**
+1. ✅ **BaselineSnapshot Removal** (2025-11-07)
+   - BaselineSnapshot model and tests removed from codebase
+   - Table dropped via migration `a8d41cd1b784_remove_baseline_snapshot_table`
+   - Backward-compatible summary schema retained as alias `BaselineSnapshotSummaryPublic`
+   - **Status:** Complete as part of PLA-1 cleanup
 
 ### Ready to Commit: ✅ Yes
 

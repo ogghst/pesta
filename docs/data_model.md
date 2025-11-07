@@ -138,26 +138,26 @@ Tracks all significant events at the project level. From image: phase changes, m
 
 ---
 
-### 10. Baseline Snapshot
+### 10. Baseline Log Summary
 
-Captures baseline state at specific project milestones. From image: specific date points where baseline values are recorded.
+Summarises baseline metadata captured directly on `BaselineLog`. These fields replaced the legacy BaselineSnapshot table.
 
 **Primary Key:** `baseline_id`
 
 **Attributes:**
-- `baseline_id` (UUID, PK) - Unique system-generated identifier
+- `baseline_id` (UUID, PK) - Unique system-generated identifier (same as BaselineLog)
 - `project_id` (UUID, FK → Project) - Associated project
 - `baseline_date` (DATE) - Date of baseline creation
-- `milestone_type` (ENUM) - Milestone: kickoff, bom_release, engineering_complete, procurement_complete, manufacturing_start, shipment, site_arrival, commissioning_start, commissioning_complete, closeout
-- `description` (TEXT, NULL) - Milestone description
-- `department` (STRING, 100, NULL) - Responsible department
-- `is_pmb` (BOOLEAN) - True if this is the Performance Measurement Baseline
-- `created_by` (UUID, FK → User) - User who created baseline
+- `milestone_type` (ENUM) - Milestone classification (kickoff, bom_release, engineering_complete, etc.)
+- `description` (TEXT, NULL) - Optional milestone description
+- `department` (STRING, 100, NULL) - Responsible department stored on `BaselineLog`
+- `is_pmb` (BOOLEAN) - Indicates if this entry represents the Performance Measurement Baseline
+- `created_by` (UUID, FK → User) - User who created the baseline entry
 - `created_at` (TIMESTAMP) - Record creation timestamp
 
 **Relationships:**
 - Belongs to **Project**
-- Has many **Baseline Cost Elements**
+- Has many **Baseline Cost Elements** via `BaselineLog.baseline_id`
 
 ---
 
@@ -169,7 +169,7 @@ Captures cost element state at baseline creation.
 
 **Attributes:**
 - `baseline_cost_element_id` (UUID, PK) - Unique system-generated identifier
-- `baseline_id` (UUID, FK → Baseline Snapshot) - Parent baseline
+- `baseline_id` (UUID, FK → Baseline Log) - Parent baseline entry
 - `cost_element_id` (UUID, FK → Cost Element) - Referenced cost element
 - `budget_bac` (DECIMAL 15,2) - Snapshot of BAC
 - `revenue` (DECIMAL 15,2) - Snapshot of revenue
@@ -239,13 +239,20 @@ Maintains a log of all baseline creation events. Each baseline is identified by 
 
 **Attributes:**
 - `baseline_id` (UUID, PK) - Unique system-generated identifier
+- `project_id` (UUID, FK → Project) - Associated project
 - `baseline_type` (ENUM) - Type: schedule, earned_value, budget, forecast, combined
 - `baseline_date` (DATE) - Date when baseline was created
+- `milestone_type` (ENUM) - Milestone classification linked to project lifecycle
 - `description` (TEXT, NULL) - Description of the baseline
+- `is_cancelled` (BOOLEAN) - Soft-delete flag for superseded baselines
+- `department` (STRING, 100, NULL) - Responsible department captured at creation
+- `is_pmb` (BOOLEAN) - Indicates whether entry represents the Performance Measurement Baseline
 - `created_by` (UUID, FK → User) - User who created baseline
 - `created_at` (TIMESTAMP) - Record creation timestamp
 
 **Relationships:**
+- Belongs to **Project**
+- Has many **Baseline Cost Elements** (baseline financial snapshot)
 - Has many **Cost Element Schedules** (schedule baselines)
 - Has many **Earned Value Entries** (earned value baselines)
 - Belongs to **User** (created_by)
@@ -591,15 +598,14 @@ Project
   │      │      └── Has Many: Quality Event
   │      └── Has Many: Change Order Line Item
   ├── Has Many: Project Event
-  ├── Has Many: Baseline Snapshot
-  │      └── Has Many: Baseline Cost Element
+  ├── Has Many: Baseline Log
+  │      ├── Has Many: Baseline Cost Element
+  │      ├── Has Many: Cost Element Schedule records (schedule baselines)
+  │      └── Has Many: Earned Value Entry
   ├── Has Many: Change Order
   │      └── Has Many: Change Order Line Item
   └── Has Many: Quality Event
 
-Baseline Log
-  ├── Has Many: Cost Element Schedules (schedule baselines)
-  └── Has Many: Earned Value Entries (earned value baselines)
 
 User
   ├── Has Many: Audit Log
@@ -629,7 +635,7 @@ Cost Element Type (Reference)
 
 7. **Forecast Versioning**: `is_current` marks the active forecast per cost element.
 
-8. **Baseline Snapshotting**: Separate table stores baseline state to compare against current actuals.
+8. **Baseline Logging**: Baseline metadata (department, is_pmb) and summary values live on `BaselineLog`, providing the single source of truth for baseline state when compared against current actuals.
 
 9. **Audit Trail**: `Audit_Log` tracks all modifications with before/after values.
 
@@ -672,7 +678,7 @@ Mapping columns from the example image to the data model:
 | data (Date) | Project Event.event_date, other event dates |
 | reparto (Department) | Cost Element.department_code |
 | note (Notes) | Project Event.description, various notes fields |
-| p0 | Baseline Snapshot budget value |
+| p0 | BaselineCostElement.budget_bac captured at BaselineLog creation |
 | revenues | Budget Allocation.revenue_amount, aggregated |
 | forecast | Forecast.estimate_at_completion |
 | actual | Cost Registration.amount, aggregated to AC |
@@ -697,4 +703,3 @@ Mapping columns from the example image to the data model:
 4. API design for data access and manipulation
 5. Dashboard and reporting queries
 6. Data migration procedures
-

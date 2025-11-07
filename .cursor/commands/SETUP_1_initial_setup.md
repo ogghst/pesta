@@ -27,7 +27,7 @@ Before you proceed with any implementation, I will ask:
 
 ## MCP TOOLS TO USE
 
-- time: to get current time
-- context7: to get insights on what libraries to use and guidelines for coding with them
+use time to get current time
+use context7 to get insights on what libraries to use and guidelines for coding with them
 
 Acknowledge these agreements and confirm your understanding.

@@ -8,7 +8,6 @@ from app.models import (
     AuditLog,
     BaselineCostElement,
     BaselineLog,
-    BaselineSnapshot,
     BudgetAllocation,
     ChangeOrder,
     CostElement,
@@ -68,9 +67,6 @@ def clear_db() -> None:
 
         logger.info("Deleting ProjectEvent...")
         session.execute(delete(ProjectEvent))
-
-        logger.info("Deleting BaselineSnapshot...")
-        session.execute(delete(BaselineSnapshot))
 
         logger.info("Deleting BaselineLog...")
         session.execute(delete(BaselineLog))

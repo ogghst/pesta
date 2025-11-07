@@ -36,7 +36,6 @@ from app.models import (
 
 def test_create_baseline_cost_elements_with_cost_elements(db: Session) -> None:
     """Test creating baseline cost elements with cost elements."""
-    from app.models import BaselineSnapshot
 
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
@@ -126,14 +125,6 @@ def test_create_baseline_cost_elements_with_cost_elements(db: Session) -> None:
     db.commit()
     db.refresh(baseline)
 
-    # Verify NO BaselineSnapshot was created
-    snapshots = db.exec(
-        select(BaselineSnapshot).where(
-            BaselineSnapshot.baseline_id == baseline.baseline_id
-        )
-    ).all()
-    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
-
     # Verify BaselineCostElement was created
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
@@ -152,8 +143,6 @@ def test_create_baseline_cost_elements_with_cost_elements(db: Session) -> None:
 
 def test_create_baseline_cost_elements_with_no_cost_elements(db: Session) -> None:
     """Test creating baseline cost elements with no cost elements."""
-    from app.models import BaselineSnapshot
-
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
     password = "testpassword123"
@@ -195,14 +184,6 @@ def test_create_baseline_cost_elements_with_no_cost_elements(db: Session) -> Non
     db.commit()
     db.refresh(baseline)
 
-    # Verify NO BaselineSnapshot was created
-    snapshots = db.exec(
-        select(BaselineSnapshot).where(
-            BaselineSnapshot.baseline_id == baseline.baseline_id
-        )
-    ).all()
-    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
-
     # Verify no BaselineCostElement was created (no cost elements)
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
@@ -214,7 +195,6 @@ def test_create_baseline_cost_elements_with_no_cost_elements(db: Session) -> Non
 
 def test_create_baseline_cost_elements_aggregates_actual_cost(db: Session) -> None:
     """Test that baseline cost elements aggregates actual cost from cost registrations."""
-    from app.models import BaselineSnapshot
 
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
@@ -325,14 +305,6 @@ def test_create_baseline_cost_elements_aggregates_actual_cost(db: Session) -> No
     )
     db.commit()
 
-    # Verify NO BaselineSnapshot was created
-    snapshots = db.exec(
-        select(BaselineSnapshot).where(
-            BaselineSnapshot.baseline_id == baseline.baseline_id
-        )
-    ).all()
-    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
-
     # Verify actual_ac was aggregated
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
@@ -348,7 +320,6 @@ def test_create_baseline_cost_elements_includes_forecast_eac_if_exists(
     db: Session,
 ) -> None:
     """Test that baseline cost elements includes forecast EAC if current forecast exists."""
-    from app.models import BaselineSnapshot
 
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
@@ -450,14 +421,6 @@ def test_create_baseline_cost_elements_includes_forecast_eac_if_exists(
     )
     db.commit()
 
-    # Verify NO BaselineSnapshot was created
-    snapshots = db.exec(
-        select(BaselineSnapshot).where(
-            BaselineSnapshot.baseline_id == baseline.baseline_id
-        )
-    ).all()
-    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
-
     # Verify forecast_eac was included
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
@@ -473,7 +436,6 @@ def test_create_baseline_cost_elements_includes_earned_ev_if_exists(
     db: Session,
 ) -> None:
     """Test that baseline cost elements includes earned value if latest earned value entry exists."""
-    from app.models import BaselineSnapshot
 
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
@@ -583,14 +545,6 @@ def test_create_baseline_cost_elements_includes_earned_ev_if_exists(
         session=db, baseline_log=baseline, created_by_id=user.id
     )
     db.commit()
-
-    # Verify NO BaselineSnapshot was created
-    snapshots = db.exec(
-        select(BaselineSnapshot).where(
-            BaselineSnapshot.baseline_id == baseline.baseline_id
-        )
-    ).all()
-    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
 
     # Verify earned_ev was included (should be latest by completion_date)
     baseline_cost_elements = db.exec(
@@ -1314,9 +1268,8 @@ def test_cancel_baseline_log_already_cancelled(
     assert content["is_cancelled"] is True
 
 
-def test_create_baseline_cost_elements_no_snapshot(db: Session) -> None:
-    """Test refactored function creates BaselineCostElement but NOT BaselineSnapshot."""
-    from app.models import BaselineSnapshot
+def test_create_baseline_cost_elements_creates_records(db: Session) -> None:
+    """Helper creates baseline cost elements and updates baseline metadata."""
 
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
@@ -1412,14 +1365,6 @@ def test_create_baseline_cost_elements_no_snapshot(db: Session) -> None:
     db.commit()
     db.refresh(baseline)
 
-    # Verify NO BaselineSnapshot was created
-    snapshots = db.exec(
-        select(BaselineSnapshot).where(
-            BaselineSnapshot.baseline_id == baseline.baseline_id
-        )
-    ).all()
-    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created"
-
     # Verify BaselineCostElement WAS created
     baseline_cost_elements = db.exec(
         select(BaselineCostElement).where(
@@ -1440,8 +1385,7 @@ def test_create_baseline_cost_elements_no_snapshot(db: Session) -> None:
 def test_create_baseline_log_with_department_and_is_pmb_via_api(
     client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
-    """Test POST endpoint accepts department and is_pmb and does NOT create BaselineSnapshot."""
-    from app.models import BaselineSnapshot
+    """Test POST endpoint accepts department and is_pmb fields."""
 
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
@@ -1481,20 +1425,13 @@ def test_create_baseline_log_with_department_and_is_pmb_via_api(
     content = response.json()
     assert content["department"] == "Engineering"
     assert content["is_pmb"] is True
-    baseline_id = uuid.UUID(content["baseline_id"])
-
-    # Verify NO BaselineSnapshot was created
-    snapshots = db.exec(
-        select(BaselineSnapshot).where(BaselineSnapshot.baseline_id == baseline_id)
-    ).all()
-    assert len(snapshots) == 0, "BaselineSnapshot should NOT be created via API"
+    uuid.UUID(content["baseline_id"])  # Validate parseable UUID
 
 
-def test_get_baseline_snapshot_summary_uses_baseline_log_data(
+def test_get_baseline_summary_uses_baseline_log_data(
     client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
-    """Test GET snapshot endpoint returns BaselineLog data without requiring BaselineSnapshot."""
-    from app.models import BaselineSnapshot
+    """Test GET snapshot endpoint returns data derived directly from BaselineLog."""
 
     # Create a user
     email = f"user_{uuid.uuid4().hex[:8]}@example.com"
@@ -1589,14 +1526,6 @@ def test_get_baseline_snapshot_summary_uses_baseline_log_data(
     bce = BaselineCostElement.model_validate(bce_in)
     db.add(bce)
     db.commit()
-
-    # Verify NO BaselineSnapshot exists
-    snapshots = db.exec(
-        select(BaselineSnapshot).where(
-            BaselineSnapshot.baseline_id == baseline.baseline_id
-        )
-    ).all()
-    assert len(snapshots) == 0
 
     # Call GET snapshot endpoint - should work without BaselineSnapshot
     response = client.get(

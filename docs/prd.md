@@ -128,9 +128,13 @@ The system shall support the creation of cost and schedule baselines at signific
 
 Each baseline creation event must capture the baseline date, event description, event classification (milestone type), responsible department or function, and a snapshot of all current budget, cost, revenue, and forecast data for all WBEs and cost elements.
 
+Baseline metadata (including owning department, `is_pmb` flag, cancellation status, and milestone classification) shall be stored directly on the **Baseline Log** record, which serves as the single source of truth for baseline identity. Detailed financial snapshots remain in **Baseline Cost Element** records referencing the associated `baseline_id`.
+
 ### 10.2 Baseline Comparison and Variance Analysis
 
 The system shall maintain all historical baselines and provide comparison capabilities to analyze changes between any two baselines or between any baseline and current actuals. Variance analysis must be available at project, WBE, and cost element levels, showing changes in budgets, costs, revenues, forecasts, and performance metrics between baseline periods.
+
+Baseline comparisons shall leverage the consolidated Baseline Log data model (Baseline Log + Baseline Cost Elements) without reliance on a separate Baseline Snapshot table. Any historical reporting must read from these canonical sources.
 
 ### 10.3 Performance Measurement Baseline (PMB)
 
