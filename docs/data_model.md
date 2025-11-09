@@ -176,6 +176,7 @@ Captures cost element state at baseline creation.
 - `forecast_eac` (DECIMAL 15,2, NULL) - Snapshot of EAC forecast
 - `actual_ac` (DECIMAL 15,2, NULL) - Snapshot of actual cost
 - `earned_ev` (DECIMAL 15,2, NULL) - Snapshot of earned value
+- `percent_complete` (DECIMAL 5,2, NULL) - Snapshot of physical percent complete captured at baseline
 
 ---
 
@@ -293,14 +294,13 @@ Defines the schedule baseline for a cost element, used to calculate Planned Valu
 
 ### 16. Earned Value Entry
 
-Records the percentage of work completed (physical progress) for a cost element, used to calculate Earned Value (EV). The earned value percentage must be baselined and maintained as historical record.
+Records the percentage of work completed (physical progress) for a cost element, used to calculate Earned Value (EV). Historical snapshots are maintained separately on `BaselineCostElement`.
 
 **Primary Key:** `earned_value_id`
 
 **Attributes:**
 - `earned_value_id` (UUID, PK) - Unique system-generated identifier
 - `cost_element_id` (UUID, FK → Cost Element) - Target cost element
-- `baseline_id` (UUID, FK → Baseline Log, NULL) - Reference to baseline log entry when earned value is baselined
 - `completion_date` (DATE) - Date when work completion was measured
 - `percent_complete` (DECIMAL 5,2) - Percentage of physical work completed (0-100)
 - `earned_value` (DECIMAL 15,2, NULL) - Calculated Earned Value (EV = BAC × percent_complete)
@@ -312,12 +312,11 @@ Records the percentage of work completed (physical progress) for a cost element,
 
 **Relationships:**
 - Belongs to **Cost Element**
-- Belongs to **Baseline Log** (optional, when baselined)
 
 **Notes:**
 - Earned Value (EV) is calculated as: $EV = BAC \times \%\ \text{di completamento fisico}$
 - Example: if $BAC = €100{,}000$ and percent_complete = 30%, then $EV = €30{,}000$
-- When earned value entries are baselined, they reference a Baseline Log entry via baseline_id for historical comparison and trend analysis
+- Baseline snapshots capture the latest `percent_complete` and `earned_ev` for each cost element on the associated `BaselineCostElement` record, keeping operational entries independent from baselines.
 
 ---
 
@@ -645,9 +644,9 @@ Cost Element Type (Reference)
 
 12. **Schedule Baseline for Planned Value**: Each Cost Element has a schedule baseline (Cost Element Schedule) with start date, end date, and progression type (linear, gaussian, logarithmic). Planned Value (PV) is calculated as $PV = BAC \times \%\ \text{di completamento pianificato}$, where the planned completion percentage is derived from the schedule baseline at any control date.
 
-13. **Baseline Log**: All baselines are tracked in a Baseline Log table with a unique baseline_id. Schedule baselines and earned value baselines reference this log via baseline_id, ensuring proper baseline identification and historical tracking.
+13. **Baseline Log**: All baselines are tracked in a Baseline Log table with a unique baseline_id. Schedule baselines and baseline cost element snapshots reference this log via baseline_id, ensuring proper baseline identification and historical tracking.
 
-14. **Earned Value Baseline**: Earned Value (EV) is calculated from baselined percentage of work completed using $EV = BAC \times \%\ \text{di completamento fisico}$. The earned value entries track physical completion percentages which reference Baseline Log entries via baseline_id for historical comparison and trend analysis.
+14. **Earned Value Baseline**: Earned Value (EV) is calculated from baselined percentage of work completed using $EV = BAC \times \%\ \text{di completamento fisico}$. Operational earned value entries remain independent, while the latest `percent_complete` and `earned_ev` values are captured on `BaselineCostElement` snapshots for historical comparison and trend analysis.
 
 ---
 

@@ -24,6 +24,7 @@ from app.models import (
     Department,
     DepartmentCreate,
     EarnedValueEntry,
+    EarnedValueEntryCreate,
     Forecast,
     Project,
     ProjectCreate,
@@ -132,7 +133,7 @@ def _seed_departments(session: Session) -> None:
 
 
 def _seed_project_from_template(session: Session) -> None:
-    """Seed project from JSON template file if not already present."""
+    """Seed projects from JSON template file if not already present."""
     # Load seed data from JSON file
     seed_file = Path(__file__).parent / "project_template_seed.json"
     if not seed_file.exists():
@@ -148,218 +149,293 @@ def _seed_project_from_template(session: Session) -> None:
     if not first_superuser:
         return  # Cannot seed project without first superuser
 
-    project_data = template_data["project"]
-    project_code = project_data.get("project_code")
-
-    if not project_code:
-        return  # Cannot seed project without project_code
-
-    # Check if project already exists
-    existing_project = session.exec(
-        select(Project).where(Project.project_code == project_code)
-    ).first()
-
-    # Resolve project_manager_id placeholder
-    project_manager_id_str = project_data.get("project_manager_id", "")
-    if (
-        project_manager_id_str == "REPLACE_WITH_VALID_USER_UUID"
-        or not project_manager_id_str
-    ):
-        project_manager_id = first_superuser.id
+    # Handle multiple project entries (can be a single project or list of projects)
+    projects_data = template_data
+    if "project" in template_data and "wbes" in template_data:
+        # Single project format
+        projects_data = [
+            {"project": template_data["project"], "wbes": template_data["wbes"]}
+        ]
+    elif isinstance(template_data, list):
+        # Multiple projects format
+        projects_data = template_data
     else:
-        try:
-            project_manager_id = uuid.UUID(project_manager_id_str)
-        except ValueError:
+        # Direct multiple projects format
+        projects_data = [template_data]
+
+    # Process each project entry
+    for project_entry in projects_data:
+        project_data = project_entry.get("project")
+        if not project_data:
+            continue
+
+        project_code = project_data.get("project_code")
+        if not project_code:
+            continue  # Cannot seed project without project_code
+
+        # Check if project already exists
+        existing_project = session.exec(
+            select(Project).where(Project.project_code == project_code)
+        ).first()
+
+        # Resolve project_manager_id placeholder
+        project_manager_id_str = project_data.get("project_manager_id", "")
+        if (
+            project_manager_id_str == "REPLACE_WITH_VALID_USER_UUID"
+            or not project_manager_id_str
+        ):
             project_manager_id = first_superuser.id
-
-    if existing_project:
-        # Update existing project
-        project_data_for_update = dict(project_data.items())
-        project_data_for_update["project_manager_id"] = project_manager_id
-        for key, value in project_data_for_update.items():
-            if hasattr(existing_project, key):
-                setattr(existing_project, key, value)
-        session.add(existing_project)
-        session.flush()
-        project = existing_project
-    else:
-        # Create new project
-        project_data["project_manager_id"] = project_manager_id
-        project_create = ProjectCreate(**project_data)
-        project = Project.model_validate(project_create)
-        session.add(project)
-        session.flush()  # Get project_id without committing
-
-    # Clear existing WBEs if updating (user requested update behavior)
-    if existing_project:
-        existing_wbes = session.exec(
-            select(WBE).where(WBE.project_id == project.project_id)
-        ).all()
-        for wbe in existing_wbes:
-            # Delete associated cost elements first
-            existing_cost_elements = session.exec(
-                select(CostElement).where(CostElement.wbe_id == wbe.wbe_id)
-            ).all()
-            for ce in existing_cost_elements:
-                # Delete associated baseline cost elements first (to avoid foreign key violation)
-                existing_baseline_cost_elements = session.exec(
-                    select(BaselineCostElement).where(
-                        BaselineCostElement.cost_element_id == ce.cost_element_id
-                    )
-                ).all()
-                for baseline_cost_element in existing_baseline_cost_elements:
-                    session.delete(baseline_cost_element)
-                # Delete associated budget allocations first (to avoid foreign key violation)
-                existing_budget_allocations = session.exec(
-                    select(BudgetAllocation).where(
-                        BudgetAllocation.cost_element_id == ce.cost_element_id
-                    )
-                ).all()
-                for budget_allocation in existing_budget_allocations:
-                    session.delete(budget_allocation)
-                # Delete associated cost element schedules (to avoid foreign key violation)
-                existing_schedules = session.exec(
-                    select(CostElementSchedule).where(
-                        CostElementSchedule.cost_element_id == ce.cost_element_id
-                    )
-                ).all()
-                for schedule in existing_schedules:
-                    session.delete(schedule)
-                # Delete associated cost registrations (to avoid foreign key violation)
-                existing_cost_registrations = session.exec(
-                    select(CostRegistration).where(
-                        CostRegistration.cost_element_id == ce.cost_element_id
-                    )
-                ).all()
-                for cost_registration in existing_cost_registrations:
-                    session.delete(cost_registration)
-                # Delete associated earned value entries (to avoid foreign key violation)
-                existing_earned_value_entries = session.exec(
-                    select(EarnedValueEntry).where(
-                        EarnedValueEntry.cost_element_id == ce.cost_element_id
-                    )
-                ).all()
-                for earned_value_entry in existing_earned_value_entries:
-                    session.delete(earned_value_entry)
-                # Delete associated forecasts (to avoid foreign key violation)
-                existing_forecasts = session.exec(
-                    select(Forecast).where(
-                        Forecast.cost_element_id == ce.cost_element_id
-                    )
-                ).all()
-                for forecast in existing_forecasts:
-                    session.delete(forecast)
-                # Delete associated quality events (to avoid foreign key violation)
-                existing_quality_events = session.exec(
-                    select(QualityEvent).where(
-                        QualityEvent.cost_element_id == ce.cost_element_id
-                    )
-                ).all()
-                for quality_event in existing_quality_events:
-                    session.delete(quality_event)
-                session.delete(ce)
-            session.delete(wbe)
-        session.flush()
-
-    # Create WBEs and cost elements
-    for wbe_item in template_data.get("wbes", []):
-        wbe_data = wbe_item["wbe"].copy()
-        wbe_data["project_id"] = project.project_id
-        wbe_create = WBECreate(**wbe_data)
-        wbe = WBE.model_validate(wbe_create)
-        session.add(wbe)
-        session.flush()  # Get wbe_id without committing
-
-        # Create cost elements for this WBE
-        for ce_data in wbe_item.get("cost_elements", []):
-            # Validate cost_element_type_id exists
-            cost_element_type_id_str = ce_data.get("cost_element_type_id")
-            if not cost_element_type_id_str:
-                continue  # Skip if no cost_element_type_id
-
+        else:
             try:
-                cost_element_type_id = uuid.UUID(cost_element_type_id_str)
+                project_manager_id = uuid.UUID(project_manager_id_str)
             except ValueError:
-                continue  # Skip if invalid UUID
+                project_manager_id = first_superuser.id
 
-            # Verify cost element type exists
-            cost_element_type = session.get(CostElementType, cost_element_type_id)
-            if not cost_element_type:
-                continue  # Skip if cost element type doesn't exist
+        if existing_project:
+            # Update existing project
+            project_data_for_update = dict(project_data.items())
+            project_data_for_update["project_manager_id"] = project_manager_id
+            for key, value in project_data_for_update.items():
+                if hasattr(existing_project, key):
+                    setattr(existing_project, key, value)
+            session.add(existing_project)
+            session.flush()
+            project = existing_project
+        else:
+            # Create new project
+            project_data["project_manager_id"] = project_manager_id
+            project_create = ProjectCreate(**project_data)
+            project = Project.model_validate(project_create)
+            session.add(project)
+            session.flush()  # Get project_id without committing
 
-            ce_data_with_wbe = ce_data.copy()
-            ce_data_with_wbe["wbe_id"] = wbe.wbe_id
-            ce_data_with_wbe["cost_element_type_id"] = cost_element_type_id
-            ce_create = CostElementCreate(**ce_data_with_wbe)
-            ce = CostElement.model_validate(ce_create)
-            session.add(ce)
-            session.flush()  # Get cost_element_id without committing
+        # Clear existing WBEs if updating (user requested update behavior)
+        if existing_project:
+            existing_wbes = session.exec(
+                select(WBE).where(WBE.project_id == project.project_id)
+            ).all()
+            for wbe in existing_wbes:
+                # Delete associated cost elements first
+                existing_cost_elements = session.exec(
+                    select(CostElement).where(CostElement.wbe_id == wbe.wbe_id)
+                ).all()
+                for ce in existing_cost_elements:
+                    # Delete associated baseline cost elements first (to avoid foreign key violation)
+                    existing_baseline_cost_elements = session.exec(
+                        select(BaselineCostElement).where(
+                            BaselineCostElement.cost_element_id == ce.cost_element_id
+                        )
+                    ).all()
+                    for baseline_cost_element in existing_baseline_cost_elements:
+                        session.delete(baseline_cost_element)
+                    # Delete associated budget allocations first (to avoid foreign key violation)
+                    existing_budget_allocations = session.exec(
+                        select(BudgetAllocation).where(
+                            BudgetAllocation.cost_element_id == ce.cost_element_id
+                        )
+                    ).all()
+                    for budget_allocation in existing_budget_allocations:
+                        session.delete(budget_allocation)
+                    # Delete associated cost element schedules (to avoid foreign key violation)
+                    existing_schedules = session.exec(
+                        select(CostElementSchedule).where(
+                            CostElementSchedule.cost_element_id == ce.cost_element_id
+                        )
+                    ).all()
+                    for schedule in existing_schedules:
+                        session.delete(schedule)
+                    # Delete associated cost registrations (to avoid foreign key violation)
+                    existing_cost_registrations = session.exec(
+                        select(CostRegistration).where(
+                            CostRegistration.cost_element_id == ce.cost_element_id
+                        )
+                    ).all()
+                    for cost_registration in existing_cost_registrations:
+                        session.delete(cost_registration)
+                    # Delete associated earned value entries (to avoid foreign key violation)
+                    existing_earned_value_entries = session.exec(
+                        select(EarnedValueEntry).where(
+                            EarnedValueEntry.cost_element_id == ce.cost_element_id
+                        )
+                    ).all()
+                    for earned_value_entry in existing_earned_value_entries:
+                        session.delete(earned_value_entry)
+                    # Delete associated forecasts (to avoid foreign key violation)
+                    existing_forecasts = session.exec(
+                        select(Forecast).where(
+                            Forecast.cost_element_id == ce.cost_element_id
+                        )
+                    ).all()
+                    for forecast in existing_forecasts:
+                        session.delete(forecast)
+                    # Delete associated quality events (to avoid foreign key violation)
+                    existing_quality_events = session.exec(
+                        select(QualityEvent).where(
+                            QualityEvent.cost_element_id == ce.cost_element_id
+                        )
+                    ).all()
+                    for quality_event in existing_quality_events:
+                        session.delete(quality_event)
+                    session.delete(ce)
+                session.delete(wbe)
+            session.flush()
 
-            # Create initial budget allocation for this cost element
-            budget_allocation_data = BudgetAllocationCreate(
-                cost_element_id=ce.cost_element_id,
-                allocation_date=project.start_date,
-                budget_amount=ce.budget_bac,
-                revenue_amount=ce.revenue_plan,
-                allocation_type="initial",
-                description="Initial budget allocation from seed data",
-                created_by_id=first_superuser.id,
+        # Process earned value entries that are shared across the project
+        earned_value_entries_by_type: dict[str, list[dict]] = {}
+        for ev_entry in project_entry.get("earned_value_entries", []):
+            cost_element_ref = ev_entry.get("cost_element_ref") or ev_entry.get(
+                "cost_element_id"
             )
-            budget_allocation = BudgetAllocation.model_validate(budget_allocation_data)
-            session.add(budget_allocation)
-
-            # Create schedule for this cost element
-            # Use schedule data from JSON if available, otherwise use project dates
-            schedule_info = ce_data.get("schedule")
-            if schedule_info:
-                # Schedule data explicitly provided in JSON
-                schedule_start = date.fromisoformat(schedule_info["start_date"])
-                schedule_end = date.fromisoformat(schedule_info["end_date"])
-                schedule_progression = schedule_info.get("progression_type", "linear")
-                schedule_notes = schedule_info.get("notes")
-            else:
-                # Fallback to project dates (backward compatibility)
-                schedule_start = project.start_date
-                schedule_end = project.planned_completion_date
-                schedule_progression = "linear"
-                schedule_notes = "Initial schedule baseline from seed data"
-
-            schedule_data = CostElementScheduleCreate(
-                cost_element_id=ce.cost_element_id,
-                start_date=schedule_start,
-                end_date=schedule_end,
-                progression_type=schedule_progression,
-                notes=schedule_notes,
-                created_by_id=first_superuser.id,
-            )
-            schedule = CostElementSchedule.model_validate(schedule_data)
-            session.add(schedule)
-
-            # Create cost registrations if provided in seed data
-            cost_registrations_data = ce_data.get("cost_registrations", [])
-            for cr_data in cost_registrations_data:
-                # Convert amount to Decimal if it's a float
-                amount = cr_data.get("amount", 0.0)
-                if isinstance(amount, float):
-                    amount = Decimal(str(amount))
-                elif isinstance(amount, int | str):
-                    amount = Decimal(str(amount))
-                else:
-                    amount = Decimal("0.00")
-
-                cost_registration_data = CostRegistrationCreate(
-                    cost_element_id=ce.cost_element_id,
-                    registration_date=date.fromisoformat(cr_data["registration_date"]),
-                    amount=amount,
-                    cost_category=cr_data["cost_category"],
-                    invoice_number=cr_data.get("invoice_number"),
-                    description=cr_data["description"],
-                    is_quality_cost=cr_data.get("is_quality_cost", False),
+            if cost_element_ref:
+                earned_value_entries_by_type.setdefault(cost_element_ref, []).append(
+                    ev_entry
                 )
-                # Add created_by_id when creating the model (not in CostRegistrationCreate schema)
-                cr_model_data = cost_registration_data.model_dump()
-                cr_model_data["created_by_id"] = first_superuser.id
-                cost_registration = CostRegistration.model_validate(cr_model_data)
-                session.add(cost_registration)
+
+        # Create WBEs and cost elements
+        for wbe_item in project_entry.get("wbes", []):
+            wbe_data = wbe_item["wbe"].copy()
+            wbe_data["project_id"] = project.project_id
+            wbe_create = WBECreate(**wbe_data)
+            wbe = WBE.model_validate(wbe_create)
+            session.add(wbe)
+            session.flush()  # Get wbe_id without committing
+
+            # Create cost elements for this WBE
+            for ce_data in wbe_item.get("cost_elements", []):
+                # Validate cost_element_type_id exists
+                cost_element_type_id_str = ce_data.get("cost_element_type_id")
+                if not cost_element_type_id_str:
+                    continue  # Skip if no cost_element_type_id
+
+                try:
+                    cost_element_type_id = uuid.UUID(cost_element_type_id_str)
+                except ValueError:
+                    continue  # Skip if invalid UUID
+
+                # Verify cost element type exists
+                cost_element_type = session.get(CostElementType, cost_element_type_id)
+                if not cost_element_type:
+                    continue  # Skip if cost element type doesn't exist
+
+                ce_data_with_wbe = ce_data.copy()
+                ce_data_with_wbe["wbe_id"] = wbe.wbe_id
+                ce_data_with_wbe["cost_element_type_id"] = cost_element_type_id
+                ce_create = CostElementCreate(**ce_data_with_wbe)
+                ce = CostElement.model_validate(ce_create)
+                session.add(ce)
+                session.flush()  # Get cost_element_id without committing
+
+                # Create initial budget allocation for this cost element
+                budget_allocation_data = BudgetAllocationCreate(
+                    cost_element_id=ce.cost_element_id,
+                    allocation_date=project.start_date,
+                    budget_amount=ce.budget_bac,
+                    revenue_amount=ce.revenue_plan,
+                    allocation_type="initial",
+                    description="Initial budget allocation from seed data",
+                    created_by_id=first_superuser.id,
+                )
+                budget_allocation = BudgetAllocation.model_validate(
+                    budget_allocation_data
+                )
+                session.add(budget_allocation)
+
+                # Create schedule for this cost element
+                # Use schedule data from JSON if available, otherwise use project dates
+                schedule_info = ce_data.get("schedule", {})
+                if schedule_info:
+                    # Schedule data explicitly provided in JSON
+                    schedule_start = date.fromisoformat(schedule_info["start_date"])
+                    schedule_end = date.fromisoformat(schedule_info["end_date"])
+                    schedule_progression = schedule_info.get(
+                        "progression_type", "linear"
+                    )
+                    schedule_notes = schedule_info.get("notes")
+                else:
+                    # Fallback to project dates (backward compatibility)
+                    schedule_start = project.start_date
+                    schedule_end = project.planned_completion_date
+                    schedule_progression = "linear"
+                    schedule_notes = "Initial schedule baseline from seed data"
+
+                schedule_data = CostElementScheduleCreate(
+                    cost_element_id=ce.cost_element_id,
+                    start_date=schedule_start,
+                    end_date=schedule_end,
+                    progression_type=schedule_progression,
+                    notes=schedule_notes,
+                    created_by_id=first_superuser.id,
+                )
+                schedule = CostElementSchedule.model_validate(schedule_data)
+                session.add(schedule)
+
+                # Create cost registrations if provided in seed data
+                cost_registrations_data = ce_data.get("cost_registrations", [])
+                for cr_data in cost_registrations_data:
+                    # Convert amount to Decimal if it's a float
+                    amount = cr_data.get("amount", 0.0)
+                    if isinstance(amount, float):
+                        amount = Decimal(str(amount))
+                    elif isinstance(amount, int | str):
+                        amount = Decimal(str(amount))
+                    else:
+                        amount = Decimal("0.00")
+
+                    cost_registration_data = CostRegistrationCreate(
+                        cost_element_id=ce.cost_element_id,
+                        registration_date=date.fromisoformat(
+                            cr_data["registration_date"]
+                        ),
+                        amount=amount,
+                        cost_category=cr_data["cost_category"],
+                        invoice_number=cr_data.get("invoice_number"),
+                        description=cr_data["description"],
+                        is_quality_cost=cr_data.get("is_quality_cost", False),
+                    )
+                    # Add created_by_id when creating the model (not in CostRegistrationCreate schema)
+                    cr_model_data = cost_registration_data.model_dump()
+                    cr_model_data["created_by_id"] = first_superuser.id
+                    cost_registration = CostRegistration.model_validate(cr_model_data)
+                    session.add(cost_registration)
+
+                # Create earned value entries if provided in seed data
+                earned_value_entries_data = ce_data.get("earned_value_entries") or []
+                cost_element_type_id_str = ce_data.get("cost_element_type_id")
+                if not earned_value_entries_data and cost_element_type_id_str:
+                    earned_value_entries_data = earned_value_entries_by_type.get(
+                        cost_element_type_id_str, []
+                    )
+
+                for ev_data in earned_value_entries_data:
+                    percent_complete_raw = ev_data.get("percent_complete", 0.0)
+                    if isinstance(percent_complete_raw, Decimal):
+                        percent_complete = percent_complete_raw
+                    elif isinstance(percent_complete_raw, float | int | str):
+                        percent_complete = Decimal(str(percent_complete_raw))
+                    else:
+                        percent_complete = Decimal("0.00")
+
+                    earned_value_raw = ev_data.get("earned_value")
+                    if earned_value_raw is None:
+                        earned_value_amount = None
+                    elif isinstance(earned_value_raw, Decimal):
+                        earned_value_amount = earned_value_raw
+                    elif isinstance(earned_value_raw, float | int | str):
+                        earned_value_amount = Decimal(str(earned_value_raw))
+                    else:
+                        earned_value_amount = None
+
+                    earned_value_entry_data = EarnedValueEntryCreate(
+                        cost_element_id=ce.cost_element_id,
+                        completion_date=date.fromisoformat(ev_data["completion_date"]),
+                        percent_complete=percent_complete,
+                        earned_value=earned_value_amount,
+                        deliverables=ev_data.get("deliverables"),
+                        description=ev_data.get("description"),
+                    )
+                    ev_model_data = earned_value_entry_data.model_dump()
+                    ev_model_data["created_by_id"] = first_superuser.id
+                    earned_value_entry = EarnedValueEntry.model_validate(ev_model_data)
+                    session.add(earned_value_entry)
 
     session.commit()

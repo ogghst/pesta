@@ -25,6 +25,7 @@ export type BaselineCostElementWithCostElementPublic = {
     actual_ac?: (string | null);
     forecast_eac?: (string | null);
     earned_ev?: (string | null);
+    percent_complete?: (string | null);
     baseline_cost_element_id: string;
     baseline_id: string;
     cost_element_id: string;
@@ -391,7 +392,6 @@ export type EarnedValueEntryPublic = {
     description?: (string | null);
     earned_value_id: string;
     cost_element_id: string;
-    baseline_id?: (string | null);
     created_by_id: string;
     created_at: string;
     last_modified_at: string;
@@ -727,6 +727,19 @@ export type BaselineLogsGetBaselineCostElementsData = {
 };
 
 export type BaselineLogsGetBaselineCostElementsResponse = (BaselineCostElementsPublic);
+
+export type BaselineLogsGetBaselineEarnedValueEntriesData = {
+    baselineId: string;
+    /**
+     * Filter by cost element ID
+     */
+    costElementId?: (string | null);
+    limit?: number;
+    projectId: string;
+    skip?: number;
+};
+
+export type BaselineLogsGetBaselineEarnedValueEntriesResponse = (EarnedValueEntriesPublic);
 
 export type BudgetSummaryGetProjectBudgetSummaryData = {
     projectId: string;

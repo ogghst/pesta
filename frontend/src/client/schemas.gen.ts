@@ -50,6 +50,18 @@ export const BaselineCostElementWithCostElementPublicSchema = {
             ],
             title: 'Earned Ev'
         },
+        percent_complete: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Percent Complete'
+        },
         baseline_cost_element_id: {
             type: 'string',
             format: 'uuid',
@@ -1727,18 +1739,6 @@ export const EarnedValueEntryPublicSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Cost Element Id'
-        },
-        baseline_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Baseline Id'
         },
         created_by_id: {
             type: 'string',

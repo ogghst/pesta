@@ -70,11 +70,11 @@ Cost registrations shall update the Actual Cost (AC) for the associated cost ele
 
 ### 6.3 Earned Value Recording
 
-Users must be able to record the percentage of work completed for cost elements based on physical progress and deliverables achieved. The system shall maintain a baseline of earned value progression for each cost element, tracking the percentage of work completed at specific dates.
+Users must be able to record the percentage of work completed for cost elements based on physical progress and deliverables achieved. Operational earned value entries remain editable until replaced, while baseline snapshots capture the latest values for historical comparison.
 
 Each earned value entry shall capture the completion date and the percentage of work completed (percent complete) representing the physical completion of the work scope. The system shall calculate Earned Value (EV) using the formula $EV = BAC \times \%\ \text{di completamento fisico}$ where BAC is the Budget at Completion for the cost element. For example, if a cost element has $BAC = €100{,}000$ and is 30% physically complete, then $EV = 100{,}000 \times 0{,}30 = €30{,}000$.
 
-Earned value entries may also capture specific deliverables achieved and descriptive notes. The system shall use these entries to calculate performance metrics and identify variances. The earned value percentage must be baselined and maintained as historical record for trend analysis.
+Earned value entries may also capture specific deliverables achieved and descriptive notes. Whenever a baseline is created, the system shall snapshot the latest percent complete and earned value onto the corresponding Baseline Cost Element, enabling trend analysis without restricting subsequent operational updates.
 
 ## 7. Forecasting Requirements
 
@@ -126,9 +126,9 @@ The system must account for quality event costs in EVM calculations without adju
 
 The system shall support the creation of cost and schedule baselines at significant project milestones. Baseline events must be configurable but shall include at minimum the following standard milestones: project kickoff, bill of materials release, engineering completion, procurement completion, manufacturing start, shipment, site arrival, commissioning start, commissioning completion, and project closeout.
 
-Each baseline creation event must capture the baseline date, event description, event classification (milestone type), responsible department or function, and a snapshot of all current budget, cost, revenue, and forecast data for all WBEs and cost elements.
+Each baseline creation event must capture the baseline date, event description, event classification (milestone type), responsible department or function, and a snapshot of all current budget, cost, revenue, earned value, percent complete, and forecast data for all WBEs and cost elements.
 
-Baseline metadata (including owning department, `is_pmb` flag, cancellation status, and milestone classification) shall be stored directly on the **Baseline Log** record, which serves as the single source of truth for baseline identity. Detailed financial snapshots remain in **Baseline Cost Element** records referencing the associated `baseline_id`.
+Baseline metadata (including owning department, `is_pmb` flag, cancellation status, and milestone classification) shall be stored directly on the **Baseline Log** record, which serves as the single source of truth for baseline identity. Detailed financial snapshots, including the latest physical percent complete and earned value for each cost element, remain in **Baseline Cost Element** records referencing the associated `baseline_id`.
 
 ### 10.2 Baseline Comparison and Variance Analysis
 

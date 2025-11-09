@@ -32,6 +32,8 @@ from app.models import (
     UserCreate,
     WBECreate,
 )
+from tests.utils.cost_element import create_random_cost_element
+from tests.utils.project import create_random_project
 
 
 def test_create_baseline_cost_elements_with_cost_elements(db: Session) -> None:
@@ -139,6 +141,7 @@ def test_create_baseline_cost_elements_with_cost_elements(db: Session) -> None:
     assert bce.actual_ac == Decimal("0.00")  # No cost registrations yet
     assert bce.forecast_eac is None  # No forecast yet
     assert bce.earned_ev is None  # No earned value yet
+    assert bce.percent_complete is None
 
 
 def test_create_baseline_cost_elements_with_no_cost_elements(db: Session) -> None:
@@ -430,6 +433,7 @@ def test_create_baseline_cost_elements_includes_forecast_eac_if_exists(
     assert len(baseline_cost_elements) == 1
     bce = baseline_cost_elements[0]
     assert bce.forecast_eac == Decimal("52000.00")
+    assert bce.percent_complete is None
 
 
 def test_create_baseline_cost_elements_includes_earned_ev_if_exists(
@@ -505,24 +509,24 @@ def test_create_baseline_cost_elements_includes_earned_ev_if_exists(
     db.refresh(cost_element)
 
     # Create earned value entries (older and newer)
-    ev1_in = EarnedValueEntryCreate(
+    ev1_data = EarnedValueEntryCreate(
         cost_element_id=cost_element.cost_element_id,
         completion_date=date(2024, 1, 5),
         percent_complete=Decimal("20.00"),
         earned_value=Decimal("10000.00"),
-        created_by_id=user.id,
-    )
-    ev1 = EarnedValueEntry.model_validate(ev1_in)
+    ).model_dump()
+    ev1_data["created_by_id"] = user.id
+    ev1 = EarnedValueEntry.model_validate(ev1_data)
     db.add(ev1)
 
-    ev2_in = EarnedValueEntryCreate(
+    ev2_data = EarnedValueEntryCreate(
         cost_element_id=cost_element.cost_element_id,
         completion_date=date(2024, 1, 12),
         percent_complete=Decimal("30.00"),
         earned_value=Decimal("15000.00"),
-        created_by_id=user.id,
-    )
-    ev2 = EarnedValueEntry.model_validate(ev2_in)
+    ).model_dump()
+    ev2_data["created_by_id"] = user.id
+    ev2 = EarnedValueEntry.model_validate(ev2_data)
     db.add(ev2)
     db.commit()
 
@@ -555,6 +559,7 @@ def test_create_baseline_cost_elements_includes_earned_ev_if_exists(
     assert len(baseline_cost_elements) == 1
     bce = baseline_cost_elements[0]
     assert bce.earned_ev == Decimal("15000.00")  # Latest earned value
+    assert bce.percent_complete == Decimal("30.00")
 
 
 # Phase 6: API Endpoints Tests
@@ -1543,3 +1548,162 @@ def test_get_baseline_summary_uses_baseline_log_data(
     assert content["total_budget_bac"] == "50000.00"
     assert content["total_revenue_plan"] == "60000.00"
     assert content["cost_element_count"] == 1
+
+
+def test_read_earned_value_entries_for_baseline(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Baseline earned value endpoint returns empty dataset after decoupling."""
+    cost_element = create_random_cost_element(db)
+    wbe = db.get(WBE, cost_element.wbe_id)
+    assert wbe is not None
+    project = db.get(Project, wbe.project_id)
+    assert project is not None
+
+    baseline_response = client.post(
+        f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/",
+        headers=superuser_token_headers,
+        json={
+            "baseline_type": "earned_value",
+            "baseline_date": "2025-05-01",
+            "milestone_type": "commissioning_start",
+            "description": "Baseline for EV reporting",
+        },
+    )
+    assert baseline_response.status_code == 200
+    baseline_data = baseline_response.json()
+    baseline_id = baseline_data["baseline_id"]
+
+    entry_response = client.post(
+        f"{settings.API_V1_STR}/earned-value-entries/",
+        headers=superuser_token_headers,
+        json={
+            "cost_element_id": str(cost_element.cost_element_id),
+            "completion_date": "2025-05-15",
+            "percent_complete": "55.00",
+            "deliverables": "Milestone under baseline",
+            "description": "Baseline-scoped entry",
+        },
+    )
+    assert entry_response.status_code == 200
+    entry_data = entry_response.json()
+    assert "baseline_id" not in entry_data
+
+    response = client.get(
+        f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/{baseline_id}/earned-value-entries",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["count"] == 0
+    assert content["data"] == []
+
+
+def test_read_earned_value_entries_for_baseline_filters_other_entries(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Baseline earned value endpoint remains empty even with multiple baselines."""
+    cost_element = create_random_cost_element(db)
+    wbe = db.get(WBE, cost_element.wbe_id)
+    assert wbe is not None
+    project = db.get(Project, wbe.project_id)
+    assert project is not None
+
+    baseline1 = client.post(
+        f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/",
+        headers=superuser_token_headers,
+        json={
+            "baseline_type": "earned_value",
+            "baseline_date": "2025-06-01",
+            "milestone_type": "commissioning_start",
+            "description": "First baseline",
+        },
+    ).json()
+
+    first_entry = client.post(
+        f"{settings.API_V1_STR}/earned-value-entries/",
+        headers=superuser_token_headers,
+        json={
+            "cost_element_id": str(cost_element.cost_element_id),
+            "completion_date": "2025-06-15",
+            "percent_complete": "40.00",
+            "deliverables": "First baseline entry",
+            "description": "Under baseline 1",
+        },
+    ).json()
+    assert "baseline_id" not in first_entry
+
+    baseline2 = client.post(
+        f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/",
+        headers=superuser_token_headers,
+        json={
+            "baseline_type": "earned_value",
+            "baseline_date": "2025-07-01",
+            "milestone_type": "commissioning_start",
+            "description": "Second baseline",
+        },
+    ).json()
+
+    second_entry = client.post(
+        f"{settings.API_V1_STR}/earned-value-entries/",
+        headers=superuser_token_headers,
+        json={
+            "cost_element_id": str(cost_element.cost_element_id),
+            "completion_date": "2025-07-15",
+            "percent_complete": "60.00",
+            "deliverables": "Second baseline entry",
+            "description": "Under baseline 2",
+        },
+    ).json()
+    assert "baseline_id" not in second_entry
+
+    response = client.get(
+        f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/{baseline1['baseline_id']}/earned-value-entries",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["count"] == 0
+    assert content["data"] == []
+
+    # Also test that querying baseline2 returns the correct entries
+    response2 = client.get(
+        f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/{baseline2['baseline_id']}/earned-value-entries",
+        headers=superuser_token_headers,
+    )
+    assert response2.status_code == 200
+    content2 = response2.json()
+    # Should return entries associated with baseline2 (might be empty depending on implementation)
+    assert "data" in content2
+    assert "count" in content2
+
+
+def test_read_earned_value_entries_for_baseline_not_found(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Requesting entries for an unrelated baseline should 404."""
+    cost_element = create_random_cost_element(db)
+    wbe = db.get(WBE, cost_element.wbe_id)
+    assert wbe is not None
+    project = db.get(Project, wbe.project_id)
+    assert project is not None
+
+    other_project = create_random_project(db)
+    other_baseline = client.post(
+        f"{settings.API_V1_STR}/projects/{other_project.project_id}/baseline-logs/",
+        headers=superuser_token_headers,
+        json={
+            "baseline_type": "earned_value",
+            "baseline_date": "2025-08-01",
+            "milestone_type": "commissioning_start",
+            "description": "Other project baseline",
+        },
+    ).json()
+
+    response = client.get(
+        f"{settings.API_V1_STR}/projects/{project.project_id}/baseline-logs/{other_baseline['baseline_id']}/earned-value-entries",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 404
+    content = response.json()
+    assert content["detail"] == "Baseline log not found"

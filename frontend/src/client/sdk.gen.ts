@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BaselineLogsListBaselineLogsData, BaselineLogsListBaselineLogsResponse, BaselineLogsCreateBaselineLogData, BaselineLogsCreateBaselineLogResponse, BaselineLogsReadBaselineLogData, BaselineLogsReadBaselineLogResponse, BaselineLogsUpdateBaselineLogData, BaselineLogsUpdateBaselineLogResponse, BaselineLogsCancelBaselineLogData, BaselineLogsCancelBaselineLogResponse, BaselineLogsGetBaselineSnapshotSummaryData, BaselineLogsGetBaselineSnapshotSummaryResponse, BaselineLogsGetBaselineCostElementsByWbeData, BaselineLogsGetBaselineCostElementsByWbeResponse, BaselineLogsGetBaselineCostElementsData, BaselineLogsGetBaselineCostElementsResponse, BudgetSummaryGetProjectBudgetSummaryData, BudgetSummaryGetProjectBudgetSummaryResponse, BudgetSummaryGetWbeBudgetSummaryData, BudgetSummaryGetWbeBudgetSummaryResponse, BudgetTimelineGetCostElementsWithSchedulesData, BudgetTimelineGetCostElementsWithSchedulesResponse, CostCategoriesReadCostCategoriesResponse, CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, CostElementSchedulesReadScheduleByCostElementData, CostElementSchedulesReadScheduleByCostElementResponse, CostElementSchedulesCreateScheduleData, CostElementSchedulesCreateScheduleResponse, CostElementSchedulesUpdateScheduleData, CostElementSchedulesUpdateScheduleResponse, CostElementSchedulesDeleteScheduleData, CostElementSchedulesDeleteScheduleResponse, CostElementTypesReadCostElementTypesResponse, CostRegistrationsReadCostRegistrationsData, CostRegistrationsReadCostRegistrationsResponse, CostRegistrationsCreateCostRegistrationData, CostRegistrationsCreateCostRegistrationResponse, CostRegistrationsReadCostRegistrationData, CostRegistrationsReadCostRegistrationResponse, CostRegistrationsUpdateCostRegistrationData, CostRegistrationsUpdateCostRegistrationResponse, CostRegistrationsDeleteCostRegistrationData, CostRegistrationsDeleteCostRegistrationResponse, CostSummaryGetCostElementCostSummaryData, CostSummaryGetCostElementCostSummaryResponse, CostSummaryGetWbeCostSummaryData, CostSummaryGetWbeCostSummaryResponse, CostSummaryGetProjectCostSummaryData, CostSummaryGetProjectCostSummaryResponse, CostTimelineGetProjectCostTimelineData, CostTimelineGetProjectCostTimelineResponse, EarnedValueEntriesReadEarnedValueEntriesData, EarnedValueEntriesReadEarnedValueEntriesResponse, EarnedValueEntriesCreateEarnedValueEntryData, EarnedValueEntriesCreateEarnedValueEntryResponse, EarnedValueEntriesReadEarnedValueEntryData, EarnedValueEntriesReadEarnedValueEntryResponse, EarnedValueEntriesUpdateEarnedValueEntryData, EarnedValueEntriesUpdateEarnedValueEntryResponse, EarnedValueEntriesDeleteEarnedValueEntryData, EarnedValueEntriesDeleteEarnedValueEntryResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesReadWbeData, WbesReadWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse } from './types.gen';
+import type { BaselineLogsListBaselineLogsData, BaselineLogsListBaselineLogsResponse, BaselineLogsCreateBaselineLogData, BaselineLogsCreateBaselineLogResponse, BaselineLogsReadBaselineLogData, BaselineLogsReadBaselineLogResponse, BaselineLogsUpdateBaselineLogData, BaselineLogsUpdateBaselineLogResponse, BaselineLogsCancelBaselineLogData, BaselineLogsCancelBaselineLogResponse, BaselineLogsGetBaselineSnapshotSummaryData, BaselineLogsGetBaselineSnapshotSummaryResponse, BaselineLogsGetBaselineCostElementsByWbeData, BaselineLogsGetBaselineCostElementsByWbeResponse, BaselineLogsGetBaselineCostElementsData, BaselineLogsGetBaselineCostElementsResponse, BaselineLogsGetBaselineEarnedValueEntriesData, BaselineLogsGetBaselineEarnedValueEntriesResponse, BudgetSummaryGetProjectBudgetSummaryData, BudgetSummaryGetProjectBudgetSummaryResponse, BudgetSummaryGetWbeBudgetSummaryData, BudgetSummaryGetWbeBudgetSummaryResponse, BudgetTimelineGetCostElementsWithSchedulesData, BudgetTimelineGetCostElementsWithSchedulesResponse, CostCategoriesReadCostCategoriesResponse, CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, CostElementSchedulesReadScheduleByCostElementData, CostElementSchedulesReadScheduleByCostElementResponse, CostElementSchedulesCreateScheduleData, CostElementSchedulesCreateScheduleResponse, CostElementSchedulesUpdateScheduleData, CostElementSchedulesUpdateScheduleResponse, CostElementSchedulesDeleteScheduleData, CostElementSchedulesDeleteScheduleResponse, CostElementTypesReadCostElementTypesResponse, CostRegistrationsReadCostRegistrationsData, CostRegistrationsReadCostRegistrationsResponse, CostRegistrationsCreateCostRegistrationData, CostRegistrationsCreateCostRegistrationResponse, CostRegistrationsReadCostRegistrationData, CostRegistrationsReadCostRegistrationResponse, CostRegistrationsUpdateCostRegistrationData, CostRegistrationsUpdateCostRegistrationResponse, CostRegistrationsDeleteCostRegistrationData, CostRegistrationsDeleteCostRegistrationResponse, CostSummaryGetCostElementCostSummaryData, CostSummaryGetCostElementCostSummaryResponse, CostSummaryGetWbeCostSummaryData, CostSummaryGetWbeCostSummaryResponse, CostSummaryGetProjectCostSummaryData, CostSummaryGetProjectCostSummaryResponse, CostTimelineGetProjectCostTimelineData, CostTimelineGetProjectCostTimelineResponse, EarnedValueEntriesReadEarnedValueEntriesData, EarnedValueEntriesReadEarnedValueEntriesResponse, EarnedValueEntriesCreateEarnedValueEntryData, EarnedValueEntriesCreateEarnedValueEntryResponse, EarnedValueEntriesReadEarnedValueEntryData, EarnedValueEntriesReadEarnedValueEntryResponse, EarnedValueEntriesUpdateEarnedValueEntryData, EarnedValueEntriesUpdateEarnedValueEntryResponse, EarnedValueEntriesDeleteEarnedValueEntryData, EarnedValueEntriesDeleteEarnedValueEntryResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesReadWbeData, WbesReadWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse } from './types.gen';
 
 export class BaselineLogsService {
     /**
@@ -270,6 +270,47 @@ export class BaselineLogsService {
                 baseline_id: data.baselineId
             },
             query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Baseline Earned Value Entries
+     * Get earned value entries associated with a specific baseline.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     * cost_element_id: Optional filter for a specific cost element
+     * skip: Pagination offset
+     * limit: Pagination limit
+     *
+     * Returns:
+     * EarnedValueEntriesPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @param data.costElementId Filter by cost element ID
+     * @param data.skip
+     * @param data.limit
+     * @returns EarnedValueEntriesPublic Successful Response
+     * @throws ApiError
+     */
+    public static getBaselineEarnedValueEntries(data: BaselineLogsGetBaselineEarnedValueEntriesData): CancelablePromise<BaselineLogsGetBaselineEarnedValueEntriesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}/earned-value-entries',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId
+            },
+            query: {
+                cost_element_id: data.costElementId,
                 skip: data.skip,
                 limit: data.limit
             },

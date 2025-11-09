@@ -1,6 +1,6 @@
 {
   "project": {
-    "project_name": "CC2134",
+    "project_name": "Sample Project",
     "customer_name": "",
     "contract_value": 3562699.0,
     "project_code": "CC2134",
@@ -9,7 +9,7 @@
     "planned_completion_date": "2026-12-31",
     "project_manager_id": "REPLACE_WITH_VALID_USER_UUID",
     "status": "active",
-    "notes": "Generated from CSV: cc2134_Project Costs and Hours.csv"
+    "notes": "Generated from CSV: Project Costs and Hours.csv"
   },
   "wbes": [
     {
@@ -32,14 +32,14 @@
           "notes": "Cost element for Technical documentation from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
             "notes": "Schedule for Technical documentation"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 2244.0,
+              "amount": 3141.6,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial technical documentation cost registration",
@@ -47,7 +47,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 2992.0,
+              "amount": 4188.8,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early technical documentation cost registration",
@@ -55,7 +55,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 3740.0,
+              "amount": 5236.0,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-03-003",
               "description": "Mid technical documentation cost registration",
@@ -63,7 +63,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 3740.0,
+              "amount": 5236.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late technical documentation cost registration",
@@ -71,11 +71,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 2244.0,
+              "amount": 3146.4,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final technical documentation cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 5.0,
+              "earned_value": 748.0,
+              "deliverables": "Initial documentation draft completed (behind schedule)",
+              "description": "Documentation 5% complete - delayed start to project"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 15.0,
+              "earned_value": 2244.0,
+              "deliverables": "Design documentation 30% complete (significantly behind schedule)",
+              "description": "Documentation 15% complete - substantial delay evident"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 25.0,
+              "earned_value": 3740.0,
+              "deliverables": "Design documentation 50% complete (major delay)",
+              "description": "Documentation 25% complete - major schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 35.0,
+              "earned_value": 5236.0,
+              "deliverables": "Documentation nearly complete but still behind schedule",
+              "description": "Documentation 35% complete - continuing behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 42.0,
+              "earned_value": 6283.2,
+              "deliverables": "Final documentation delivery",
+              "description": "Documentation 42% complete - project significantly delayed"
             }
           ]
         }
@@ -101,14 +138,14 @@
           "notes": "Cost element for Hardware design from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Hardware design"
+            "notes": "Schedule for Hardware design - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 12.0,
+              "amount": 16.8,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial hardware design cost registration",
@@ -116,7 +153,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 16.0,
+              "amount": 22.4,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early hardware design cost registration",
@@ -124,7 +161,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 20.0,
+              "amount": 28.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Mid hardware design cost registration",
@@ -132,7 +169,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 20.0,
+              "amount": 28.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late hardware design cost registration",
@@ -140,11 +177,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 12.0,
+              "amount": 16.8,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final hardware design cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.0,
+              "earned_value": 2.4,
+              "deliverables": "Initial hardware design started (very slow progress)",
+              "description": "Hardware design 3% complete - very slow start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 8.0,
+              "earned_value": 6.4,
+              "deliverables": "Hardware design 15% complete (poor progress)",
+              "description": "Hardware design 8% complete - poor progress rate"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 12.0,
+              "earned_value": 9.6,
+              "deliverables": "Hardware design 25% complete (significant delay)",
+              "description": "Hardware design 12% complete - significant schedule delay"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 18.0,
+              "earned_value": 14.4,
+              "deliverables": "Hardware design 40% complete (continuing delay)",
+              "description": "Hardware design 18% complete - continuing schedule problems"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 22.0,
+              "earned_value": 17.6,
+              "deliverables": "Hardware design final phase begun",
+              "description": "Hardware design 22% complete - project badly delayed"
             }
           ]
         },
@@ -158,14 +232,14 @@
           "notes": "Cost element for TP Materials from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for TP Materials"
+            "notes": "Schedule for TP Materials - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 4654.35,
+              "amount": 6516.09,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-01-001",
               "description": "Initial tp materials cost registration",
@@ -173,7 +247,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 6205.8,
+              "amount": 8688.12,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-02-002",
               "description": "Early tp materials cost registration",
@@ -181,7 +255,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 7757.25,
+              "amount": 10860.15,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-03-003",
               "description": "Mid tp materials cost registration",
@@ -189,7 +263,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 7757.25,
+              "amount": 10860.15,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-04-004",
               "description": "Late tp materials cost registration",
@@ -197,11 +271,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 4654.35,
+              "amount": 6516.09,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-05-005",
               "description": "Final tp materials cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 40.0,
+              "earned_value": 12411.6,
+              "deliverables": "Materials procurement initiated (good progress)",
+              "description": "Materials 40% complete - better progress than other areas"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 60.0,
+              "earned_value": 18617.4,
+              "deliverables": "Materials 70% procured (sustained progress)",
+              "description": "Materials 60% complete - steady progress"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 75.0,
+              "earned_value": 23272.125,
+              "deliverables": "Materials almost completed (approaching completion)",
+              "description": "Materials 75% complete - approaching completion"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 85.0,
+              "earned_value": 26359.215,
+              "deliverables": "Final materials delivery (approaching end)",
+              "description": "Materials 85% complete - final deliveries"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 90.0,
+              "earned_value": 27926.1,
+              "deliverables": "Materials completion",
+              "description": "Materials 90% complete - project still delayed overall"
             }
           ]
         }
@@ -227,14 +338,14 @@
           "notes": "Cost element for Hardware design from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Hardware design"
+            "notes": "Schedule for Hardware design - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 72.6,
+              "amount": 101.64,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial hardware design cost registration",
@@ -242,7 +353,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 96.8,
+              "amount": 135.52,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early hardware design cost registration",
@@ -250,7 +361,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 121.0,
+              "amount": 169.4,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Mid hardware design cost registration",
@@ -258,7 +369,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 121.0,
+              "amount": 169.4,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late hardware design cost registration",
@@ -266,11 +377,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 72.6,
+              "amount": 101.64,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final hardware design cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 2.5,
+              "earned_value": 12.1,
+              "deliverables": "Initial hardware design started (very slow progress)",
+              "description": "Hardware design 2.5% complete - very slow start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 6.5,
+              "earned_value": 31.46,
+              "deliverables": "Hardware design 12% complete (poor progress)",
+              "description": "Hardware design 6.5% complete - poor progress rate"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 10.0,
+              "earned_value": 48.4,
+              "deliverables": "Hardware design 20% complete (significant delay)",
+              "description": "Hardware design 10% complete - significant schedule delay"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 15.0,
+              "earned_value": 72.6,
+              "deliverables": "Hardware design 35% complete (continuing delay)",
+              "description": "Hardware design 15% complete - continuing schedule problems"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 18.0,
+              "earned_value": 87.12,
+              "deliverables": "Hardware design final phase begun",
+              "description": "Hardware design 18% complete - project badly delayed"
             }
           ]
         },
@@ -284,14 +432,14 @@
           "notes": "Cost element for Manufacturing from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Manufacturing"
+            "notes": "Schedule for Manufacturing - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 219.45,
+              "amount": 307.23,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial manufacturing cost registration",
@@ -299,7 +447,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 292.6,
+              "amount": 409.64,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early manufacturing cost registration",
@@ -307,7 +455,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 365.75,
+              "amount": 512.05,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-03-003",
               "description": "Mid manufacturing cost registration",
@@ -315,7 +463,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 365.75,
+              "amount": 512.05,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late manufacturing cost registration",
@@ -323,11 +471,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 219.45,
+              "amount": 307.23,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final manufacturing cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 8.0,
+              "earned_value": 116.96,
+              "deliverables": "Manufacturing setup initiated (slow start)",
+              "description": "Manufacturing 8% complete - slower than planned"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 18.0,
+              "earned_value": 263.16,
+              "deliverables": "Manufacturing 35% complete (behind schedule)",
+              "description": "Manufacturing 18% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 25.0,
+              "earned_value": 365.75,
+              "deliverables": "Manufacturing 50% complete (delay evident)",
+              "description": "Manufacturing 25% complete - significant schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 32.0,
+              "earned_value": 468.64,
+              "deliverables": "Manufacturing progressing (continuing delay)",
+              "description": "Manufacturing 32% complete - continuing behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 38.0,
+              "earned_value": 555.74,
+              "deliverables": "Manufacturing nearing completion",
+              "description": "Manufacturing 38% complete - project delayed"
             }
           ]
         },
@@ -341,14 +526,14 @@
           "notes": "Cost element for Software design from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Software design"
+            "notes": "Schedule for Software design - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 3015.6,
+              "amount": 4221.84,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial software design cost registration",
@@ -356,7 +541,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 4020.8,
+              "amount": 5629.12,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early software design cost registration",
@@ -364,7 +549,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 5026.0,
+              "amount": 7036.4,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Mid software design cost registration",
@@ -372,7 +557,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 5026.0,
+              "amount": 7036.4,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late software design cost registration",
@@ -380,11 +565,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 3015.6,
+              "amount": 4221.84,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final software design cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.5,
+              "earned_value": 703.64,
+              "deliverables": "Software requirements draft (slower than planned)",
+              "description": "Software design 3.5% complete - delayed project start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 12.0,
+              "earned_value": 2412.42,
+              "deliverables": "Software design 25% complete (behind schedule)",
+              "description": "Software design 12% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 18.0,
+              "earned_value": 3618.65,
+              "deliverables": "Software design 40% complete (continuing delay)",
+              "description": "Software design 18% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 25.0,
+              "earned_value": 5026.05,
+              "deliverables": "Software design 65% complete (progressing slowly)",
+              "description": "Software design 25% complete - still behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 30.0,
+              "earned_value": 6030.12,
+              "deliverables": "Software design 75% complete (final phases)",
+              "description": "Software design 30% complete - project significantly delayed"
             }
           ]
         },
@@ -398,14 +620,14 @@
           "notes": "Cost element for Software testing from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Software testing"
+            "notes": "Schedule for Software testing - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 1248.75,
+              "amount": 1748.25,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial software testing cost registration",
@@ -413,7 +635,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 1665.0,
+              "amount": 2331.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early software testing cost registration",
@@ -421,7 +643,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 2081.25,
+              "amount": 2913.75,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Mid software testing cost registration",
@@ -429,7 +651,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 2081.25,
+              "amount": 2913.75,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late software testing cost registration",
@@ -437,11 +659,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 1248.75,
+              "amount": 1748.25,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final software testing cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 4.0,
+              "earned_value": 333.0,
+              "deliverables": "Test plan draft completed (slightly ahead of schedule)",
+              "description": "Software testing 4% complete - early progress"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 15.0,
+              "earned_value": 1248.75,
+              "deliverables": "Test cases 30% complete (behind other areas)",
+              "description": "Software testing 15% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 22.0,
+              "earned_value": 1831.5,
+              "deliverables": "Test execution 45% complete (continuing delays)",
+              "description": "Software testing 22% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 30.0,
+              "earned_value": 2497.5,
+              "deliverables": "Testing 70% complete (progressing but delayed)",
+              "description": "Software testing 30% complete - still behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 35.0,
+              "earned_value": 2913.75,
+              "deliverables": "Testing final phases (approaching completion)",
+              "description": "Software testing 35% complete - project delayed overall"
             }
           ]
         },
@@ -455,14 +714,14 @@
           "notes": "Cost element for TP Materials from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for TP Materials"
+            "notes": "Schedule for TP Materials - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 6379.2,
+              "amount": 8930.88,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-01-001",
               "description": "Initial tp materials cost registration",
@@ -470,7 +729,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 8505.6,
+              "amount": 11907.84,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-02-002",
               "description": "Early tp materials cost registration",
@@ -478,7 +737,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 10632.0,
+              "amount": 14884.8,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-03-003",
               "description": "Mid tp materials cost registration",
@@ -486,7 +745,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 10632.0,
+              "amount": 14884.8,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-04-004",
               "description": "Late tp materials cost registration",
@@ -494,11 +753,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 6379.2,
+              "amount": 8930.88,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-05-005",
               "description": "Final tp materials cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 45.0,
+              "earned_value": 19123.2,
+              "deliverables": "Material procurement phase 1 (good progress here)",
+              "description": "Materials 45% complete - better progress than other areas"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 65.0,
+              "earned_value": 27643.2,
+              "deliverables": "Material procurement phase 2 (consistent progress)",
+              "description": "Materials 65% complete - sustained progress"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 80.0,
+              "earned_value": 34022.4,
+              "deliverables": "Material procurement phase 3 (approaching completion)",
+              "description": "Materials 80% complete - approaching completion"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 90.0,
+              "earned_value": 38275.2,
+              "deliverables": "Material final delivery phase (nearing end)",
+              "description": "Materials 90% complete - final deliveries"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 95.0,
+              "earned_value": 40401.6,
+              "deliverables": "Materials completion",
+              "description": "Materials 95% complete - project still delayed overall"
             }
           ]
         }
@@ -524,14 +820,14 @@
           "notes": "Cost element for Hardware design from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Hardware design"
+            "notes": "Schedule for Hardware design - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 2446.2,
+              "amount": 3424.68,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial hardware design cost registration",
@@ -539,7 +835,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 3261.6,
+              "amount": 4566.24,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early hardware design cost registration",
@@ -547,7 +843,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 4077.0,
+              "amount": 5707.8,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Mid hardware design cost registration",
@@ -555,7 +851,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 4077.0,
+              "amount": 5707.8,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late hardware design cost registration",
@@ -563,11 +859,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 2446.2,
+              "amount": 3424.68,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final hardware design cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.0,
+              "earned_value": 489.24,
+              "deliverables": "Initial hardware design begun (behind schedule)",
+              "description": "Hardware design 3% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 10.0,
+              "earned_value": 1630.8,
+              "deliverables": "Preliminary hardware design 20% complete (delayed)",
+              "description": "Hardware design 10% complete - significant delay"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 18.0,
+              "earned_value": 2935.44,
+              "deliverables": "Hardware design 40% complete (well behind schedule)",
+              "description": "Hardware design 18% complete - substantial delay"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 25.0,
+              "earned_value": 4077.0,
+              "deliverables": "Hardware design 70% complete (still delayed)",
+              "description": "Hardware design 25% complete - continuing delay"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 32.0,
+              "earned_value": 5218.56,
+              "deliverables": "Final hardware design phase",
+              "description": "Hardware design 32% complete - project significantly delayed"
             }
           ]
         },
@@ -581,14 +914,14 @@
           "notes": "Cost element for Manufacturing from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Manufacturing"
+            "notes": "Schedule for Manufacturing - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 6834.75,
+              "amount": 9568.65,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial manufacturing cost registration",
@@ -596,7 +929,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 9113.0,
+              "amount": 12758.2,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early manufacturing cost registration",
@@ -604,7 +937,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 11391.25,
+              "amount": 15947.75,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-03-003",
               "description": "Mid manufacturing cost registration",
@@ -612,7 +945,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 11391.25,
+              "amount": 15947.75,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late manufacturing cost registration",
@@ -620,11 +953,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 6834.75,
+              "amount": 9568.65,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final manufacturing cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 5.0,
+              "earned_value": 2278.25,
+              "deliverables": "Manufacturing planning initiated (significantly behind)",
+              "description": "Manufacturing 5% complete - severely delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 12.0,
+              "earned_value": 5467.8,
+              "deliverables": "Manufacturing 20% complete (continuing delay)",
+              "description": "Manufacturing 12% complete - continuing behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 18.0,
+              "earned_value": 8201.7,
+              "deliverables": "Manufacturing 40% complete (substantial delay)",
+              "description": "Manufacturing 18% complete - substantial schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 25.0,
+              "earned_value": 11391.25,
+              "deliverables": "Manufacturing progressing slowly (continuing delay)",
+              "description": "Manufacturing 25% complete - still significantly behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 30.0,
+              "earned_value": 13669.5,
+              "deliverables": "Manufacturing approaching end (project delayed)",
+              "description": "Manufacturing 30% complete - project significantly delayed"
             }
           ]
         },
@@ -638,14 +1008,14 @@
           "notes": "Cost element for Software design from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Software design"
+            "notes": "Schedule for Software design - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 456.0,
+              "amount": 638.4,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial software design cost registration",
@@ -653,7 +1023,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 608.0,
+              "amount": 851.2,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early software design cost registration",
@@ -661,7 +1031,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 760.0,
+              "amount": 1064.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Mid software design cost registration",
@@ -669,7 +1039,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 760.0,
+              "amount": 1064.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late software design cost registration",
@@ -677,11 +1047,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 456.0,
+              "amount": 638.4,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final software design cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 4.0,
+              "earned_value": 121.6,
+              "deliverables": "Software design requirements initiated (behind schedule)",
+              "description": "Software design 4% complete - delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 10.0,
+              "earned_value": 304.0,
+              "deliverables": "Software design 15% complete (lagging behind plan)",
+              "description": "Software design 10% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 15.0,
+              "earned_value": 456.0,
+              "deliverables": "Software design 30% complete (continuing delay)",
+              "description": "Software design 15% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 20.0,
+              "earned_value": 608.0,
+              "deliverables": "Software design 55% complete (progressing slowly)",
+              "description": "Software design 20% complete - still behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 25.0,
+              "earned_value": 760.0,
+              "deliverables": "Software design finalizing (approaching completion)",
+              "description": "Software design 25% complete - project delayed overall"
             }
           ]
         },
@@ -695,14 +1102,14 @@
           "notes": "Cost element for Software testing from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Software testing"
+            "notes": "Schedule for Software testing - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 1718.4,
+              "amount": 2405.76,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial software testing cost registration",
@@ -710,7 +1117,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 2291.2,
+              "amount": 3207.68,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early software testing cost registration",
@@ -718,7 +1125,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 2864.0,
+              "amount": 4009.6,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Mid software testing cost registration",
@@ -726,7 +1133,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 2864.0,
+              "amount": 4009.6,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late software testing cost registration",
@@ -734,11 +1141,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 1718.4,
+              "amount": 2405.76,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final software testing cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 2.5,
+              "earned_value": 286.4,
+              "deliverables": "Testing plan completed (behind other areas)",
+              "description": "Software testing 2.5% complete - delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 7.0,
+              "earned_value": 802.24,
+              "deliverables": "Test cases 12% complete (lagging schedule)",
+              "description": "Software testing 7% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 12.0,
+              "earned_value": 1374.72,
+              "deliverables": "Test execution 25% complete (continuing delay)",
+              "description": "Software testing 12% complete - continuing schedule issues"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 18.0,
+              "earned_value": 2062.08,
+              "deliverables": "Testing 60% complete (slow progress)",
+              "description": "Software testing 18% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 22.0,
+              "earned_value": 2520.32,
+              "deliverables": "Testing final phase (approaching end)",
+              "description": "Software testing 22% complete - project significantly delayed"
             }
           ]
         },
@@ -752,14 +1196,14 @@
           "notes": "Cost element for TP Materials from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for TP Materials"
+            "notes": "Schedule for TP Materials - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 139673.4,
+              "amount": 195542.76,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-01-001",
               "description": "Initial tp materials cost registration",
@@ -767,7 +1211,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 186231.2,
+              "amount": 260723.68,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-02-002",
               "description": "Early tp materials cost registration",
@@ -775,7 +1219,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 232789.0,
+              "amount": 325904.6,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-03-003",
               "description": "Mid tp materials cost registration",
@@ -783,7 +1227,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 232789.0,
+              "amount": 325904.6,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-04-004",
               "description": "Late tp materials cost registration",
@@ -791,7 +1235,7 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 139673.4,
+              "amount": 195542.76,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-05-005",
               "description": "Final tp materials cost registration",
@@ -923,6 +1367,43 @@
               "description": "Final software design cost registration",
               "is_quality_cost": false
             }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 6.0,
+              "earned_value": 265.02,
+              "deliverables": "Software design requirements completed (slightly behind)",
+              "description": "Software design 6% complete - project delayed"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 14.0,
+              "earned_value": 617.71,
+              "deliverables": "Software design 25% complete (behind schedule)",
+              "description": "Software design 14% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 20.0,
+              "earned_value": 883.4,
+              "deliverables": "Software design 45% complete (continuing delays)",
+              "description": "Software design 20% complete - continuing delays"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 28.0,
+              "earned_value": 1236.52,
+              "deliverables": "Software design 70% complete (progressing slowly)",
+              "description": "Software design 28% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 33.0,
+              "earned_value": 1455.51,
+              "deliverables": "Software design finalizing (approaching end)",
+              "description": "Software design 33% complete - project significantly delayed"
+            }
           ]
         }
       ]
@@ -992,6 +1473,43 @@
               "description": "Final manufacturing cost registration",
               "is_quality_cost": false
             }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.0,
+              "earned_value": 350.04,
+              "deliverables": "Manufacturing planning initiated (significantly delayed)",
+              "description": "Manufacturing 3% complete - delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 8.0,
+              "earned_value": 933.44,
+              "deliverables": "Manufacturing 15% complete (behind schedule)",
+              "description": "Manufacturing 8% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 12.0,
+              "earned_value": 1399.32,
+              "deliverables": "Manufacturing 30% complete (continuing delay)",
+              "description": "Manufacturing 12% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 18.0,
+              "earned_value": 2099.4,
+              "deliverables": "Manufacturing 60% complete (progressing slowly)",
+              "description": "Manufacturing 18% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 22.0,
+              "earned_value": 2564.86,
+              "deliverables": "Manufacturing finalizing (approaching end)",
+              "description": "Manufacturing 22% complete - project delayed overall"
+            }
           ]
         },
         {
@@ -1048,6 +1566,43 @@
               "invoice_number": null,
               "description": "Final other costs cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 7.0,
+              "earned_value": 637.07,
+              "deliverables": "Other costs planning initiated (slight delay)",
+              "description": "Other costs 7% complete - slightly behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 16.0,
+              "earned_value": 1456.16,
+              "deliverables": "Other costs 25% complete (moderate delay)",
+              "description": "Other costs 16% complete - moderate schedule variance"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 22.0,
+              "earned_value": 2002.22,
+              "deliverables": "Other costs 40% complete (continuing delay)",
+              "description": "Other costs 22% complete - continuing schedule problems"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 30.0,
+              "earned_value": 2730.3,
+              "deliverables": "Other costs 70% complete (progressing but delayed)",
+              "description": "Other costs 30% complete - still behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 35.0,
+              "earned_value": 3185.35,
+              "deliverables": "Other costs finalizing (approaching end)",
+              "description": "Other costs 35% complete - project delayed overall"
             }
           ]
         },
@@ -1106,6 +1661,43 @@
               "description": "Final software testing cost registration",
               "is_quality_cost": false
             }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 4.5,
+              "earned_value": 132.66,
+              "deliverables": "Testing plan completed (slightly behind)",
+              "description": "Software testing 4.5% complete - early progress"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 10.0,
+              "earned_value": 294.8,
+              "deliverables": "Test cases 18% complete (lagging schedule)",
+              "description": "Software testing 10% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 15.0,
+              "earned_value": 442.2,
+              "deliverables": "Test execution 35% complete (continuing delays)",
+              "description": "Software testing 15% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 22.0,
+              "earned_value": 649.36,
+              "deliverables": "Testing 65% complete (progressing slowly)",
+              "description": "Software testing 22% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 26.0,
+              "earned_value": 762.32,
+              "deliverables": "Testing final phase (approaching end)",
+              "description": "Software testing 26% complete - project delayed overall"
+            }
           ]
         },
         {
@@ -1162,6 +1754,43 @@
               "invoice_number": "INV-CC2134-05-005",
               "description": "Final tp materials cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 35.0,
+              "earned_value": 56874.75,
+              "deliverables": "Materials procurement phase 1 (good progress here)",
+              "description": "Materials 35% complete - better progress than other areas"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 55.0,
+              "earned_value": 89372.25,
+              "deliverables": "Materials procurement phase 2 (consistently progressing)",
+              "description": "Materials 55% complete - sustained good progress"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 70.0,
+              "earned_value": 113746.5,
+              "deliverables": "Materials procurement phase 3 (approaching completion)",
+              "description": "Materials 70% complete - approaching completion"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 88.0,
+              "earned_value": 142995.6,
+              "deliverables": "Materials final delivery phase (nearing end)",
+              "description": "Materials 88% complete - final deliveries"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 95.0,
+              "earned_value": 154370.25,
+              "deliverables": "Materials completion",
+              "description": "Materials 95% complete - though project still delayed overall"
             }
           ]
         }
@@ -1232,6 +1861,43 @@
               "description": "Final hardware design cost registration",
               "is_quality_cost": false
             }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 2.0,
+              "earned_value": 89.04,
+              "deliverables": "Hardware design requirements initiated (very slow start)",
+              "description": "Hardware design 2% complete - very delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 6.0,
+              "earned_value": 267.12,
+              "deliverables": "Hardware design 12% complete (severely behind)",
+              "description": "Hardware design 6% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 10.0,
+              "earned_value": 445.2,
+              "deliverables": "Hardware design 25% complete (continuing delay)",
+              "description": "Hardware design 10% complete - continuing schedule problems"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 16.0,
+              "earned_value": 712.32,
+              "deliverables": "Hardware design 50% complete (progressing slowly)",
+              "description": "Hardware design 16% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 20.0,
+              "earned_value": 890.4,
+              "deliverables": "Hardware design finalizing (approaching end)",
+              "description": "Hardware design 20% complete - project significantly delayed"
+            }
           ]
         },
         {
@@ -1288,6 +1954,43 @@
               "invoice_number": null,
               "description": "Final software design cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.0,
+              "earned_value": 84.9,
+              "deliverables": "Software design requirements initiated (slightly behind)",
+              "description": "Software design 3% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 8.0,
+              "earned_value": 226.4,
+              "deliverables": "Software design 15% complete (lagging schedule)",
+              "description": "Software design 8% complete - lagging schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 12.0,
+              "earned_value": 339.6,
+              "deliverables": "Software design 30% complete (continuing delays)",
+              "description": "Software design 12% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 18.0,
+              "earned_value": 509.4,
+              "deliverables": "Software design 60% complete (progressing slowly)",
+              "description": "Software design 18% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 22.0,
+              "earned_value": 622.9,
+              "deliverables": "Software design finalizing approach (near completion)",
+              "description": "Software design 22% complete - project delayed overall"
             }
           ]
         }
@@ -1541,6 +2244,43 @@
               "description": "Final other costs cost registration",
               "is_quality_cost": false
             }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 5.0,
+              "earned_value": 1785.0,
+              "deliverables": "Other activities planning phase (slow start)",
+              "description": "Other costs 5% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 12.0,
+              "earned_value": 4284.0,
+              "deliverables": "Other costs 20% complete (lagging schedule)",
+              "description": "Other costs 12% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 18.0,
+              "earned_value": 6426.0,
+              "deliverables": "Other costs 40% complete (continuing delay)",
+              "description": "Other costs 18% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 25.0,
+              "earned_value": 8925.0,
+              "deliverables": "Other costs 70% complete (progressing slowly)",
+              "description": "Other costs 25% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 30.0,
+              "earned_value": 10710.0,
+              "deliverables": "Other costs finalizing (approaching completion)",
+              "description": "Other costs 30% complete - project delayed overall"
+            }
           ]
         },
         {
@@ -1597,6 +2337,43 @@
               "invoice_number": null,
               "description": "Final software design cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 2.5,
+              "earned_value": 1184.0,
+              "deliverables": "Software design planning initiated (behind schedule)",
+              "description": "Software design 2.5% complete - delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 7.0,
+              "earned_value": 3315.2,
+              "deliverables": "Software design 12% complete (lagging behind)",
+              "description": "Software design 7% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 10.0,
+              "earned_value": 4736.0,
+              "deliverables": "Software design 25% complete (continuing delays)",
+              "description": "Software design 10% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 15.0,
+              "earned_value": 7104.0,
+              "deliverables": "Software design 60% complete (progressing slowly)",
+              "description": "Software design 15% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 18.0,
+              "earned_value": 8524.8,
+              "deliverables": "Software design finalizing (approaching completion)",
+              "description": "Software design 18% complete - project delayed overall"
             }
           ]
         },
@@ -1850,6 +2627,43 @@
               "description": "Final other costs cost registration",
               "is_quality_cost": false
             }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 6.0,
+              "earned_value": 425.4,
+              "deliverables": "Other costs planning initiated (on schedule)",
+              "description": "Other costs 6% complete - meeting expectations"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 15.0,
+              "earned_value": 1063.5,
+              "deliverables": "Other costs 25% complete (slightly behind)",
+              "description": "Other costs 15% complete - slight delay"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 22.0,
+              "earned_value": 1567.5,
+              "deliverables": "Other costs 40% complete (continuing delay)",
+              "description": "Other costs 22% complete - continuing schedule issues"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 30.0,
+              "earned_value": 2127.0,
+              "deliverables": "Other costs 70% complete (progressing slowly)",
+              "description": "Other costs 30% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 35.0,
+              "earned_value": 2494.5,
+              "deliverables": "Other costs finalizing (approaching completion)",
+              "description": "Other costs 35% complete - project delayed overall"
+            }
           ]
         }
       ]
@@ -1874,14 +2688,14 @@
           "notes": "Cost element for Expenses from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Expenses"
+            "notes": "Schedule for Expenses - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 1068.75,
+              "amount": 1496.25,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial expenses cost registration",
@@ -1889,7 +2703,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 1425.0,
+              "amount": 1995.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early expenses cost registration",
@@ -1897,7 +2711,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 1781.25,
+              "amount": 2493.75,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-03-003",
               "description": "Mid expenses cost registration",
@@ -1905,7 +2719,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 1781.25,
+              "amount": 2493.75,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-04-004",
               "description": "Late expenses cost registration",
@@ -1913,11 +2727,48 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 1068.75,
+              "amount": 1496.25,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-05-005",
               "description": "Final expenses cost registration",
               "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 4.0,
+              "earned_value": 399.0,
+              "deliverables": "Expenses planning initiated (slow start)",
+              "description": "Expenses 4% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 10.0,
+              "earned_value": 997.5,
+              "deliverables": "Expenses 18% complete (lagging behind)",
+              "description": "Expenses 10% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 15.0,
+              "earned_value": 1496.25,
+              "deliverables": "Expenses 35% complete (continuing delays)",
+              "description": "Expenses 15% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 22.0,
+              "earned_value": 2194.5,
+              "deliverables": "Expenses 70% complete (progressing slowly)",
+              "description": "Expenses 22% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 26.0,
+              "earned_value": 2595.0,
+              "deliverables": "Expenses finalizing (approaching completion)",
+              "description": "Expenses 26% complete - project delayed overall"
             }
           ]
         },
@@ -1931,14 +2782,14 @@
           "notes": "Cost element for Other costs from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Other costs"
+            "notes": "Schedule for Other costs - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 7500.0,
+              "amount": 10500.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial other costs cost registration",
@@ -1946,7 +2797,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 10000.0,
+              "amount": 14000.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early other costs cost registration",
@@ -1954,7 +2805,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 12500.0,
+              "amount": 17500.0,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-03-003",
               "description": "Mid other costs cost registration",
@@ -1962,7 +2813,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 12500.0,
+              "amount": 17500.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late other costs cost registration",
@@ -1970,7 +2821,7 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 7500.0,
+              "amount": 10500.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final other costs cost registration",
@@ -1988,14 +2839,14 @@
           "notes": "Cost element for Project management from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Project management"
+            "notes": "Schedule for Project management - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 4922.85,
+              "amount": 6891.99,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial project management cost registration",
@@ -2003,7 +2854,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 6563.8,
+              "amount": 9189.32,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early project management cost registration",
@@ -2011,7 +2862,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 8204.75,
+              "amount": 11486.65,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Mid project management cost registration",
@@ -2019,7 +2870,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 8204.75,
+              "amount": 11486.65,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late project management cost registration",
@@ -2027,7 +2878,7 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 4922.85,
+              "amount": 6891.99,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Final project management cost registration",
@@ -2057,14 +2908,14 @@
           "notes": "Cost element for Expenses from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Expenses"
+            "notes": "Schedule for Expenses - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 26460.0,
+              "amount": 37044.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial expenses cost registration",
@@ -2072,7 +2923,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 35280.0,
+              "amount": 49392.0,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early expenses cost registration",
@@ -2080,7 +2931,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 44100.0,
+              "amount": 61740.0,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-03-003",
               "description": "Mid expenses cost registration",
@@ -2088,7 +2939,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 44100.0,
+              "amount": 61740.0,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-04-004",
               "description": "Late expenses cost registration",
@@ -2096,7 +2947,7 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 26460.0,
+              "amount": 37044.0,
               "cost_category": "materials",
               "invoice_number": "INV-CC2134-05-005",
               "description": "Final expenses cost registration",
@@ -2114,14 +2965,14 @@
           "notes": "Cost element for Field engineering from CSV data",
           "schedule": {
             "start_date": "2025-01-01",
-            "end_date": "2026-12-31",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Schedule for Field engineering"
+            "notes": "Schedule for Field engineering - extended due to delay"
           },
           "cost_registrations": [
             {
               "registration_date": "2025-03-14",
-              "amount": 31487.4,
+              "amount": 44082.36,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Initial field engineering cost registration",
@@ -2129,7 +2980,7 @@
             },
             {
               "registration_date": "2025-08-07",
-              "amount": 41983.2,
+              "amount": 58776.48,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Early field engineering cost registration",
@@ -2137,7 +2988,7 @@
             },
             {
               "registration_date": "2025-12-31",
-              "amount": 52479.0,
+              "amount": 73470.6,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Mid field engineering cost registration",
@@ -2145,7 +2996,7 @@
             },
             {
               "registration_date": "2026-05-26",
-              "amount": 52479.0,
+              "amount": 73470.6,
               "cost_category": "labor",
               "invoice_number": null,
               "description": "Late field engineering cost registration",
@@ -2153,7 +3004,7 @@
             },
             {
               "registration_date": "2026-10-19",
-              "amount": 31487.4,
+              "amount": 44082.36,
               "cost_category": "subcontractors",
               "invoice_number": "INV-CC2134-05-005",
               "description": "Final field engineering cost registration",
@@ -3266,6 +4117,88 @@
           ]
         }
       ]
+    }
+  ],
+  "earned_value_entries": [
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2025-03-14",
+      "percent_complete": 5.0,
+      "earned_value": 748.0,
+      "deliverables": "Initial documentation draft completed (behind schedule)",
+      "description": "Documentation 5% complete - delayed start to project"
+    },
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2025-08-07",
+      "percent_complete": 15.0,
+      "earned_value": 2244.0,
+      "deliverables": "Design documentation 30% complete (significantly behind schedule)",
+      "description": "Documentation 15% complete - substantial delay evident"
+    },
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2025-12-31",
+      "percent_complete": 25.0,
+      "earned_value": 3740.0,
+      "deliverables": "Design documentation 50% complete (major delay)",
+      "description": "Documentation 25% complete - major schedule variance"
+    },
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2026-05-26",
+      "percent_complete": 35.0,
+      "earned_value": 5236.0,
+      "deliverables": "Documentation nearly complete but still behind schedule",
+      "description": "Documentation 35% complete - continuing behind schedule"
+    },
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2026-10-19",
+      "percent_complete": 42.0,
+      "earned_value": 6283.2,
+      "deliverables": "Final documentation delivery",
+      "description": "Documentation 42% complete - project significantly delayed"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2025-03-14",
+      "percent_complete": 3.0,
+      "earned_value": 2.4,
+      "deliverables": "Initial hardware design started (very slow progress)",
+      "description": "Hardware design 3% complete - very slow start"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2025-08-07",
+      "percent_complete": 8.0,
+      "earned_value": 6.4,
+      "deliverables": "Hardware design 15% complete (poor progress)",
+      "description": "Hardware design 8% complete - poor progress rate"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2025-12-31",
+      "percent_complete": 12.0,
+      "earned_value": 9.6,
+      "deliverables": "Hardware design 25% complete (significant delay)",
+      "description": "Hardware design 12% complete - significant schedule delay"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2026-05-26",
+      "percent_complete": 18.0,
+      "earned_value": 14.4,
+      "deliverables": "Hardware design 40% complete (continuing delay)",
+      "description": "Hardware design 18% complete - continuing schedule problems"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2026-10-19",
+      "percent_complete": 22.0,
+      "earned_value": 17.6,
+      "deliverables": "Hardware design final phase begun",
+      "description": "Hardware design 22% complete - project badly delayed"
     }
   ]
 }

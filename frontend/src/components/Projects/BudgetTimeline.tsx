@@ -15,7 +15,10 @@ import { Line } from "react-chartjs-2"
 import {
   type CostElementWithSchedulePublic,
   CostTimelineService,
+  EarnedValueEntriesService,
+  type EarnedValueEntryPublic,
 } from "@/client"
+import { buildEarnedValueTimeline } from "@/utils/earnedValueAggregation"
 import type { TimePeriod } from "@/utils/progressionCalculations"
 import {
   calculateGaussianProgression,
@@ -45,6 +48,35 @@ export interface BudgetTimelineProps {
   costElementIds?: string[] // Optional filter for cost timeline
 }
 
+async function fetchAllEarnedValueEntries(
+  costElementId: string,
+): Promise<EarnedValueEntryPublic[]> {
+  const limit = 100
+  let skip = 0
+  const collected: EarnedValueEntryPublic[] = []
+
+  while (true) {
+    const response = await EarnedValueEntriesService.readEarnedValueEntries({
+      costElementId,
+      skip,
+      limit,
+    })
+
+    const data = response?.data ?? []
+    const count = response?.count ?? data.length
+
+    collected.push(...data)
+
+    if (collected.length >= count || data.length < limit) {
+      break
+    }
+
+    skip += limit
+  }
+
+  return collected
+}
+
 export default function BudgetTimeline({
   costElements,
   viewMode = "aggregated",
@@ -53,14 +85,28 @@ export default function BudgetTimeline({
   wbeIds,
   costElementIds,
 }: BudgetTimelineProps) {
-  // Fetch cost timeline data if displayMode includes "costs"
   const shouldFetchCosts = displayMode === "costs" || displayMode === "both"
+  const shouldFetchEarnedValue =
+    displayMode === "budget" || displayMode === "both"
 
   // Normalize filter arrays for query key (sort to ensure consistent comparison)
   const normalizedWbeIds = wbeIds?.length ? [...wbeIds].sort() : undefined
   const normalizedCostElementIds = costElementIds?.length
     ? [...costElementIds].sort()
     : undefined
+
+  // Filter out cost elements without schedules
+  const elementsWithSchedules = costElements.filter(
+    (ce) => ce.schedule !== null && ce.schedule !== undefined,
+  )
+
+  const costElementIdsForEarnedValue = elementsWithSchedules
+    .map((ce) => ce.cost_element_id)
+    .filter(Boolean)
+  const sortedCostElementIdsForEarnedValue =
+    costElementIdsForEarnedValue.length > 0
+      ? [...costElementIdsForEarnedValue].sort()
+      : []
 
   const { data: costTimelineData } = useQuery({
     queryFn: () =>
@@ -78,10 +124,25 @@ export default function BudgetTimeline({
     enabled: shouldFetchCosts && !!projectId,
   })
 
-  // Filter out cost elements without schedules
-  const elementsWithSchedules = costElements.filter(
-    (ce) => ce.schedule !== null && ce.schedule !== undefined,
-  )
+  const { data: earnedValueEntriesData } = useQuery({
+    queryFn: async () => {
+      const allEntries = await Promise.all(
+        sortedCostElementIdsForEarnedValue.map((id) =>
+          fetchAllEarnedValueEntries(id),
+        ),
+      )
+      return allEntries.flat()
+    },
+    queryKey: [
+      "earned-value-timeline",
+      projectId,
+      normalizedWbeIds,
+      normalizedCostElementIds,
+      sortedCostElementIdsForEarnedValue,
+    ],
+    enabled:
+      shouldFetchEarnedValue && sortedCostElementIdsForEarnedValue.length > 0,
+  })
 
   if (elementsWithSchedules.length === 0) {
     return (
@@ -180,12 +241,55 @@ export default function BudgetTimeline({
     y: parseFloat(point.cumulative_cost),
   }))
 
+  const budgetDates = timelines.flatMap((timeline) =>
+    timeline.map((period) => period.date),
+  )
+  const earliestBudgetDate =
+    budgetDates.length > 0
+      ? new Date(Math.min(...budgetDates.map((date) => date.getTime())))
+      : undefined
+  const latestBudgetDate =
+    budgetDates.length > 0
+      ? new Date(Math.max(...budgetDates.map((date) => date.getTime())))
+      : undefined
+
+  const costDates = costData.map((point) => point.x)
+  const earliestCostDate =
+    costDates.length > 0
+      ? new Date(Math.min(...costDates.map((date) => date.getTime())))
+      : undefined
+  const latestCostDate =
+    costDates.length > 0
+      ? new Date(Math.max(...costDates.map((date) => date.getTime())))
+      : undefined
+
+  const timelineStart = earliestBudgetDate ?? earliestCostDate ?? undefined
+  const timelineEnd = latestCostDate ?? latestBudgetDate ?? undefined
+
+  const earnedValueTimeline =
+    shouldFetchEarnedValue && earnedValueEntriesData
+      ? buildEarnedValueTimeline({
+          entries: earnedValueEntriesData,
+          startDate: timelineStart,
+          endDate: timelineEnd,
+        })
+      : []
+
+  const shouldShowEarnedValue =
+    (displayMode === "budget" || displayMode === "both") &&
+    earnedValueTimeline.length > 0
+
   // Check if we have any valid timelines after filtering
   // Also check if we need budget data (displayMode includes "budget")
   const shouldShowBudget = displayMode === "budget" || displayMode === "both"
   const shouldShowCosts = displayMode === "costs" || displayMode === "both"
 
-  if (shouldShowBudget && timelines.length === 0 && !shouldShowCosts) {
+  if (
+    shouldShowBudget &&
+    timelines.length === 0 &&
+    !shouldShowCosts &&
+    !shouldShowEarnedValue
+  ) {
     return (
       <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface">
         <Text color="fg.muted">
@@ -210,7 +314,8 @@ export default function BudgetTimeline({
     shouldShowBudget &&
     timelines.length === 0 &&
     shouldShowCosts &&
-    costData.length === 0
+    costData.length === 0 &&
+    !shouldShowEarnedValue
   ) {
     return (
       <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface">
@@ -259,11 +364,28 @@ export default function BudgetTimeline({
       })
     }
 
+    if (shouldShowEarnedValue) {
+      datasets.push({
+        label: "Earned Value (EV)",
+        data: earnedValueTimeline.map((point) => ({
+          x: point.date,
+          y: point.cumulativeEarnedValue,
+        })),
+        borderColor: "#805ad5", // purple.500
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        fill: false,
+      })
+    }
+
     // Use combined date range for labels
     const allDates = [
       ...(shouldShowBudget ? aggregated.map((p) => p.date) : []),
       ...(shouldShowCosts
         ? costTimelinePoints.map((p) => new Date(p.point_date))
+        : []),
+      ...(shouldShowEarnedValue
+        ? earnedValueTimeline.map((point) => point.date)
         : []),
     ]
     const uniqueDates = Array.from(
@@ -382,6 +504,20 @@ export default function BudgetTimeline({
       })
     }
 
+    if (shouldShowEarnedValue) {
+      datasets.push({
+        label: "Earned Value (EV)",
+        data: earnedValueTimeline.map((point) => ({
+          x: point.date,
+          y: point.cumulativeEarnedValue,
+        })),
+        borderColor: "#805ad5", // purple.500
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        fill: false,
+      })
+    }
+
     // Use combined date range for labels
     const allDates = [
       ...(shouldShowBudget
@@ -389,6 +525,9 @@ export default function BudgetTimeline({
         : []),
       ...(shouldShowCosts
         ? costTimelinePoints.map((p) => new Date(p.point_date))
+        : []),
+      ...(shouldShowEarnedValue
+        ? earnedValueTimeline.map((point) => point.date)
         : []),
     ]
     const uniqueDates = Array.from(

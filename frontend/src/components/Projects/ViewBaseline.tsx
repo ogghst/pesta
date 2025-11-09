@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import BaselineCostElementsByWBETable from "./BaselineCostElementsByWBETable"
 import BaselineCostElementsTable from "./BaselineCostElementsTable"
+import BaselineEarnedValueEntriesTable from "./BaselineEarnedValueEntriesTable"
 import BaselineSummary from "./BaselineSummary"
 
 interface ViewBaselineProps {
@@ -67,6 +68,7 @@ export default function ViewBaseline({
               <Tabs.Trigger value="all-cost-elements">
                 All Cost Elements
               </Tabs.Trigger>
+              <Tabs.Trigger value="earned-value">Earned Value</Tabs.Trigger>
             </Tabs.List>
 
             <Tabs.Content value="summary">
@@ -90,6 +92,15 @@ export default function ViewBaseline({
             <Tabs.Content value="all-cost-elements">
               <Box mt={4}>
                 <BaselineCostElementsTable
+                  projectId={projectId}
+                  baselineId={baselineId}
+                />
+              </Box>
+            </Tabs.Content>
+
+            <Tabs.Content value="earned-value">
+              <Box mt={4}>
+                <BaselineEarnedValueEntriesTable
                   projectId={projectId}
                   baselineId={baselineId}
                 />

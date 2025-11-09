@@ -760,3 +760,160 @@ def test_seed_project_from_template_creates_cost_registrations(
         assert (
             total_cost_registrations > 0
         ), "Should have cost registrations if provided in seed data"
+
+
+def test_seed_project_from_template_creates_earned_value_entries(
+    db: Session,
+) -> None:
+    """Test that _seed_project_from_template creates earned value entries for cost elements."""
+    from app import crud
+    from app.core.config import settings
+    from app.models import User, UserCreate, UserRole
+
+    # Ensure prerequisites exist
+    user = db.exec(select(User).where(User.email == settings.FIRST_SUPERUSER)).first()
+    if not user:
+        user_in = UserCreate(
+            email=settings.FIRST_SUPERUSER,
+            password=settings.FIRST_SUPERUSER_PASSWORD,
+            role=UserRole.admin,
+        )
+        user = crud.create_user(session=db, user_create=user_in)
+
+    _seed_departments(db)
+    _seed_cost_element_types(db)
+
+    # Run seed function
+    _seed_project_from_template(db)
+
+    # Get project
+    project = db.exec(select(Project).where(Project.project_code == "CC2134")).first()
+    assert project is not None
+
+    # Get WBEs and related cost elements
+    wbes = db.exec(select(WBE).where(WBE.project_id == project.project_id)).all()
+    cost_elements: list[CostElement] = []
+    for wbe in wbes:
+        ces = db.exec(select(CostElement).where(CostElement.wbe_id == wbe.wbe_id)).all()
+        cost_elements.extend(ces)
+
+    assert len(cost_elements) > 0, "Should have cost elements to test"
+
+    # Load template data
+    import json
+    from datetime import date
+    from decimal import Decimal
+    from pathlib import Path
+
+    seed_file = (
+        Path(__file__).parent.parent.parent
+        / "app"
+        / "core"
+        / "project_template_seed.json"
+    )
+    with open(seed_file, encoding="utf-8") as f:
+        template_data = json.load(f)
+
+    # Build mapping of expected earned value entries per cost element
+    top_level_entries_by_type: dict[str, list[dict]] = {}
+    for entry in template_data.get("earned_value_entries", []):
+        cost_element_ref = entry.get("cost_element_ref")
+        if cost_element_ref:
+            top_level_entries_by_type.setdefault(cost_element_ref, []).append(entry)
+
+    expected_ev_entries: dict[
+        tuple[str | None, str | None, str | None, float | int | None], list[dict]
+    ] = {}
+
+    for wbe_item in template_data.get("wbes", []):
+        wbe_machine_type = wbe_item.get("wbe", {}).get("machine_type")
+        for ce_data in wbe_item.get("cost_elements", []):
+            ce_type = ce_data.get("cost_element_type_id")
+            ce_entries = ce_data.get("earned_value_entries") or []
+            if not ce_entries and ce_type:
+                ce_entries = top_level_entries_by_type.get(ce_type, [])
+            if not ce_entries:
+                continue
+
+            key = (
+                wbe_machine_type,
+                ce_data.get("department_code"),
+                ce_type,
+                ce_data.get("budget_bac"),
+            )
+            expected_ev_entries[key] = ce_entries
+
+    total_expected_entries = sum(
+        len(entries) for entries in expected_ev_entries.values()
+    )
+    assert total_expected_entries > 0, "Template should provide earned value entries"
+
+    total_seeded_entries = 0
+    for ce in cost_elements:
+        ce_wbe = db.get(WBE, ce.wbe_id)
+        key = (
+            ce_wbe.machine_type if ce_wbe else None,
+            ce.department_code,
+            str(ce.cost_element_type_id),
+            float(ce.budget_bac),
+        )
+        expected_entries = expected_ev_entries.get(key, [])
+
+        ev_entries = db.exec(
+            select(EarnedValueEntry).where(
+                EarnedValueEntry.cost_element_id == ce.cost_element_id
+            )
+        ).all()
+
+        if expected_entries:
+            assert (
+                len(ev_entries) == len(expected_entries)
+            ), f"Cost element {ce.cost_element_id} should have {len(expected_entries)} earned value entries"
+
+            # Sort by completion_date to ensure deterministic comparison
+            ev_entries_sorted = sorted(ev_entries, key=lambda e: e.completion_date)
+            expected_entries_sorted = sorted(
+                expected_entries, key=lambda e: e["completion_date"]
+            )
+
+            for db_entry, expected in zip(
+                ev_entries_sorted, expected_entries_sorted, strict=False
+            ):
+                expected_date = date.fromisoformat(expected["completion_date"])
+                assert (
+                    db_entry.completion_date == expected_date
+                ), "Completion date should match template data"
+
+                expected_percent = Decimal(str(expected["percent_complete"]))
+                assert (
+                    db_entry.percent_complete == expected_percent
+                ), f"Percent complete should match template data (expected {expected_percent}, got {db_entry.percent_complete})"
+
+                expected_earned_value = expected.get("earned_value")
+                if expected_earned_value is not None:
+                    expected_earned_value_decimal = Decimal(str(expected_earned_value))
+                    assert (
+                        db_entry.earned_value == expected_earned_value_decimal
+                    ), f"Earned value should match template data (expected {expected_earned_value_decimal}, got {db_entry.earned_value})"
+                else:
+                    assert db_entry.earned_value is None
+
+                assert db_entry.deliverables == expected.get(
+                    "deliverables"
+                ), "Deliverables should match template data"
+                assert db_entry.description == expected.get(
+                    "description"
+                ), "Description should match template data"
+                assert (
+                    db_entry.created_by_id == user.id
+                ), "Earned value entry should be created by first superuser"
+
+            total_seeded_entries += len(ev_entries)
+        else:
+            assert (
+                len(ev_entries) == 0
+            ), f"Cost element {ce.cost_element_id} should not have earned value entries"
+
+    assert (
+        total_seeded_entries == total_expected_entries
+    ), "Total seeded earned value entries should match template data"

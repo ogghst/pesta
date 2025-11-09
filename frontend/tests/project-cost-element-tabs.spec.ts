@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
 import {
   ApiError,
+  BaselineLogsService,
+  CostElementSchedulesService,
   CostElementsService,
   CostElementTypesService,
   CostRegistrationsService,
@@ -17,6 +19,7 @@ const testEntities: {
   projectId?: string
   wbeId?: string
   costElementId?: string
+  baselineId?: string
 } = {}
 
 async function callApi<T>(label: string, fn: () => Promise<T>): Promise<T> {
@@ -109,6 +112,18 @@ test.beforeAll(async () => {
     }),
   )
 
+  await callApi("createCostElementSchedule", () =>
+    CostElementSchedulesService.createSchedule({
+      costElementId: costElement.cost_element_id,
+      requestBody: {
+        start_date: today,
+        end_date: nextMonth,
+        progression_type: "linear",
+        notes: "Timeline schedule for Playwright test",
+      },
+    }),
+  )
+
   await callApi("createCostRegistration", () =>
     CostRegistrationsService.createCostRegistration({
       requestBody: {
@@ -117,6 +132,18 @@ test.beforeAll(async () => {
         amount: 5000,
         cost_category: "labor",
         description: "Initial cost registration for Playwright test",
+      },
+    }),
+  )
+
+  const baseline = await callApi("createBaselineLog", () =>
+    BaselineLogsService.createBaselineLog({
+      projectId: project.project_id,
+      requestBody: {
+        baseline_type: "earned_value",
+        baseline_date: today,
+        milestone_type: "commissioning_start",
+        description: "Baseline for Playwright E2E",
       },
     }),
   )
@@ -137,6 +164,7 @@ test.beforeAll(async () => {
   testEntities.projectId = project.project_id
   testEntities.wbeId = wbe.wbe_id
   testEntities.costElementId = costElement.cost_element_id
+  testEntities.baselineId = baseline.baseline_id
 })
 
 test("Earned Value tab displays the earned value entries table", async ({
@@ -170,6 +198,33 @@ test("Earned Value tab displays the earned value entries table", async ({
   ).toBeHidden()
 })
 
+test("Baseline modal shows earned value tab with baseline entries", async ({
+  page,
+}) => {
+  const { projectId, baselineId } = testEntities
+
+  if (!projectId || !baselineId) {
+    test.fail(true, "Baseline test data was not initialized correctly")
+    return
+  }
+
+  await page.goto(`/projects/${projectId}?tab=baselines`)
+
+  await page.getByRole("button", { name: "View baseline" }).first().click()
+
+  await expect(page.getByRole("tab", { name: "Earned Value" })).toBeVisible()
+
+  await page.getByRole("tab", { name: "Earned Value" }).click()
+
+  await expect(
+    page.getByRole("heading", { name: "Earned Value Snapshot" }),
+  ).toBeVisible()
+
+  await expect(page.getByRole("cell", { name: "25.00%" })).toBeVisible()
+
+  await page.keyboard.press("Escape")
+})
+
 test("Budget Summary tab displays the budget summary view", async ({
   page,
 }) => {
@@ -197,4 +252,31 @@ test("Budget Summary tab displays the budget summary view", async ({
   await expect(
     page.getByRole("heading", { name: "Cost Elements" }),
   ).toBeHidden()
+})
+
+test("Budget timeline shows earned value dataset with collapsible filters", async ({
+  page,
+}) => {
+  const { projectId } = testEntities
+
+  if (!projectId) {
+    test.fail(true, "Project test data was not initialized correctly")
+    return
+  }
+
+  await page.goto(`/projects/${projectId}/budget-timeline`)
+
+  await expect(
+    page.getByRole("heading", { name: "Filter Budget Timeline" }),
+  ).toBeVisible()
+
+  await expect(page.getByText("Select WBEs to include")).not.toBeVisible()
+
+  await page.getByRole("button", { name: "WBEs" }).click()
+
+  await expect(
+    page.getByRole("button", { name: "Select All" }).first(),
+  ).toBeVisible()
+
+  await expect(page.getByText("Earned Value (EV)")).toBeVisible()
 })

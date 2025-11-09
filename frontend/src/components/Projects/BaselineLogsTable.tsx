@@ -168,7 +168,7 @@ function BaselineLogsTable({ projectId }: BaselineLogsTableProps) {
               baseline={baseline}
               projectId={projectId}
               trigger={
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" aria-label="View baseline">
                   <FiEye fontSize="16px" />
                 </Button>
               }

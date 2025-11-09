@@ -31,6 +31,17 @@ const formatCurrency = (value: string | number | null | undefined): string => {
   })}`
 }
 
+const formatPercent = (value: string | number | null | undefined): string => {
+  if (value === null || value === undefined) {
+    return "—"
+  }
+  const numeric = typeof value === "string" ? parseFloat(value) : Number(value)
+  if (Number.isNaN(numeric)) {
+    return "—"
+  }
+  return `${numeric.toFixed(2)}%`
+}
+
 const costElementsColumns: ColumnDefExtended<BaselineCostElementWithCostElementPublic>[] =
   [
     {
@@ -107,6 +118,16 @@ const costElementsColumns: ColumnDefExtended<BaselineCostElementWithCostElementP
       size: 120,
       defaultVisible: true,
       cell: ({ getValue }) => formatCurrency(getValue() as string | null),
+    },
+    {
+      accessorKey: "percent_complete",
+      header: "Percent Complete",
+      enableSorting: true,
+      enableResizing: true,
+      size: 140,
+      defaultVisible: true,
+      cell: ({ getValue }) =>
+        formatPercent(getValue() as string | number | null),
     },
   ]
 

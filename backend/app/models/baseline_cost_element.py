@@ -28,6 +28,9 @@ class BaselineCostElementBase(SQLModel):
     earned_ev: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
     )
+    percent_complete: Decimal | None = Field(
+        default=None, sa_column=Column(DECIMAL(5, 2), nullable=True)
+    )
 
 
 class BaselineCostElementCreate(BaselineCostElementBase):
@@ -54,6 +57,9 @@ class BaselineCostElementUpdate(SQLModel):
     )
     earned_ev: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
+    )
+    percent_complete: Decimal | None = Field(
+        default=None, sa_column=Column(DECIMAL(5, 2), nullable=True)
     )
 
 

@@ -1,4 +1,5 @@
 """Tests for Earned Value Entries API routes."""
+import uuid
 from datetime import date
 from decimal import Decimal
 
@@ -6,6 +7,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.config import settings
+from app.models import WBE, BaselineLog, Project
 from tests.utils.cost_element import create_random_cost_element
 from tests.utils.cost_element_schedule import create_schedule_for_cost_element
 from tests.utils.earned_value_entry import create_earned_value_entry
@@ -21,6 +23,28 @@ def _post_earned_value_entry(
         headers=headers,
         json=payload,
     )
+
+
+def _create_baseline_log(
+    db: Session,
+    *,
+    project_id: uuid.UUID,
+    created_by_id: uuid.UUID,
+    baseline_date: date,
+    description: str,
+) -> BaselineLog:
+    baseline = BaselineLog(
+        baseline_type="earned_value",
+        baseline_date=baseline_date,
+        milestone_type="commissioning_start",
+        description=description,
+        project_id=project_id,
+        created_by_id=created_by_id,
+    )
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+    return baseline
 
 
 def test_create_earned_value_entry_success(
@@ -46,6 +70,7 @@ def test_create_earned_value_entry_success(
     assert content["deliverables"] == "Phase 1 deliverables"
     assert content["description"] == "Completed initial phase"
     assert "warning" not in content
+    assert "baseline_id" not in content
 
 
 def test_create_earned_value_entry_requires_deliverables(
@@ -173,6 +198,99 @@ def test_create_earned_value_entry_after_schedule_end_warning(
     assert "after schedule end date" in content["warning"]
 
 
+def test_create_earned_value_entry_ignores_existing_baselines(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Earned value entries should not link to baseline logs after decoupling."""
+    cost_element = create_random_cost_element(db)
+    wbe = db.get(WBE, cost_element.wbe_id)
+    assert wbe is not None
+    project = db.get(Project, wbe.project_id)
+    assert project is not None
+
+    _create_baseline_log(
+        db,
+        project_id=project.project_id,
+        created_by_id=project.project_manager_id,
+        baseline_date=date(2025, 1, 10),
+        description="Older baseline",
+    )
+    latest_baseline = _create_baseline_log(
+        db,
+        project_id=project.project_id,
+        created_by_id=project.project_manager_id,
+        baseline_date=date(2025, 2, 5),
+        description="Latest baseline",
+    )
+
+    payload = {
+        "cost_element_id": str(cost_element.cost_element_id),
+        "completion_date": "2025-02-15",
+        "percent_complete": "45.00",
+        "deliverables": "Milestone tied to latest baseline",
+        "description": "Progress after latest baseline",
+    }
+
+    response = _post_earned_value_entry(client, superuser_token_headers, payload)
+    assert response.status_code == 200
+    content = response.json()
+    assert content["cost_element_id"] == str(cost_element.cost_element_id)
+    assert "baseline_id" not in content
+    # Verify that the latest_baseline exists in the database (to use the variable and satisfy linter)
+    assert latest_baseline is not None
+    assert latest_baseline.baseline_id is not None
+
+
+def test_update_earned_value_entry_allowed_even_with_baseline_present(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Earned value entries remain editable even if baselines exist."""
+    cost_element = create_random_cost_element(db)
+    wbe = db.get(WBE, cost_element.wbe_id)
+    assert wbe is not None
+    project = db.get(Project, wbe.project_id)
+    assert project is not None
+
+    _create_baseline_log(
+        db,
+        project_id=project.project_id,
+        created_by_id=project.project_manager_id,
+        baseline_date=date(2025, 3, 1),
+        description="Baseline before entry",
+    )
+
+    create_response = _post_earned_value_entry(
+        client,
+        superuser_token_headers,
+        {
+            "cost_element_id": str(cost_element.cost_element_id),
+            "completion_date": "2025-03-15",
+            "percent_complete": "30.00",
+            "deliverables": "Initial earned value capture",
+            "description": "Baselined entry",
+        },
+    )
+    assert create_response.status_code == 200
+    entry_content = create_response.json()
+    assert "baseline_id" not in entry_content
+
+    response = client.put(
+        f"{settings.API_V1_STR}/earned-value-entries/{entry_content['earned_value_id']}",
+        headers=superuser_token_headers,
+        json={
+            "percent_complete": "60.00",
+            "deliverables": "Updated deliverables",
+            "description": "Baseline decoupled update",
+        },
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["percent_complete"] == "60.00"
+    assert content["earned_value"] == "6000.00"
+    assert content["deliverables"] == "Updated deliverables"
+    assert "baseline_id" not in content
+
+
 def test_read_earned_value_entry(
     client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
@@ -271,12 +389,18 @@ def test_update_earned_value_entry_duplicate_date(
 ) -> None:
     """Updating to an existing completion date should fail."""
     cost_element = create_random_cost_element(db)
-    # first_entry = create_earned_value_entry(
-    #    db,
-    #    cost_element_id=cost_element.cost_element_id,
-    #    completion_date=date(2025, 10, 1),
-    #    percent_complete=Decimal("40.00"),
-    # )
+    first_payload = {
+        "cost_element_id": str(cost_element.cost_element_id),
+        "completion_date": "2025-10-01",
+        "percent_complete": "40.00",
+        "deliverables": "Initial earned value",
+        "description": "Baseline EV entry",
+    }
+    first_response = _post_earned_value_entry(
+        client, superuser_token_headers, first_payload
+    )
+    assert first_response.status_code == 200
+
     second_entry = create_earned_value_entry(
         db,
         cost_element_id=cost_element.cost_element_id,

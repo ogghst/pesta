@@ -2,13 +2,15 @@ import {
   Badge,
   Box,
   Button,
+  Collapsible,
   Flex,
   HStack,
   Text,
   VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
+import { type ReactNode, useEffect, useState } from "react"
+import { FiChevronDown, FiChevronUp } from "react-icons/fi"
 import {
   CostElementsService,
   CostElementTypesService,
@@ -16,6 +18,58 @@ import {
 } from "@/client"
 
 export type FilterContext = "project" | "wbe" | "cost-element" | "standalone"
+
+interface FilterSectionProps {
+  title: string
+  subtitle?: string
+  isOpen: boolean
+  onToggle: (open: boolean) => void
+  children: ReactNode
+}
+
+function FilterSection({
+  title,
+  subtitle,
+  isOpen,
+  onToggle,
+  children,
+}: FilterSectionProps) {
+  return (
+    <Box borderWidth="1px" borderRadius="md" borderColor="border.subtle">
+      <Collapsible.Root
+        open={isOpen}
+        onOpenChange={(event) => onToggle(event.open)}
+      >
+        <Collapsible.Trigger asChild>
+          <Button
+            variant="ghost"
+            justifyContent="space-between"
+            width="100%"
+            rightIcon={isOpen ? <FiChevronUp /> : <FiChevronDown />}
+            px={4}
+            py={3}
+          >
+            <Flex justify="space-between" align="center" width="100%">
+              <Text fontWeight="medium">{title}</Text>
+              {subtitle ? (
+                <Text fontSize="sm" color="fg.muted">
+                  {subtitle}
+                </Text>
+              ) : (
+                <Box />
+              )}
+            </Flex>
+          </Button>
+        </Collapsible.Trigger>
+        <Collapsible.Content>
+          <Box px={4} pb={4}>
+            {children}
+          </Box>
+        </Collapsible.Content>
+      </Collapsible.Root>
+    </Box>
+  )
+}
 
 export interface BudgetTimelineFilterProps {
   projectId: string
@@ -52,6 +106,11 @@ export default function BudgetTimelineFilter({
   const [selectedCostElementTypeIds, setSelectedCostElementTypeIds] = useState<
     string[]
   >(initialFilters.costElementTypeIds || [])
+  const [isDisplayModeOpen, setIsDisplayModeOpen] = useState(false)
+  const [isWbeSectionOpen, setIsWbeSectionOpen] = useState(false)
+  const [isTypeSectionOpen, setIsTypeSectionOpen] = useState(false)
+  const [isCostElementSectionOpen, setIsCostElementSectionOpen] =
+    useState(false)
 
   // Fetch WBEs for this project
   const { data: wbesData, isLoading: isLoadingWbes } = useQuery({
@@ -112,6 +171,15 @@ export default function BudgetTimelineFilter({
   const costElementTypes =
     typesData?.data?.filter((type) => type.is_active) || []
   const costElements = costElementsData?.data || []
+  const filteredCostElements = costElements.filter((ce) => {
+    if (
+      selectedCostElementTypeIds.length > 0 &&
+      !selectedCostElementTypeIds.includes(ce.cost_element_type_id)
+    ) {
+      return false
+    }
+    return true
+  })
 
   // Apply initial filters on mount
   useEffect(() => {
@@ -180,12 +248,19 @@ export default function BudgetTimelineFilter({
           Filter Budget Timeline
         </Text>
 
-        {/* Display Mode Toggle */}
         {onDisplayModeChange && (
-          <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={2}>
-              Display Mode
-            </Text>
+          <FilterSection
+            title="Display Mode"
+            subtitle={
+              displayMode === "both"
+                ? "Budget & Costs"
+                : displayMode === "budget"
+                  ? "Budget only"
+                  : "Costs only"
+            }
+            isOpen={isDisplayModeOpen}
+            onToggle={setIsDisplayModeOpen}
+          >
             <HStack gap={2}>
               <Button
                 size="sm"
@@ -212,97 +287,113 @@ export default function BudgetTimelineFilter({
                 Both
               </Button>
             </HStack>
-          </Box>
+          </FilterSection>
         )}
 
-        {/* WBE Selector */}
         {showWbeSelector && (
-          <Box>
-            <Flex justify="space-between" align="center" mb={2}>
-              <Text fontSize="sm" fontWeight="medium">
-                WBEs {selectedWbeIds.length > 0 && `(${selectedWbeIds.length})`}
-              </Text>
-              <HStack gap={1}>
-                <Button
-                  size="xs"
-                  variant="ghost"
-                  onClick={() => {
-                    if (selectedWbeIds.length === wbes.length) {
-                      setSelectedWbeIds([])
-                    } else {
-                      setSelectedWbeIds(wbes.map((w) => w.wbe_id))
-                    }
-                  }}
-                >
-                  {selectedWbeIds.length === wbes.length
-                    ? "Deselect All"
-                    : "Select All"}
-                </Button>
-                {context === "project" && (
+          <FilterSection
+            title="WBEs"
+            subtitle={
+              selectedWbeIds.length > 0
+                ? `${selectedWbeIds.length} selected`
+                : "None selected"
+            }
+            isOpen={isWbeSectionOpen}
+            onToggle={setIsWbeSectionOpen}
+          >
+            <VStack align="stretch" gap={3}>
+              <HStack justify="space-between" align="center">
+                <Text fontSize="sm" fontWeight="medium">
+                  Select WBEs to include
+                </Text>
+                <HStack gap={1}>
                   <Button
                     size="xs"
                     variant="ghost"
                     onClick={() => {
-                      setSelectedWbeIds(wbes.map((w) => w.wbe_id))
-                      handleApply()
+                      if (selectedWbeIds.length === wbes.length) {
+                        setSelectedWbeIds([])
+                      } else {
+                        setSelectedWbeIds(wbes.map((w) => w.wbe_id))
+                      }
                     }}
                   >
-                    All in Project
+                    {selectedWbeIds.length === wbes.length
+                      ? "Deselect All"
+                      : "Select All"}
                   </Button>
-                )}
-              </HStack>
-            </Flex>
-            {isLoadingWbes ? (
-              <Text fontSize="sm" color="fg.muted">
-                Loading WBEs...
-              </Text>
-            ) : wbes.length === 0 ? (
-              <Text fontSize="sm" color="fg.muted">
-                No WBEs found
-              </Text>
-            ) : (
-              <Flex gap={2} flexWrap="wrap">
-                {wbes.map((wbe) => {
-                  const isSelected = selectedWbeIds.includes(wbe.wbe_id)
-                  return (
-                    <Badge
-                      key={wbe.wbe_id}
-                      colorPalette={isSelected ? "blue" : "gray"}
-                      cursor="pointer"
+                  {context === "project" && (
+                    <Button
+                      size="xs"
+                      variant="ghost"
                       onClick={() => {
-                        if (isSelected) {
-                          setSelectedWbeIds(
-                            selectedWbeIds.filter((id) => id !== wbe.wbe_id),
-                          )
-                        } else {
-                          setSelectedWbeIds([...selectedWbeIds, wbe.wbe_id])
-                        }
-                      }}
-                      px={3}
-                      py={1}
-                      _hover={{
-                        opacity: 0.8,
+                        setSelectedWbeIds(wbes.map((w) => w.wbe_id))
+                        handleApply()
                       }}
                     >
-                      {wbe.machine_type}
-                    </Badge>
-                  )
-                })}
-              </Flex>
-            )}
-          </Box>
+                      All in Project
+                    </Button>
+                  )}
+                </HStack>
+              </HStack>
+              {isLoadingWbes ? (
+                <Text fontSize="sm" color="fg.muted">
+                  Loading WBEs...
+                </Text>
+              ) : wbes.length === 0 ? (
+                <Text fontSize="sm" color="fg.muted">
+                  No WBEs found
+                </Text>
+              ) : (
+                <Flex gap={2} flexWrap="wrap">
+                  {wbes.map((wbe) => {
+                    const isSelected = selectedWbeIds.includes(wbe.wbe_id)
+                    return (
+                      <Badge
+                        key={wbe.wbe_id}
+                        colorPalette={isSelected ? "blue" : "gray"}
+                        cursor="pointer"
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedWbeIds(
+                              selectedWbeIds.filter((id) => id !== wbe.wbe_id),
+                            )
+                          } else {
+                            setSelectedWbeIds([...selectedWbeIds, wbe.wbe_id])
+                          }
+                        }}
+                        px={3}
+                        py={1}
+                        _hover={{
+                          opacity: 0.8,
+                        }}
+                      >
+                        {wbe.machine_type}
+                      </Badge>
+                    )
+                  })}
+                </Flex>
+              )}
+            </VStack>
+          </FilterSection>
         )}
 
-        {/* Cost Element Type Selector */}
         {showTypeSelector && (
-          <Box>
-            <Flex justify="space-between" align="center" mb={2}>
-              <Text fontSize="sm" fontWeight="medium">
-                Cost Element Types{" "}
-                {selectedCostElementTypeIds.length > 0 &&
-                  `(${selectedCostElementTypeIds.length})`}
-              </Text>
-              <HStack gap={1}>
+          <FilterSection
+            title="Cost Element Types"
+            subtitle={
+              selectedCostElementTypeIds.length > 0
+                ? `${selectedCostElementTypeIds.length} selected`
+                : "None selected"
+            }
+            isOpen={isTypeSectionOpen}
+            onToggle={setIsTypeSectionOpen}
+          >
+            <VStack align="stretch" gap={3}>
+              <HStack justify="space-between" align="center">
+                <Text fontSize="sm" fontWeight="medium">
+                  Filter by type
+                </Text>
                 <Button
                   size="xs"
                   variant="ghost"
@@ -324,207 +415,172 @@ export default function BudgetTimelineFilter({
                     : "Select All"}
                 </Button>
               </HStack>
-            </Flex>
-            {isLoadingTypes ? (
-              <Text fontSize="sm" color="fg.muted">
-                Loading types...
-              </Text>
-            ) : costElementTypes.length === 0 ? (
-              <Text fontSize="sm" color="fg.muted">
-                No cost element types found
-              </Text>
-            ) : (
-              <Flex gap={2} flexWrap="wrap">
-                {costElementTypes.map((type) => {
-                  const isSelected = selectedCostElementTypeIds.includes(
-                    type.cost_element_type_id,
-                  )
-                  return (
-                    <Badge
-                      key={type.cost_element_type_id}
-                      colorPalette={isSelected ? "blue" : "gray"}
-                      cursor="pointer"
+              {isLoadingTypes ? (
+                <Text fontSize="sm" color="fg.muted">
+                  Loading types...
+                </Text>
+              ) : costElementTypes.length === 0 ? (
+                <Text fontSize="sm" color="fg.muted">
+                  No cost element types found
+                </Text>
+              ) : (
+                <Flex gap={2} flexWrap="wrap">
+                  {costElementTypes.map((type) => {
+                    const isSelected = selectedCostElementTypeIds.includes(
+                      type.cost_element_type_id,
+                    )
+                    return (
+                      <Badge
+                        key={type.cost_element_type_id}
+                        colorPalette={isSelected ? "blue" : "gray"}
+                        cursor="pointer"
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedCostElementTypeIds(
+                              selectedCostElementTypeIds.filter(
+                                (id) => id !== type.cost_element_type_id,
+                              ),
+                            )
+                          } else {
+                            setSelectedCostElementTypeIds([
+                              ...selectedCostElementTypeIds,
+                              type.cost_element_type_id,
+                            ])
+                          }
+                        }}
+                        px={3}
+                        py={1}
+                        _hover={{
+                          opacity: 0.8,
+                        }}
+                      >
+                        {type.type_name}
+                      </Badge>
+                    )
+                  })}
+                </Flex>
+              )}
+            </VStack>
+          </FilterSection>
+        )}
+
+        {showCostElementSelector && (
+          <FilterSection
+            title="Cost Elements"
+            subtitle={
+              selectedCostElementIds.length > 0
+                ? `${selectedCostElementIds.length} selected`
+                : "None selected"
+            }
+            isOpen={isCostElementSectionOpen}
+            onToggle={setIsCostElementSectionOpen}
+          >
+            <VStack align="stretch" gap={3}>
+              <HStack justify="space-between" align="center" wrap="wrap">
+                <Text fontSize="sm" fontWeight="medium">
+                  Choose cost elements
+                </Text>
+                <HStack gap={1}>
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    onClick={() => {
+                      if (
+                        selectedCostElementIds.length ===
+                        filteredCostElements.length
+                      ) {
+                        setSelectedCostElementIds([])
+                      } else {
+                        setSelectedCostElementIds(
+                          filteredCostElements.map((ce) => ce.cost_element_id),
+                        )
+                      }
+                    }}
+                  >
+                    {selectedCostElementIds.length ===
+                    filteredCostElements.length
+                      ? "Deselect All"
+                      : "Select All"}
+                  </Button>
+                  {selectedWbeIds.length > 0 && (
+                    <Button
+                      size="xs"
+                      variant="ghost"
                       onClick={() => {
-                        if (isSelected) {
-                          setSelectedCostElementTypeIds(
-                            selectedCostElementTypeIds.filter(
-                              (id) => id !== type.cost_element_type_id,
-                            ),
-                          )
-                        } else {
-                          setSelectedCostElementTypeIds([
-                            ...selectedCostElementTypeIds,
-                            type.cost_element_type_id,
-                          ])
-                        }
-                      }}
-                      px={3}
-                      py={1}
-                      _hover={{
-                        opacity: 0.8,
+                        setSelectedCostElementIds(
+                          filteredCostElements.map((ce) => ce.cost_element_id),
+                        )
+                        handleApply()
                       }}
                     >
-                      {type.type_name}
-                    </Badge>
-                  )
-                })}
-              </Flex>
-            )}
-          </Box>
-        )}
-
-        {/* Cost Element Selector */}
-        {showCostElementSelector && (
-          <Box>
-            <Flex justify="space-between" align="center" mb={2}>
-              <Text fontSize="sm" fontWeight="medium">
-                Cost Elements{" "}
-                {selectedCostElementIds.length > 0 &&
-                  `(${selectedCostElementIds.length})`}
-              </Text>
-              <HStack gap={1}>
-                <Button
-                  size="xs"
-                  variant="ghost"
-                  onClick={() => {
-                    const filtered = costElements.filter((ce) => {
-                      // Filter by selected types if any
-                      if (
-                        selectedCostElementTypeIds.length > 0 &&
-                        !selectedCostElementTypeIds.includes(
-                          ce.cost_element_type_id,
-                        )
-                      ) {
-                        return false
-                      }
-                      return true
-                    })
-                    if (selectedCostElementIds.length === filtered.length) {
-                      setSelectedCostElementIds([])
-                    } else {
-                      setSelectedCostElementIds(
-                        filtered.map((ce) => ce.cost_element_id),
-                      )
-                    }
+                      All in Selected WBE(s)
+                    </Button>
+                  )}
+                  {selectedCostElementTypeIds.length > 0 && (
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      onClick={() => {
+                        const filteredByType = costElements
+                          .filter((ce) =>
+                            selectedCostElementTypeIds.includes(
+                              ce.cost_element_type_id,
+                            ),
+                          )
+                          .map((ce) => ce.cost_element_id)
+                        setSelectedCostElementIds(filteredByType)
+                        handleApply()
+                      }}
+                    >
+                      All of Selected Types
+                    </Button>
+                  )}
+                </HStack>
+              </HStack>
+              {isLoadingCostElements ? (
+                <Text fontSize="sm" color="fg.muted">
+                  Loading cost elements...
+                </Text>
+              ) : costElements.length === 0 ? (
+                <Text fontSize="sm" color="fg.muted">
+                  No cost elements found. Select WBEs to see cost elements.
+                </Text>
+              ) : filteredCostElements.length === 0 ? (
+                <Text fontSize="sm" color="fg.muted">
+                  No cost elements match the selected filters.
+                </Text>
+              ) : (
+                <select
+                  multiple
+                  size={Math.min(8, filteredCostElements.length)}
+                  value={selectedCostElementIds}
+                  onChange={(e) => {
+                    const selected = Array.from(
+                      e.target.selectedOptions,
+                      (option) => option.value,
+                    )
+                    setSelectedCostElementIds(selected)
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "6px",
+                    border: "1px solid var(--chakra-colors-border-emphasized)",
+                    fontSize: "14px",
                   }}
                 >
-                  {(() => {
-                    const filtered = costElements.filter((ce) => {
-                      if (
-                        selectedCostElementTypeIds.length > 0 &&
-                        !selectedCostElementTypeIds.includes(
-                          ce.cost_element_type_id,
-                        )
-                      ) {
-                        return false
-                      }
-                      return true
-                    })
-                    return selectedCostElementIds.length === filtered.length
-                      ? "Deselect All"
-                      : "Select All"
-                  })()}
-                </Button>
-                {selectedWbeIds.length > 0 && (
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    onClick={() => {
-                      const filtered = costElements
-                        .filter((ce) => {
-                          // Filter by selected types if any
-                          if (
-                            selectedCostElementTypeIds.length > 0 &&
-                            !selectedCostElementTypeIds.includes(
-                              ce.cost_element_type_id,
-                            )
-                          ) {
-                            return false
-                          }
-                          return true
-                        })
-                        .map((ce) => ce.cost_element_id)
-                      setSelectedCostElementIds(filtered)
-                      handleApply()
-                    }}
-                  >
-                    All in Selected WBE(s)
-                  </Button>
-                )}
-                {selectedCostElementTypeIds.length > 0 && (
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    onClick={() => {
-                      const filtered = costElements
-                        .filter((ce) =>
-                          selectedCostElementTypeIds.includes(
-                            ce.cost_element_type_id,
-                          ),
-                        )
-                        .map((ce) => ce.cost_element_id)
-                      setSelectedCostElementIds(filtered)
-                      handleApply()
-                    }}
-                  >
-                    All of Selected Types
-                  </Button>
-                )}
-              </HStack>
-            </Flex>
-            {isLoadingCostElements ? (
-              <Text fontSize="sm" color="fg.muted">
-                Loading cost elements...
-              </Text>
-            ) : costElements.length === 0 ? (
-              <Text fontSize="sm" color="fg.muted">
-                No cost elements found. Select WBEs to see cost elements.
-              </Text>
-            ) : (
-              <select
-                multiple
-                size={Math.min(8, costElements.length)}
-                value={selectedCostElementIds}
-                onChange={(e) => {
-                  const selected = Array.from(
-                    e.target.selectedOptions,
-                    (option) => option.value,
-                  )
-                  setSelectedCostElementIds(selected)
-                }}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid var(--chakra-colors-border-emphasized)",
-                  fontSize: "14px",
-                }}
-              >
-                {costElements
-                  .filter((ce) => {
-                    // Filter by selected types if any
-                    if (
-                      selectedCostElementTypeIds.length > 0 &&
-                      !selectedCostElementTypeIds.includes(
-                        ce.cost_element_type_id,
-                      )
-                    ) {
-                      return false
-                    }
-                    return true
-                  })
-                  .map((ce) => (
+                  {filteredCostElements.map((ce) => (
                     <option key={ce.cost_element_id} value={ce.cost_element_id}>
                       {ce.department_name} - {ce.department_code} (
-                      {ce.budget_bac?.toLocaleString()})
+                      {Number(ce.budget_bac ?? 0).toLocaleString()})
                     </option>
                   ))}
-              </select>
-            )}
-          </Box>
+                </select>
+              )}
+            </VStack>
+          </FilterSection>
         )}
 
-        {/* Selection Summary */}
         <Box>
           <Text fontSize="sm" color="fg.muted">
             Selected:{" "}
@@ -551,7 +607,6 @@ export default function BudgetTimelineFilter({
           </Text>
         </Box>
 
-        {/* Action Buttons */}
         <HStack gap={2}>
           <Button onClick={handleApply} colorPalette="blue" size="sm">
             Apply Filters
