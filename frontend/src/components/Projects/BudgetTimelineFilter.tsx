@@ -47,10 +47,12 @@ function FilterSection({
             width="100%"
             px={4}
             py={3}
-            leftIcon={isOpen ? <FiChevronUp /> : <FiChevronDown />}
           >
             <Flex justify="space-between" align="center" width="100%">
-              <Text fontWeight="medium">{title}</Text>
+              <HStack spacing={2} align="center">
+                {isOpen ? <FiChevronUp /> : <FiChevronDown />}
+                <Text fontWeight="medium">{title}</Text>
+              </HStack>
               {subtitle ? (
                 <Text fontSize="sm" color="fg.muted">
                   {subtitle}
