@@ -34,6 +34,7 @@ Ask the user over the Objective if not clear
 
 ## OUTPUT CONSTRAINTS
 
+- Summarize the feature with a short user story
 - Focus on "what" and "why" rather than implementation details
 - Keep analysis human-readable and concise
 - Flag any ambiguities or missing information

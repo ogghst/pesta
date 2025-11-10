@@ -65,6 +65,8 @@ E80_pm_mockup/
 │   └── project_status.md   # Current project status
 ├── prompts/                 # Development prompts
 ├── resources/              # Project resources
+├── frontend/              # Frontend app
+├── backend/              # Backend app
 └── README.md               # This file
 ```
 

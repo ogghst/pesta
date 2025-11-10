@@ -1,4 +1,5 @@
 """Cost Category model and related schemas."""
+
 from sqlmodel import SQLModel
 
 

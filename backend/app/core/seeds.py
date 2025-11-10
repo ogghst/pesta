@@ -1,4 +1,5 @@
 """Seed functions for initializing database with reference data."""
+
 import json
 import uuid
 from datetime import date

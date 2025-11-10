@@ -72,7 +72,8 @@ const AddUser = () => {
   })
 
   const onSubmit: SubmitHandler<UserCreateForm> = (data) => {
-    const { confirm_password, ...userData } = data
+    const { confirm_password: _confirmPassword, ...userData } = data
+    void _confirmPassword
     mutation.mutate(userData)
   }
 

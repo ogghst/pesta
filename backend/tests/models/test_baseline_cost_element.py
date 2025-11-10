@@ -122,6 +122,7 @@ def test_create_baseline_cost_element(db: Session) -> None:
         forecast_eac=Decimal("52000.00"),
         earned_ev=Decimal("25000.00"),
         percent_complete=Decimal("55.00"),
+        planned_value=Decimal("28000.00"),
     )
 
     baseline_cost_element = BaselineCostElement.model_validate(baseline_cost_element_in)
@@ -139,6 +140,7 @@ def test_create_baseline_cost_element(db: Session) -> None:
     assert baseline_cost_element.forecast_eac == Decimal("52000.00")
     assert baseline_cost_element.earned_ev == Decimal("25000.00")
     assert baseline_cost_element.percent_complete == Decimal("55.00")
+    assert baseline_cost_element.planned_value == Decimal("28000.00")
     assert hasattr(baseline_cost_element, "baseline_log")  # Relationship should exist
     assert hasattr(baseline_cost_element, "cost_element")  # Relationship should exist
 
@@ -243,6 +245,7 @@ def test_baseline_cost_element_relationships(db: Session) -> None:
         cost_element_id=cost_element.cost_element_id,
         budget_bac=Decimal("30000.00"),
         revenue_plan=Decimal("35000.00"),
+        planned_value=Decimal("14000.00"),
         percent_complete=Decimal("25.00"),
     )
     baseline_cost_element = BaselineCostElement.model_validate(baseline_cost_element_in)
@@ -252,6 +255,7 @@ def test_baseline_cost_element_relationships(db: Session) -> None:
 
     assert baseline_cost_element.baseline_id == baseline.baseline_id
     assert baseline_cost_element.cost_element_id == cost_element.cost_element_id
+    assert baseline_cost_element.planned_value == Decimal("14000.00")
 
 
 def test_baseline_cost_element_decimal_fields(db: Session) -> None:
@@ -357,6 +361,7 @@ def test_baseline_cost_element_decimal_fields(db: Session) -> None:
         forecast_eac=Decimal("11111.11"),
         earned_ev=Decimal("22222.22"),
         percent_complete=Decimal("88.88"),
+        planned_value=Decimal("33333.33"),
     )
     baseline_cost_element = BaselineCostElement.model_validate(baseline_cost_element_in)
     db.add(baseline_cost_element)
@@ -370,6 +375,7 @@ def test_baseline_cost_element_decimal_fields(db: Session) -> None:
     assert baseline_cost_element.forecast_eac == Decimal("11111.11")
     assert baseline_cost_element.earned_ev == Decimal("22222.22")
     assert baseline_cost_element.percent_complete == Decimal("88.88")
+    assert baseline_cost_element.planned_value == Decimal("33333.33")
 
 
 def test_baseline_cost_element_public_schema() -> None:
@@ -391,6 +397,7 @@ def test_baseline_cost_element_public_schema() -> None:
         forecast_eac=Decimal("11000.00"),
         earned_ev=Decimal("6000.00"),
         percent_complete=Decimal("42.50"),
+        planned_value=Decimal("7000.00"),
         created_at=now,
     )
 
@@ -406,4 +413,5 @@ def test_baseline_cost_element_public_schema() -> None:
     assert baseline_cost_element_public.forecast_eac == Decimal("11000.00")
     assert baseline_cost_element_public.earned_ev == Decimal("6000.00")
     assert baseline_cost_element_public.percent_complete == Decimal("42.50")
+    assert baseline_cost_element_public.planned_value == Decimal("7000.00")
     assert baseline_cost_element_public.created_at == now

@@ -1,4 +1,5 @@
 """Baseline Cost Element model and related schemas."""
+
 import uuid
 from datetime import datetime
 from decimal import Decimal
@@ -31,6 +32,9 @@ class BaselineCostElementBase(SQLModel):
     percent_complete: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(5, 2), nullable=True)
     )
+    planned_value: Decimal = Field(
+        default=Decimal("0.00"), sa_column=Column(DECIMAL(15, 2), nullable=False)
+    )
 
 
 class BaselineCostElementCreate(BaselineCostElementBase):
@@ -60,6 +64,9 @@ class BaselineCostElementUpdate(SQLModel):
     )
     percent_complete: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(5, 2), nullable=True)
+    )
+    planned_value: Decimal | None = Field(
+        default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
     )
 
 
@@ -118,6 +125,9 @@ class WBEWithBaselineCostElementsPublic(SQLModel):
         sa_column=Column(DECIMAL(15, 2), nullable=False)
     )
     wbe_total_revenue_plan: Decimal = Field(
+        sa_column=Column(DECIMAL(15, 2), nullable=False)
+    )
+    wbe_total_planned_value: Decimal = Field(
         sa_column=Column(DECIMAL(15, 2), nullable=False)
     )
     wbe_total_actual_ac: Decimal | None = Field(

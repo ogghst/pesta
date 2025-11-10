@@ -1,4 +1,5 @@
 """Department lookup model."""
+
 import uuid
 
 from sqlmodel import Field, SQLModel

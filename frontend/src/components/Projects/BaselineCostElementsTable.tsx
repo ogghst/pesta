@@ -93,6 +93,16 @@ const costElementsColumns: ColumnDefExtended<BaselineCostElementWithCostElementP
       cell: ({ getValue }) => formatCurrency(getValue() as string),
     },
     {
+      accessorKey: "planned_value",
+      header: "Planned Value",
+      enableSorting: true,
+      enableResizing: true,
+      size: 120,
+      defaultVisible: true,
+      cell: ({ getValue }) =>
+        formatCurrency(getValue() as string | null | undefined),
+    },
+    {
       accessorKey: "actual_ac",
       header: "Actual AC",
       enableSorting: true,

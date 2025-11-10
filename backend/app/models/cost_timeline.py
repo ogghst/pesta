@@ -1,4 +1,5 @@
 """Cost Timeline model and related schemas."""
+
 from datetime import date
 from decimal import Decimal
 

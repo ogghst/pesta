@@ -212,6 +212,8 @@ test("Baseline modal shows earned value tab with baseline entries", async ({
 
   await page.getByRole("button", { name: "View baseline" }).first().click()
 
+  await expect(page.getByText("Total Planned Value")).toBeVisible()
+
   await expect(page.getByRole("tab", { name: "Earned Value" })).toBeVisible()
 
   await page.getByRole("tab", { name: "Earned Value" }).click()
@@ -279,4 +281,5 @@ test("Budget timeline shows earned value dataset with collapsible filters", asyn
   ).toBeVisible()
 
   await expect(page.getByText("Earned Value (EV)")).toBeVisible()
+  await expect(page.getByText("Planned Value (PV)")).toBeVisible()
 })

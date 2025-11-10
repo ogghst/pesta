@@ -81,6 +81,16 @@ const costElementColumns: ColumnDefExtended<BaselineCostElementWithCostElementPu
       cell: ({ getValue }) => formatCurrency(getValue() as string),
     },
     {
+      accessorKey: "planned_value",
+      header: "Planned Value",
+      enableSorting: true,
+      enableResizing: true,
+      size: 120,
+      defaultVisible: true,
+      cell: ({ getValue }) =>
+        formatCurrency(getValue() as string | null | undefined),
+    },
+    {
       accessorKey: "actual_ac",
       header: "Actual AC",
       enableSorting: true,
@@ -165,6 +175,7 @@ function WBEAccordionItem({
     cost_elements?: Array<BaselineCostElementWithCostElementPublic> | null
     wbe_total_budget_bac: string
     wbe_total_revenue_plan: string
+    wbe_total_planned_value: string
     wbe_total_actual_ac?: string | null
     wbe_total_forecast_eac?: string | null
     wbe_total_earned_ev?: string | null
@@ -234,6 +245,14 @@ function WBEAccordionItem({
                   </Text>
                   <Text fontWeight="bold">
                     {formatCurrency(wbe.wbe_total_budget_bac)}
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontSize="xs" color="gray.600">
+                    Total Planned Value
+                  </Text>
+                  <Text fontWeight="bold">
+                    {formatCurrency(wbe.wbe_total_planned_value)}
                   </Text>
                 </Box>
                 <Box>

@@ -62,6 +62,12 @@ export const BaselineCostElementWithCostElementPublicSchema = {
             ],
             title: 'Percent Complete'
         },
+        planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Planned Value',
+            default: '0.00'
+        },
         baseline_cost_element_id: {
             type: 'string',
             format: 'uuid',
@@ -421,6 +427,11 @@ export const BaselineSummaryPublicSchema = {
             pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
             title: 'Total Revenue Plan'
         },
+        total_planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Total Planned Value'
+        },
         total_actual_ac: {
             anyOf: [
                 {
@@ -465,7 +476,7 @@ export const BaselineSummaryPublicSchema = {
         }
     },
     type: 'object',
-    required: ['snapshot_id', 'baseline_id', 'baseline_date', 'milestone_type', 'total_budget_bac', 'total_revenue_plan'],
+    required: ['snapshot_id', 'baseline_id', 'baseline_date', 'milestone_type', 'total_budget_bac', 'total_revenue_plan', 'total_planned_value'],
     title: 'BaselineSummaryPublic',
     description: 'Public schema for baseline summary with aggregated values.'
 } as const;
@@ -1880,6 +1891,132 @@ export const NewPasswordSchema = {
     description: 'Password reset request.'
 } as const;
 
+export const PlannedValueCostElementPublicSchema = {
+    properties: {
+        level: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Level'
+        },
+        control_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Control Date'
+        },
+        planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Planned Value',
+            default: '0.00'
+        },
+        percent_complete: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Percent Complete',
+            default: '0.0000'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        cost_element_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Id'
+        }
+    },
+    type: 'object',
+    required: ['level', 'control_date', 'cost_element_id'],
+    title: 'PlannedValueCostElementPublic',
+    description: 'Planned value response for cost elements.'
+} as const;
+
+export const PlannedValueProjectPublicSchema = {
+    properties: {
+        level: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Level'
+        },
+        control_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Control Date'
+        },
+        planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Planned Value',
+            default: '0.00'
+        },
+        percent_complete: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Percent Complete',
+            default: '0.0000'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        project_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Id'
+        }
+    },
+    type: 'object',
+    required: ['level', 'control_date', 'project_id'],
+    title: 'PlannedValueProjectPublic',
+    description: 'Planned value response for projects.'
+} as const;
+
+export const PlannedValueWBEPublicSchema = {
+    properties: {
+        level: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Level'
+        },
+        control_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Control Date'
+        },
+        planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Planned Value',
+            default: '0.00'
+        },
+        percent_complete: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Percent Complete',
+            default: '0.0000'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Wbe Id'
+        }
+    },
+    type: 'object',
+    required: ['level', 'control_date', 'wbe_id'],
+    title: 'PlannedValueWBEPublic',
+    description: 'Planned value response for WBEs.'
+} as const;
+
 export const PrivateUserCreateSchema = {
     properties: {
         email: {
@@ -2919,6 +3056,11 @@ export const WBEWithBaselineCostElementsPublicSchema = {
             pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
             title: 'Wbe Total Revenue Plan'
         },
+        wbe_total_planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Wbe Total Planned Value'
+        },
         wbe_total_actual_ac: {
             anyOf: [
                 {
@@ -2957,7 +3099,7 @@ export const WBEWithBaselineCostElementsPublicSchema = {
         }
     },
     type: 'object',
-    required: ['wbe_id', 'machine_type', 'wbe_total_budget_bac', 'wbe_total_revenue_plan'],
+    required: ['wbe_id', 'machine_type', 'wbe_total_budget_bac', 'wbe_total_revenue_plan', 'wbe_total_planned_value'],
     title: 'WBEWithBaselineCostElementsPublic',
     description: 'Public WBE schema with baseline cost elements and aggregated totals.'
 } as const;

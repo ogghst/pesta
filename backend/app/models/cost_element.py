@@ -1,4 +1,5 @@
 """Cost Element model and related schemas."""
+
 import uuid
 from datetime import datetime
 from decimal import Decimal

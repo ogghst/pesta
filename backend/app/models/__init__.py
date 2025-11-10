@@ -116,6 +116,12 @@ from app.models.forecast import (
     ForecastPublic,
     ForecastUpdate,
 )
+from app.models.planned_value import (
+    PlannedValueBase,
+    PlannedValueCostElementPublic,
+    PlannedValueProjectPublic,
+    PlannedValueWBEPublic,
+)
 from app.models.project import (
     Project,
     ProjectBase,
@@ -230,6 +236,11 @@ __all__ = [
     "ProjectPhaseCreate",
     "ProjectPhasePublic",
     "ProjectPhaseUpdate",
+    # Planned Value models
+    "PlannedValueBase",
+    "PlannedValueCostElementPublic",
+    "PlannedValueWBEPublic",
+    "PlannedValueProjectPublic",
     # Project models
     "Project",
     "ProjectBase",

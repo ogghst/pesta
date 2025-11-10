@@ -16,10 +16,13 @@ from app.models import (
     BaselineLogCreate,
     CostElement,
     CostElementCreate,
+    CostElementSchedule,
+    CostElementScheduleCreate,
     CostElementType,
     CostElementTypeCreate,
     Department,
     DepartmentCreate,
+    EarnedValueEntry,
     Project,
     ProjectCreate,
     UserCreate,
@@ -115,10 +118,52 @@ def test_get_baseline_cost_elements_success(
     db.commit()
     db.refresh(ce2)
 
+    # Create schedules for cost elements to enable planned value calculations
+    schedule_ce1 = CostElementScheduleCreate(
+        cost_element_id=ce1.cost_element_id,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 1, 31),
+        progression_type="linear",
+        created_by_id=user.id,
+    )
+    schedule1 = CostElementSchedule.model_validate(schedule_ce1)
+    db.add(schedule1)
+
+    schedule_ce2 = CostElementScheduleCreate(
+        cost_element_id=ce2.cost_element_id,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 1, 31),
+        progression_type="linear",
+        created_by_id=user.id,
+    )
+    schedule2 = CostElementSchedule.model_validate(schedule_ce2)
+    db.add(schedule2)
+    db.commit()
+
+    # Create earned value entries to set percent_complete snapshots
+    ev1 = EarnedValueEntry(
+        cost_element_id=ce1.cost_element_id,
+        completion_date=date(2024, 1, 10),
+        percent_complete=Decimal("35.25"),
+        earned_value=Decimal("3525.00"),
+        created_by_id=user.id,
+    )
+    db.add(ev1)
+
+    ev2 = EarnedValueEntry(
+        cost_element_id=ce2.cost_element_id,
+        completion_date=date(2024, 1, 12),
+        percent_complete=Decimal("62.50"),
+        earned_value=Decimal("12500.00"),
+        created_by_id=user.id,
+    )
+    db.add(ev2)
+    db.commit()
+
     # Create baseline log
     baseline_in = BaselineLogCreate(
         baseline_type="schedule",
-        baseline_date=date(2024, 1, 15),
+        baseline_date=date(2024, 1, 16),
         milestone_type="kickoff",
         description="Test baseline",
         project_id=project.project_id,
@@ -158,8 +203,18 @@ def test_get_baseline_cost_elements_success(
     assert ce1_data["department_name"] == "Test Department"
     assert Decimal(ce1_data["budget_bac"]) == Decimal("10000.00")
     assert Decimal(ce1_data["revenue_plan"]) == Decimal("12000.00")
+    assert Decimal(ce1_data["planned_value"]) == Decimal("5000.00")
+    assert Decimal(ce1_data["percent_complete"]) == Decimal("35.25")
     assert ce1_data["wbe_id"] == str(wbe.wbe_id)
     assert ce1_data["wbe_machine_type"] == "Test Machine"
+
+    ce2_data = next(
+        ce
+        for ce in content["data"]
+        if ce["cost_element_id"] == str(ce2.cost_element_id)
+    )
+    assert Decimal(ce2_data["planned_value"]) == Decimal("10000.00")
+    assert Decimal(ce2_data["percent_complete"]) == Decimal("62.50")
 
 
 def test_get_baseline_cost_elements_pagination(
@@ -267,6 +322,8 @@ def test_get_baseline_cost_elements_pagination(
     content = response.json()
     assert content["count"] == 5  # Total count should be 5
     assert len(content["data"]) == 2  # But only 2 items on this page
+    for item in content["data"]:
+        assert Decimal(item["planned_value"]) == Decimal("0.00")
 
     # Test second page (skip=2, limit=2)
     response = client.get(
@@ -278,6 +335,8 @@ def test_get_baseline_cost_elements_pagination(
     content = response.json()
     assert content["count"] == 5  # Total count should still be 5
     assert len(content["data"]) == 2  # 2 items on second page
+    for item in content["data"]:
+        assert Decimal(item["planned_value"]) == Decimal("0.00")
 
     # Test third page (skip=4, limit=2)
     response = client.get(
@@ -289,6 +348,8 @@ def test_get_baseline_cost_elements_pagination(
     content = response.json()
     assert content["count"] == 5  # Total count should still be 5
     assert len(content["data"]) == 1  # Only 1 item on third page
+    for item in content["data"]:
+        assert Decimal(item["planned_value"]) == Decimal("0.00")
 
 
 def test_get_baseline_cost_elements_empty(

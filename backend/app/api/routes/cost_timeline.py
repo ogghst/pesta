@@ -1,4 +1,5 @@
 """Cost Timeline API routes."""
+
 import uuid
 from collections import defaultdict
 from datetime import date

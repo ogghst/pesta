@@ -26,6 +26,7 @@ export type BaselineCostElementWithCostElementPublic = {
     forecast_eac?: (string | null);
     earned_ev?: (string | null);
     percent_complete?: (string | null);
+    planned_value?: string;
     baseline_cost_element_id: string;
     baseline_id: string;
     cost_element_id: string;
@@ -91,6 +92,7 @@ export type BaselineSummaryPublic = {
     description?: (string | null);
     total_budget_bac: string;
     total_revenue_plan: string;
+    total_planned_value: string;
     total_actual_ac?: (string | null);
     total_forecast_eac?: (string | null);
     total_earned_ev?: (string | null);
@@ -427,6 +429,42 @@ export type NewPassword = {
     new_password: string;
 };
 
+/**
+ * Planned value response for cost elements.
+ */
+export type PlannedValueCostElementPublic = {
+    level: string;
+    control_date: string;
+    planned_value?: string;
+    percent_complete?: string;
+    budget_bac?: string;
+    cost_element_id: string;
+};
+
+/**
+ * Planned value response for projects.
+ */
+export type PlannedValueProjectPublic = {
+    level: string;
+    control_date: string;
+    planned_value?: string;
+    percent_complete?: string;
+    budget_bac?: string;
+    project_id: string;
+};
+
+/**
+ * Planned value response for WBEs.
+ */
+export type PlannedValueWBEPublic = {
+    level: string;
+    control_date: string;
+    planned_value?: string;
+    percent_complete?: string;
+    budget_bac?: string;
+    wbe_id: string;
+};
+
 export type PrivateUserCreate = {
     email: string;
     password: string;
@@ -661,6 +699,7 @@ export type WBEWithBaselineCostElementsPublic = {
     cost_elements?: Array<BaselineCostElementWithCostElementPublic>;
     wbe_total_budget_bac: string;
     wbe_total_revenue_plan: string;
+    wbe_total_planned_value: string;
     wbe_total_actual_ac?: (string | null);
     wbe_total_forecast_eac?: (string | null);
     wbe_total_earned_ev?: (string | null);
@@ -992,6 +1031,38 @@ export type LoginRecoverPasswordHtmlContentData = {
 };
 
 export type LoginRecoverPasswordHtmlContentResponse = (string);
+
+export type PlannedValueGetCostElementPlannedValueData = {
+    /**
+     * Control date for planned value
+     */
+    controlDate: string;
+    costElementId: string;
+    projectId: string;
+};
+
+export type PlannedValueGetCostElementPlannedValueResponse = (PlannedValueCostElementPublic);
+
+export type PlannedValueGetWbePlannedValueData = {
+    /**
+     * Control date for planned value
+     */
+    controlDate: string;
+    projectId: string;
+    wbeId: string;
+};
+
+export type PlannedValueGetWbePlannedValueResponse = (PlannedValueWBEPublic);
+
+export type PlannedValueGetProjectPlannedValueData = {
+    /**
+     * Control date for planned value
+     */
+    controlDate: string;
+    projectId: string;
+};
+
+export type PlannedValueGetProjectPlannedValueResponse = (PlannedValueProjectPublic);
 
 export type PrivateCreateUserData = {
     requestBody: PrivateUserCreate;

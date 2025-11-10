@@ -1,4 +1,5 @@
 """Baseline Log API routes."""
+
 import uuid
 from decimal import Decimal
 from typing import Any
@@ -22,6 +23,7 @@ from app.models import (
     BaselineLogUpdate,
     BaselineSnapshotSummaryPublic,
     CostElement,
+    CostElementSchedule,
     CostRegistration,
     EarnedValueEntriesPublic,
     EarnedValueEntry,
@@ -29,6 +31,7 @@ from app.models import (
     Project,
     WBEWithBaselineCostElementsPublic,
 )
+from app.services.planned_value import calculate_cost_element_planned_value
 
 router = APIRouter(prefix="/projects", tags=["baseline-logs"])
 
@@ -82,6 +85,16 @@ def create_baseline_cost_elements_for_baseline_log(
         ).all()
         cost_elements.extend(elements)
 
+    cost_element_ids = [ce.cost_element_id for ce in cost_elements]
+    schedule_map: dict[uuid.UUID, CostElementSchedule] = {}
+    if cost_element_ids:
+        schedules = session.exec(
+            select(CostElementSchedule).where(
+                CostElementSchedule.cost_element_id.in_(cost_element_ids)
+            )
+        ).all()
+        schedule_map = {schedule.cost_element_id: schedule for schedule in schedules}
+
     # For each cost element, create BaselineCostElement record
     for cost_element in cost_elements:
         # Get budget_bac and revenue_plan from CostElement
@@ -120,6 +133,16 @@ def create_baseline_cost_elements_for_baseline_log(
             earned_value_entry.percent_complete if earned_value_entry else None
         )
 
+        # Calculate planned value using schedule baseline (if available)
+        planned_value = Decimal("0.00")
+        schedule = schedule_map.get(cost_element.cost_element_id)
+        if schedule:
+            planned_value, _ = calculate_cost_element_planned_value(
+                cost_element=cost_element,
+                schedule=schedule,
+                control_date=baseline_log.baseline_date,
+            )
+
         # Create BaselineCostElement record
         baseline_cost_element_in = BaselineCostElementCreate(
             baseline_id=baseline_log.baseline_id,
@@ -130,6 +153,7 @@ def create_baseline_cost_elements_for_baseline_log(
             forecast_eac=forecast_eac,
             earned_ev=earned_ev,
             percent_complete=percent_complete,
+            planned_value=planned_value,
         )
         baseline_cost_element = BaselineCostElement.model_validate(
             baseline_cost_element_in
@@ -421,6 +445,7 @@ def get_baseline_snapshot_summary(
     records for this baseline:
     - total_budget_bac: Sum of all budget_bac values
     - total_revenue_plan: Sum of all revenue_plan values
+    - total_planned_value: Sum of all planned_value values
     - total_actual_ac: Sum of all actual_ac values (handles NULLs)
     - total_forecast_eac: Sum of all forecast_eac values (handles NULLs)
     - total_earned_ev: Sum of all earned_ev values (handles NULLs)
@@ -460,6 +485,9 @@ def get_baseline_snapshot_summary(
     total_revenue_plan = sum(
         bce.revenue_plan for bce in baseline_cost_elements
     ) or Decimal("0.00")
+    total_planned_value = sum(
+        bce.planned_value for bce in baseline_cost_elements
+    ) or Decimal("0.00")
 
     # Handle NULL values for optional fields
     actual_ac_values = [
@@ -491,6 +519,7 @@ def get_baseline_snapshot_summary(
         description=baseline.description,
         total_budget_bac=total_budget_bac,
         total_revenue_plan=total_revenue_plan,
+        total_planned_value=total_planned_value,
         total_actual_ac=total_actual_ac,
         total_forecast_eac=total_forecast_eac,
         total_earned_ev=total_earned_ev,
@@ -565,6 +594,7 @@ def get_baseline_cost_elements_by_wbe(
                 cost_element_id=bce.cost_element_id,
                 budget_bac=bce.budget_bac,
                 revenue_plan=bce.revenue_plan,
+                planned_value=bce.planned_value,
                 actual_ac=bce.actual_ac,
                 forecast_eac=bce.forecast_eac,
                 earned_ev=bce.earned_ev,
@@ -583,6 +613,9 @@ def get_baseline_cost_elements_by_wbe(
         ) or Decimal("0.00")
         wbe_total_revenue_plan = sum(
             ce.revenue_plan for ce in cost_elements_list
+        ) or Decimal("0.00")
+        wbe_total_planned_value = sum(
+            ce.planned_value for ce in cost_elements_list
         ) or Decimal("0.00")
 
         # Handle NULL values for optional fields
@@ -611,6 +644,7 @@ def get_baseline_cost_elements_by_wbe(
             cost_elements=cost_elements_list,
             wbe_total_budget_bac=wbe_total_budget_bac,
             wbe_total_revenue_plan=wbe_total_revenue_plan,
+            wbe_total_planned_value=wbe_total_planned_value,
             wbe_total_actual_ac=wbe_total_actual_ac,
             wbe_total_forecast_eac=wbe_total_forecast_eac,
             wbe_total_earned_ev=wbe_total_earned_ev,
@@ -724,9 +758,11 @@ def get_baseline_cost_elements(
             cost_element_id=bce.cost_element_id,
             budget_bac=bce.budget_bac,
             revenue_plan=bce.revenue_plan,
+            planned_value=bce.planned_value,
             actual_ac=bce.actual_ac,
             forecast_eac=bce.forecast_eac,
             earned_ev=bce.earned_ev,
+            percent_complete=bce.percent_complete,
             created_at=bce.created_at,
             department_code=ce.department_code,
             department_name=ce.department_name,

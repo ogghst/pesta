@@ -1,4 +1,5 @@
 """Budget Summary model and related schemas."""
+
 from datetime import datetime
 from decimal import Decimal
 

@@ -1,4 +1,5 @@
 """Cost Element Schedule model and related schemas."""
+
 import uuid
 from datetime import date, datetime
 

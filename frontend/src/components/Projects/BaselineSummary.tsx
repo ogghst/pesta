@@ -61,7 +61,7 @@ export default function BaselineSummary({
           }}
           gap={4}
         >
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
             <Box
               key={i}
               p={4}
@@ -83,6 +83,7 @@ export default function BaselineSummary({
 
   const totalBudgetBac = Number(summary.total_budget_bac)
   const totalRevenuePlan = Number(summary.total_revenue_plan)
+  const totalPlannedValue = Number(summary.total_planned_value)
   const totalActualAc = summary.total_actual_ac
     ? Number(summary.total_actual_ac)
     : null
@@ -149,7 +150,28 @@ export default function BaselineSummary({
           </VStack>
         </Box>
 
-        {/* Card 3: Total Actual AC */}
+        {/* Card 3: Total Planned Value */}
+        <Box
+          p={4}
+          borderWidth="1px"
+          borderRadius="md"
+          borderColor="gray.200"
+          bg="white"
+        >
+          <VStack align="stretch" gap={1}>
+            <Text fontSize="sm" color="gray.600" fontWeight="medium">
+              Total Planned Value
+            </Text>
+            <Text fontSize="xl" fontWeight="bold">
+              {formatCurrency(totalPlannedValue)}
+            </Text>
+            <Text fontSize="xs" color="gray.500" mt={1}>
+              Planned Value
+            </Text>
+          </VStack>
+        </Box>
+
+        {/* Card 4: Total Actual AC */}
         <Box
           p={4}
           borderWidth="1px"
@@ -170,7 +192,7 @@ export default function BaselineSummary({
           </VStack>
         </Box>
 
-        {/* Card 4: Total Forecast EAC */}
+        {/* Card 5: Total Forecast EAC */}
         <Box
           p={4}
           borderWidth="1px"
@@ -191,7 +213,7 @@ export default function BaselineSummary({
           </VStack>
         </Box>
 
-        {/* Card 5: Total Earned EV */}
+        {/* Card 6: Total Earned EV */}
         <Box
           p={4}
           borderWidth="1px"
@@ -212,7 +234,7 @@ export default function BaselineSummary({
           </VStack>
         </Box>
 
-        {/* Card 6: Cost Element Count */}
+        {/* Card 7: Cost Element Count */}
         <Box
           p={4}
           borderWidth="1px"

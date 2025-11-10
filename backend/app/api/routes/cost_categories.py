@@ -1,4 +1,5 @@
 """Cost Categories API routes."""
+
 from typing import Any
 
 from fastapi import APIRouter

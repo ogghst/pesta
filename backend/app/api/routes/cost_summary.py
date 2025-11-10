@@ -1,4 +1,5 @@
 """Cost Summary API routes."""
+
 import uuid
 from decimal import Decimal
 from typing import Any

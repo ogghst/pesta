@@ -181,6 +181,7 @@ def test_get_baseline_cost_elements_by_wbe_multiple_wbes(
     assert len(wbe1_data["cost_elements"]) == 2  # 2 cost elements
     assert Decimal(wbe1_data["wbe_total_budget_bac"]) == Decimal("30000.00")
     assert Decimal(wbe1_data["wbe_total_revenue_plan"]) == Decimal("37000.00")
+    assert Decimal(wbe1_data["wbe_total_planned_value"]) == Decimal("0.00")
 
     # Verify WBE 2 data
     assert wbe2_data["machine_type"] == "Machine Type B"
@@ -188,6 +189,7 @@ def test_get_baseline_cost_elements_by_wbe_multiple_wbes(
     assert len(wbe2_data["cost_elements"]) == 1  # 1 cost element
     assert Decimal(wbe2_data["wbe_total_budget_bac"]) == Decimal("15000.00")
     assert Decimal(wbe2_data["wbe_total_revenue_plan"]) == Decimal("18000.00")
+    assert Decimal(wbe2_data["wbe_total_planned_value"]) == Decimal("0.00")
 
     # Verify cost element details in WBE 1
     ce1_data = next(
@@ -275,6 +277,7 @@ def test_get_baseline_cost_elements_by_wbe_empty_cost_elements(
     assert len(wbe_data["cost_elements"]) == 0  # No cost elements
     assert Decimal(wbe_data["wbe_total_budget_bac"]) == Decimal("0.00")
     assert Decimal(wbe_data["wbe_total_revenue_plan"]) == Decimal("0.00")
+    assert Decimal(wbe_data["wbe_total_planned_value"]) == Decimal("0.00")
     assert wbe_data["wbe_total_actual_ac"] is None
     assert wbe_data["wbe_total_forecast_eac"] is None
     assert wbe_data["wbe_total_earned_ev"] is None
@@ -394,6 +397,7 @@ def test_get_baseline_cost_elements_by_wbe_aggregation_accuracy(
     # Verify aggregation: 12000 + 24000 + 36000 = 72000
     expected_total_revenue = Decimal("72000.00")
     assert Decimal(wbe_data["wbe_total_revenue_plan"]) == expected_total_revenue
+    assert Decimal(wbe_data["wbe_total_planned_value"]) == Decimal("0.00")
 
     # Verify individual cost elements sum to totals
     actual_sum_bac = sum(Decimal(ce["budget_bac"]) for ce in wbe_data["cost_elements"])

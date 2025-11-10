@@ -157,12 +157,14 @@ def test_get_baseline_snapshot_summary(
     # Verify aggregated values
     assert Decimal(content["total_budget_bac"]) == Decimal("30000.00")
     assert Decimal(content["total_revenue_plan"]) == Decimal("37000.00")
+    assert Decimal(content["total_planned_value"]) == Decimal("0.00")
     # actual_ac from snapshotting should be "0.00" (no cost registrations)
     # The snapshotting function sets actual_ac = Decimal("0.00") when no registrations
     assert content["total_actual_ac"] == "0.00"
     assert Decimal(content["total_actual_ac"]) == Decimal("0.00")
     assert content["total_forecast_eac"] is None  # No forecasts
     assert content["total_earned_ev"] is None  # No earned value entries
+    assert content["total_planned_value"] == "0.00"
 
 
 def test_get_baseline_snapshot_summary_with_nulls(
@@ -436,3 +438,4 @@ def test_get_baseline_snapshot_summary_no_snapshot(
     content = response.json()
     assert content["baseline_id"] == str(baseline.baseline_id)
     assert content["cost_element_count"] == 0
+    assert content["total_planned_value"] == "0.00"

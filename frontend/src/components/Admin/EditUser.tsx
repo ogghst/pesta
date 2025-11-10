@@ -73,7 +73,8 @@ const EditUser = ({ user }: EditUserProps) => {
   })
 
   const onSubmit: SubmitHandler<UserUpdateForm> = async (data) => {
-    const { confirm_password, ...userData } = data
+    const { confirm_password: _confirmPassword, ...userData } = data
+    void _confirmPassword
     if (userData.password === "") {
       userData.password = undefined
     }

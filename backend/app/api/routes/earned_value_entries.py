@@ -1,4 +1,5 @@
 """Earned Value Entries API routes."""
+
 import uuid
 from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal

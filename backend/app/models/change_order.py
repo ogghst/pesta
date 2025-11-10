@@ -1,4 +1,5 @@
 """Change Order model and related schemas."""
+
 import uuid
 from datetime import date, datetime
 from decimal import Decimal

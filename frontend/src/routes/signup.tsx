@@ -50,7 +50,8 @@ function SignUp() {
   })
 
   const onSubmit: SubmitHandler<UserRegisterForm> = (data) => {
-    const { confirm_password, ...userData } = data
+    const { confirm_password: _confirmPassword, ...userData } = data
+    void _confirmPassword
     signUpMutation.mutate(userData)
   }
 

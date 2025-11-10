@@ -1,4 +1,5 @@
 """Cost Registrations API routes."""
+
 import uuid
 from datetime import date
 from decimal import Decimal

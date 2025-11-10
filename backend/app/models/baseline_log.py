@@ -1,4 +1,5 @@
 """Baseline Log model and related schemas."""
+
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
@@ -82,6 +83,9 @@ class BaselineSummaryPublic(SQLModel):
     description: str | None = None
     total_budget_bac: Decimal = Field(sa_column=Column(DECIMAL(15, 2), nullable=False))
     total_revenue_plan: Decimal = Field(
+        sa_column=Column(DECIMAL(15, 2), nullable=False)
+    )
+    total_planned_value: Decimal = Field(
         sa_column=Column(DECIMAL(15, 2), nullable=False)
     )
     total_actual_ac: Decimal | None = Field(

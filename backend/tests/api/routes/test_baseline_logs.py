@@ -33,6 +33,7 @@ from app.models import (
     WBECreate,
 )
 from tests.utils.cost_element import create_random_cost_element
+from tests.utils.cost_element_schedule import create_schedule_for_cost_element
 from tests.utils.project import create_random_project
 
 
@@ -142,6 +143,103 @@ def test_create_baseline_cost_elements_with_cost_elements(db: Session) -> None:
     assert bce.forecast_eac is None  # No forecast yet
     assert bce.earned_ev is None  # No earned value yet
     assert bce.percent_complete is None
+    assert bce.planned_value == Decimal("0.00")
+
+
+def test_create_baseline_cost_elements_calculates_planned_value(db: Session) -> None:
+    """Baseline cost elements should persist planned value computed from schedules."""
+
+    email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="PV Baseline Project",
+        customer_name="PV Customer",
+        contract_value=Decimal("500000.00"),
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=user.id,
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    wbe_in = WBECreate(machine_type="PV Machine", project_id=project.project_id)
+    wbe = WBE.model_validate(wbe_in)
+    db.add(wbe)
+    db.commit()
+    db.refresh(wbe)
+
+    dept_in = DepartmentCreate(
+        department_code=f"DEPT_{uuid.uuid4().hex[:6]}",
+        department_name="PV Department",
+    )
+    dept = Department.model_validate(dept_in)
+    db.add(dept)
+    db.commit()
+    db.refresh(dept)
+
+    cet_in = CostElementTypeCreate(
+        type_code=f"TYPE_{uuid.uuid4().hex[:6]}",
+        type_name="PV Type",
+        category_type="labor",
+        department_id=dept.department_id,
+    )
+    cet = CostElementType.model_validate(cet_in)
+    db.add(cet)
+    db.commit()
+    db.refresh(cet)
+
+    cost_element_in = CostElementCreate(
+        department_code=dept.department_code,
+        department_name=dept.department_name,
+        budget_bac=Decimal("50000.00"),
+        revenue_plan=Decimal("52000.00"),
+        wbe_id=wbe.wbe_id,
+        cost_element_type_id=cet.cost_element_type_id,
+    )
+    cost_element = CostElement.model_validate(cost_element_in)
+    db.add(cost_element)
+    db.commit()
+    db.refresh(cost_element)
+
+    create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 1, 31),
+        progression_type="linear",
+        created_by_id=user.id,
+    )
+
+    baseline_in = BaselineLogCreate(
+        baseline_type="schedule",
+        baseline_date=date(2024, 1, 16),
+        milestone_type="kickoff",
+        description="Baseline with PV",
+        project_id=project.project_id,
+        created_by_id=user.id,
+    )
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    create_baseline_cost_elements_for_baseline_log(
+        session=db, baseline_log=baseline, created_by_id=user.id
+    )
+
+    baseline_cost_elements = db.exec(
+        select(BaselineCostElement).where(
+            BaselineCostElement.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert len(baseline_cost_elements) == 1
+    planned_value = baseline_cost_elements[0].planned_value
+    assert planned_value == Decimal("25000.00")
 
 
 def test_create_baseline_cost_elements_with_no_cost_elements(db: Session) -> None:
@@ -1527,6 +1625,7 @@ def test_get_baseline_summary_uses_baseline_log_data(
         cost_element_id=cost_element.cost_element_id,
         budget_bac=Decimal("50000.00"),
         revenue_plan=Decimal("60000.00"),
+        planned_value=Decimal("0.00"),
     )
     bce = BaselineCostElement.model_validate(bce_in)
     db.add(bce)
@@ -1547,6 +1646,7 @@ def test_get_baseline_summary_uses_baseline_log_data(
     assert content["description"] == "Test baseline"
     assert content["total_budget_bac"] == "50000.00"
     assert content["total_revenue_plan"] == "60000.00"
+    assert content["total_planned_value"] == "0.00"
     assert content["cost_element_count"] == 1
 
 

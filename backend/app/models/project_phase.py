@@ -1,4 +1,5 @@
 """Project Phase lookup model."""
+
 import uuid
 
 from sqlmodel import Field, SQLModel
