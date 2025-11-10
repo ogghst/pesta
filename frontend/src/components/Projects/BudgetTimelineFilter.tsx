@@ -45,9 +45,9 @@ function FilterSection({
             variant="ghost"
             justifyContent="space-between"
             width="100%"
-            rightIcon={isOpen ? <FiChevronUp /> : <FiChevronDown />}
             px={4}
             py={3}
+            leftIcon={isOpen ? <FiChevronUp /> : <FiChevronDown />}
           >
             <Flex justify="space-between" align="center" width="100%">
               <Text fontWeight="medium">{title}</Text>
