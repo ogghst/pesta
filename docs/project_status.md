@@ -77,7 +77,7 @@
 
 | Task ID | Task Name | Description | Status | Notes |
 |---------|-----------|-------------|--------|-------|
-| E4-001 | Planned Value Calculation Engine | Compute PV = BAC × planned completion % from schedule baseline | ⏳ Todo | Sprint 4 deliverable. Core EVM metric. Uses Cost Element Schedule with progression types. |
+| E4-001 | Planned Value Calculation Engine | Compute PV = BAC × planned completion % from schedule baseline | ✅ Done | Backend PV service + FastAPI endpoints delivered, baseline snapshots persist planned_value, and `python -m pytest backend/tests/services/test_planned_value.py backend/tests/api/routes/test_planned_value.py` passes against local Postgres (`postgres/changethis@localhost:5432/app`). |
 | E4-002 | Earned Value Calculation Engine | Compute EV = BAC × physical completion % from earned value entries | ⏳ Todo | Sprint 4 deliverable. Core EVM metric. |
 | E4-003 | EVM Performance Indices | Implement CPI, SPI, and TCPI calculation algorithms | ⏳ Todo | Sprint 4 deliverable. Standard EVM metrics. |
 | E4-004 | Variance Calculations | Implement cost variance and schedule variance logic | ⏳ Todo | Sprint 4 deliverable. CV = EV - AC, SV = EV - PV. |
@@ -188,7 +188,7 @@ The MVP development is structured across six two-week sprints, each building on 
 
 **Deliverables:** Users can record actual project expenditures and track spending against budgets, accumulating the actual cost data required for future performance analysis.
 
-**Status:** ⏳ Not Started
+**Status:** 🔄 In Progress (E4-001 delivered; remaining EVM calculations in backlog)
 
 ---
 
@@ -210,7 +210,7 @@ The MVP development is structured across six two-week sprints, each building on 
 
 **Deliverables:** Complete earned value management capability, enabling users to assess project performance using industry-standard metrics.
 
-**Status:** ⏳ Not Started
+**Status:** 🔄 In Progress (E4-001 complete; groundwork validated by passing PV test suite)
 
 ---
 
@@ -290,7 +290,7 @@ The MVP development is structured across six two-week sprints, each building on 
 | E1-002 (Core Models) | E1-001 (Database Schema) | ✅ Complete |
 | E1-003 (App Framework) | DOC-004 (Tech Stack) | ✅ Ready - Tech stack selected |
 | E2-004 (Schedule Implementation) | E1-002 (Core Models) | ✅ Ready - Core models complete |
-| E4-001 (PV Calculation) | E2-004 (Schedule Implementation) | 🔸 Blocked |
+| E4-001 (PV Calculation) | E2-004 (Schedule Implementation) | ✅ Complete |
 | E4-002 (EV Calculation) | E3-006 (Earned Value Recording) | 🔸 Blocked |
 
 ---
@@ -310,6 +310,7 @@ The MVP development is structured across six two-week sprints, each building on 
 
 ### Recent Updates
 
+- **2025-11-10:** ✅ **E4-001 PLANNED VALUE ENGINE COMPLETE!** Added PV calculation service and `/projects/{project_id}/planned-value` APIs, persisted `planned_value` snapshots via migration `2f8c2a1ad8e3_add_planned_value_to_baseline_cost_element.py`, regenerated the SDK/UI to surface PV metrics, and verified `python -m pytest backend/tests/services/test_planned_value.py backend/tests/api/routes/test_planned_value.py` passes against local Postgres (`postgres/changethis@localhost:5432/app`).
 - **2025-11-09:** ✅ **E3-007 BASELINE DECOUPLING COMPLETE!** Earned value entries no longer persist `baseline_id`; BaselineCostElement snapshots now capture both `percent_complete` and `earned_ev`, and baseline earned value UI reflects snapshot data. Backend migration `0f5f73e9f9ad_decouple_earned_value_baseline` deployed with regenerated API client and updated documentation.
 - **2025-11-07:** ✅ **PLA-1 CODE CLEANUP COMPLETE!** Removed deprecated BaselineSnapshot model and dropped the table via migration `a8d41cd1b784_remove_baseline_snapshot_table`. Updated helper/tests to rely exclusively on `BaselineLog` and retained `BaselineSnapshotSummaryPublic` as a backwards-compatible alias. Next step: manual UI verification for baseline creation/summaries.
 - **2025-11-07:** ✅ **E3-006 IMPLEMENTATION COMPLETE!** Added backend `earned_value_entries` CRUD routes with schedule validation, percent range enforcement, duplicate date protection, and earned value derivation. Regenerated OpenAPI client and implemented Earned Value tab with add/edit/delete dialogs (percent preview, warning surfacing) on the cost element detail page. All 11 backend API tests, targeted Vitest spec, and TypeScript build passing.

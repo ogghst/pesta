@@ -33,7 +33,6 @@ def _normal_cdf(x: float, mean: float, std_dev: float) -> float:
 
 
 def calculate_planned_percent_complete(
-    *,
     start_date: date,
     end_date: date,
     control_date: date,
@@ -67,7 +66,6 @@ def calculate_planned_percent_complete(
 
 
 def calculate_planned_value(
-    *,
     budget_bac: Decimal,
     start_date: date,
     end_date: date,
