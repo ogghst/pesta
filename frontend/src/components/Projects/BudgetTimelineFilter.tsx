@@ -49,7 +49,7 @@ function FilterSection({
             py={3}
           >
             <Flex justify="space-between" align="center" width="100%">
-              <HStack spacing={2} align="center">
+              <HStack gap={2} align="center">
                 {isOpen ? <FiChevronUp /> : <FiChevronDown />}
                 <Text fontWeight="medium">{title}</Text>
               </HStack>
