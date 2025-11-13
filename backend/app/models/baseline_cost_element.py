@@ -1,7 +1,7 @@
 """Baseline Cost Element model and related schemas."""
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import DECIMAL, Column, DateTime
@@ -110,6 +110,12 @@ class BaselineCostElementWithCostElementPublic(BaselineCostElementPublic):
     cost_element_type_id: uuid.UUID
     wbe_id: uuid.UUID
     wbe_machine_type: str = Field(max_length=100)
+    schedule_start_date: date | None = None
+    schedule_end_date: date | None = None
+    schedule_progression_type: str | None = None
+    schedule_registration_date: date | None = None
+    schedule_description: str | None = None
+    schedule_notes: str | None = None
 
 
 class WBEWithBaselineCostElementsPublic(SQLModel):

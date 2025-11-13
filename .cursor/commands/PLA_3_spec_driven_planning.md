@@ -28,4 +28,6 @@ Create a detailed specification that will guide our implementation:
    - Performance considerations
    - Backward compatibility requirements
 
-This specification will serve as our contract and documentation.
+Record your plan in [plans](/docs/plans/) folder
+
+This specification will serve as our contract and documentation

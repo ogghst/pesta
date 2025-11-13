@@ -17,6 +17,8 @@ def create_schedule_for_cost_element(
     start_date: date | None = None,
     end_date: date | None = None,
     progression_type: str = "linear",
+    registration_date: date | None = None,
+    description: str | None = None,
     created_by_id: uuid.UUID | None = None,
 ) -> CostElementSchedule:
     """Create a schedule for a cost element."""
@@ -32,12 +34,16 @@ def create_schedule_for_cost_element(
         start_date = date.today()
     if end_date is None:
         end_date = date(2025, 12, 31)  # Default end date for tests
+    if registration_date is None:
+        registration_date = start_date
 
     schedule_in = CostElementScheduleCreate(
         cost_element_id=cost_element_id,
         start_date=start_date,
         end_date=end_date,
         progression_type=progression_type,
+        registration_date=registration_date,
+        description=description,
         created_by_id=created_by_id,
     )
     schedule = CostElementSchedule.model_validate(schedule_in)

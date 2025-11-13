@@ -56,11 +56,11 @@ The system must maintain the integrity of budget allocations and provide warning
 
 ### 6.1.1 Cost Element Schedule Baseline
 
-For each cost element, the system shall support the creation and maintenance of a schedule baseline that defines the planned progression of work over time. The schedule baseline must include a start date and end date defining the planned duration of the cost element, and a progression type that determines how the planned work completion percentage is calculated over the schedule period.
+For each cost element, the system shall support versioned schedule registrations that define the planned progression of work over time. Each registration must include a start date, end date, progression type, user-provided registration date, and optional description so that users can record the business context driving the change. Users must be able to perform full CRUD operations on schedule registrations while retaining historical entries.
 
-The system shall support the following progression types: linear (even distribution over the duration), gaussian (normal distribution curve with peak at midpoint), and logarithmic (slow start with accelerating completion). The schedule baseline shall be used to calculate Planned Value (PV) at any point in time based on the planned percentage of completion according to the selected progression type.
+The system shall support the following progression types: linear (even distribution over the duration), gaussian (normal distribution curve with peak at midpoint), and logarithmic (slow start with accelerating completion). The planned value engine shall always use the schedule registration with the most recent registration date (ties resolved by creation time) whose registration date is on or before the control date.
 
-Once baselined, the schedule may be modified only through approved change orders or formal baseline revisions, maintaining the original baseline for historical comparison.
+When a baseline is created, the system shall copy the latest schedule registration whose registration date is on or before the baseline date into a baseline schedule snapshot tied to the baseline log, preserving the registration date and description exactly as recorded. Once captured, baseline schedules remain immutable unless superseded through approved change orders or formal baseline revisions, maintaining the original baseline for historical comparison.
 
 ### 6.2 Cost Registration and Actual Cost Tracking
 

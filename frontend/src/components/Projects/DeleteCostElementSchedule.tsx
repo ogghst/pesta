@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { FiTrash2 } from "react-icons/fi"
 
-import { CostRegistrationsService } from "@/client"
+import { CostElementSchedulesService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import {
   DialogActionTrigger,
@@ -19,15 +19,15 @@ import {
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
-interface DeleteCostRegistrationProps {
+interface DeleteCostElementScheduleProps {
   id: string
-  description: string
+  description: string | null | undefined
 }
 
-const DeleteCostRegistration = ({
+const DeleteCostElementSchedule = ({
   id,
   description,
-}: DeleteCostRegistrationProps) => {
+}: DeleteCostElementScheduleProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -36,23 +36,28 @@ const DeleteCostRegistration = ({
     formState: { isSubmitting },
   } = useForm()
 
-  const deleteCostRegistration = async (costRegistrationId: string) => {
-    await CostRegistrationsService.deleteCostRegistration({
-      id: costRegistrationId,
+  const deleteSchedule = async (scheduleId: string) => {
+    await CostElementSchedulesService.deleteSchedule({
+      id: scheduleId,
     })
   }
 
   const mutation = useMutation({
-    mutationFn: deleteCostRegistration,
+    mutationFn: deleteSchedule,
     onSuccess: () => {
-      showSuccessToast("Cost registration deleted successfully")
+      showSuccessToast("Schedule deleted successfully")
       setIsOpen(false)
     },
     onError: (err: ApiError) => {
       handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["cost-registrations"] })
+      queryClient.invalidateQueries({
+        queryKey: ["cost-element-schedule-history"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["cost-element-schedule"],
+      })
       // Invalidate timeline queries
       queryClient.invalidateQueries({
         queryKey: ["cost-elements-with-schedules"],
@@ -86,14 +91,18 @@ const DeleteCostRegistration = ({
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Delete Cost Registration</DialogTitle>
+            <DialogTitle>Delete Schedule</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              Are you sure you want to delete this cost registration?
+              Are you sure you want to delete this schedule registration?
               <br />
-              <strong>{description}</strong>
-              <br />
+              {description && (
+                <>
+                  <strong>{description}</strong>
+                  <br />
+                </>
+              )}
               This action cannot be undone.
             </Text>
           </DialogBody>
@@ -124,4 +133,4 @@ const DeleteCostRegistration = ({
   )
 }
 
-export default DeleteCostRegistration
+export default DeleteCostElementSchedule

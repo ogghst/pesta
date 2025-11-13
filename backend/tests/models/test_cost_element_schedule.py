@@ -87,6 +87,8 @@ def test_create_cost_element_schedule(db: Session) -> None:
         end_date=date(2024, 12, 31),
         progression_type="linear",
         notes="Baseline schedule for engineering work",
+        description="Initial engineering plan",
+        registration_date=date(2023, 12, 15),
         created_by_id=pm_user.id,
     )
 
@@ -101,6 +103,8 @@ def test_create_cost_element_schedule(db: Session) -> None:
     assert schedule.start_date == date(2024, 1, 1)
     assert schedule.end_date == date(2024, 12, 31)
     assert schedule.progression_type == "linear"
+    assert schedule.description == "Initial engineering plan"
+    assert schedule.registration_date == date(2023, 12, 15)
     assert hasattr(schedule, "cost_element")  # Relationship should exist
 
 
@@ -186,6 +190,7 @@ def test_progression_type_enum(db: Session) -> None:
             start_date=date(2024, 1, 1),
             end_date=date(2024, 12, 31),
             progression_type=progression_type,
+            registration_date=date(2023, 12, 1),
             created_by_id=pm_user.id,
         )
         schedule = CostElementSchedule.model_validate(schedule_in)
@@ -210,6 +215,8 @@ def test_cost_element_schedule_public_schema() -> None:
         start_date=date(2024, 2, 1),
         end_date=date(2024, 11, 30),
         progression_type="gaussian",
+        description="Snapshot schedule",
+        registration_date=date(2023, 12, 1),
         notes="Public test schedule",
         created_by_id=user_id,
         created_at=now,
@@ -220,3 +227,100 @@ def test_cost_element_schedule_public_schema() -> None:
     assert schedule_public.start_date == date(2024, 2, 1)
     assert schedule_public.end_date == date(2024, 11, 30)
     assert schedule_public.progression_type == "gaussian"
+    assert schedule_public.description == "Snapshot schedule"
+    assert schedule_public.registration_date == date(2023, 12, 1)
+
+
+def test_cost_element_schedule_allows_multiple_registrations_per_cost_element(
+    db: Session,
+) -> None:
+    """Multiple schedule registrations for the same cost element should be allowed."""
+    # Create hierarchy
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Multi Registration Project",
+        customer_name="Customer",
+        contract_value=100000.00,
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Machine",
+        revenue_allocation=50000.00,
+        status="designing",
+    )
+    wbe = WBE.model_validate(wbe_in)
+    db.add(wbe)
+    db.commit()
+    db.refresh(wbe)
+
+    cet_in = CostElementTypeCreate(
+        type_code=f"multi_sched_{uuid.uuid4().hex[:8]}",
+        type_name="Test Type",
+        category_type="other",
+        display_order=1,
+        is_active=True,
+    )
+    cet = CostElementType.model_validate(cet_in)
+    db.add(cet)
+    db.commit()
+    db.refresh(cet)
+
+    ce_in = CostElementCreate(
+        wbe_id=wbe.wbe_id,
+        cost_element_type_id=cet.cost_element_type_id,
+        department_code="MSCHED",
+        department_name="Multi Schedule Dept",
+        budget_bac=5000.00,
+        revenue_plan=6000.00,
+        status="active",
+    )
+    ce = CostElement.model_validate(ce_in)
+    db.add(ce)
+    db.commit()
+    db.refresh(ce)
+
+    first_registration = CostElementScheduleCreate(
+        cost_element_id=ce.cost_element_id,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 3, 31),
+        progression_type="linear",
+        registration_date=date(2023, 11, 1),
+        description="Initial plan",
+        created_by_id=pm_user.id,
+    )
+    first_schedule = CostElementSchedule.model_validate(first_registration)
+    db.add(first_schedule)
+    db.commit()
+    db.refresh(first_schedule)
+
+    second_registration = CostElementScheduleCreate(
+        cost_element_id=ce.cost_element_id,
+        start_date=date(2024, 2, 1),
+        end_date=date(2024, 6, 30),
+        progression_type="gaussian",
+        registration_date=date(2024, 1, 15),
+        description="Rebaseline for procurement delay",
+        created_by_id=pm_user.id,
+    )
+    second_schedule = CostElementSchedule.model_validate(second_registration)
+    db.add(second_schedule)
+    db.commit()
+    db.refresh(second_schedule)
+
+    assert first_schedule.schedule_id != second_schedule.schedule_id
+    assert first_schedule.cost_element_id == second_schedule.cost_element_id
+    assert first_schedule.registration_date == date(2023, 11, 1)
+    assert second_schedule.registration_date == date(2024, 1, 15)

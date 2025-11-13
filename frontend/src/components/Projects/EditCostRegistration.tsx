@@ -127,6 +127,16 @@ const EditCostRegistration = ({
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["cost-registrations"] })
+      // Invalidate timeline queries
+      queryClient.invalidateQueries({
+        queryKey: ["cost-elements-with-schedules"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["cost-timeline"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["earned-value-timeline"],
+      })
     },
   })
 

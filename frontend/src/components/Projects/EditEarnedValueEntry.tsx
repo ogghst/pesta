@@ -128,6 +128,16 @@ const EditEarnedValueEntry = ({
       showSuccessToast("Earned value entry updated successfully.")
       setIsOpen(false)
       queryClient.invalidateQueries({ queryKey: ["earned-value-entries"] })
+      // Invalidate timeline queries
+      queryClient.invalidateQueries({
+        queryKey: ["cost-elements-with-schedules"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["cost-timeline"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["earned-value-timeline"],
+      })
     },
     onError: (error: ApiError) => {
       handleError(error)

@@ -1,6 +1,6 @@
 IMPLEMENTATION PHASE: Test-Driven Development
 
-We're now implementing step [X] from our plan.
+We're now implementing our plan.
 
 TDD IMPLEMENTATION RULES:
 
@@ -37,4 +37,4 @@ After each step, update the checklist:
 - [x] Step completed
 - [ ] Next step pending
 
-Show me your test-first approach for step [X] now.
+Show me your test-first approach now.

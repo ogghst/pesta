@@ -867,6 +867,15 @@ export type CostElementSchedulesCreateScheduleData = {
 
 export type CostElementSchedulesCreateScheduleResponse = (CostElementSchedulePublic);
 
+export type CostElementSchedulesReadScheduleHistoryByCostElementData = {
+    /**
+     * Cost element ID
+     */
+    costElementId: string;
+};
+
+export type CostElementSchedulesReadScheduleHistoryByCostElementResponse = (Array<CostElementSchedulePublic>);
+
 export type CostElementSchedulesUpdateScheduleData = {
     id: string;
     requestBody: CostElementScheduleUpdate;

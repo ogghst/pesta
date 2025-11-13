@@ -63,6 +63,7 @@ export interface BudgetTimelineChartConfig {
 
 const PLANNED_VALUE_COLOR = "#3182ce"
 const ACTUAL_COST_COLOR = "#f56565"
+const EARNED_VALUE_COLOR = "#48bb78"
 
 export function createBudgetTimelineConfig({
   viewMode,
@@ -122,11 +123,10 @@ export function createBudgetTimelineConfig({
       x: point.date,
       y: point.earnedValue,
     })),
-    borderColor: actualCostDataset.borderColor,
-    backgroundColor: actualCostDataset.backgroundColor,
-    borderWidth: actualCostDataset.borderWidth,
-    borderDash: actualCostDataset.borderDash,
-    fill: actualCostDataset.fill,
+    borderColor: EARNED_VALUE_COLOR,
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    fill: false,
   }
 
   const formatCurrency = (value: number) =>

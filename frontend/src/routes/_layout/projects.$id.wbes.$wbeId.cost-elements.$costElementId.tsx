@@ -19,6 +19,7 @@ import {
 } from "@/client"
 import PendingItems from "@/components/Pending/PendingItems"
 import BudgetTimeline from "@/components/Projects/BudgetTimeline"
+import CostElementSchedulesTable from "@/components/Projects/CostElementSchedulesTable"
 import CostRegistrationsTable from "@/components/Projects/CostRegistrationsTable"
 import CostSummary from "@/components/Projects/CostSummary"
 import EarnedValueEntriesTable from "@/components/Projects/EarnedValueEntriesTable"
@@ -26,6 +27,7 @@ import EarnedValueEntriesTable from "@/components/Projects/EarnedValueEntriesTab
 const COST_ELEMENT_VIEW_OPTIONS = [
   "info",
   "cost-registrations",
+  "schedule",
   "earned-value",
   "cost-summary",
   "timeline",
@@ -180,6 +182,7 @@ function CostElementDetail() {
           <Tabs.Trigger value="cost-registrations">
             Cost Registrations
           </Tabs.Trigger>
+          <Tabs.Trigger value="schedule">Schedule</Tabs.Trigger>
           <Tabs.Trigger value="earned-value">Earned Value</Tabs.Trigger>
           <Tabs.Trigger value="cost-summary">Cost Summary</Tabs.Trigger>
           <Tabs.Trigger value="timeline">Timeline</Tabs.Trigger>
@@ -212,6 +215,12 @@ function CostElementDetail() {
         <Tabs.Content value="cost-registrations">
           <Box mt={4}>
             <CostRegistrationsTable costElementId={costElementId} />
+          </Box>
+        </Tabs.Content>
+
+        <Tabs.Content value="schedule">
+          <Box mt={4}>
+            <CostElementSchedulesTable costElementId={costElementId} />
           </Box>
         </Tabs.Content>
 

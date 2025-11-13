@@ -32,15 +32,43 @@ def _ensure_project_exists(session: SessionDep, project_id: uuid.UUID) -> Projec
     return project
 
 
-def _get_schedule_map(session: SessionDep, cost_element_ids: list[uuid.UUID]) -> dict:
-    if not cost_element_ids:
-        return {}
-    schedules = session.exec(
-        select(CostElementSchedule).where(
-            CostElementSchedule.cost_element_id.in_(cost_element_ids)
+def _select_schedule_for_cost_element(
+    session: SessionDep, cost_element_id: uuid.UUID, control_date: date
+) -> CostElementSchedule | None:
+    base_statement = (
+        select(CostElementSchedule)
+        .where(CostElementSchedule.cost_element_id == cost_element_id)
+        .where(CostElementSchedule.baseline_id.is_(None))
+    )
+
+    prioritized = base_statement.where(
+        CostElementSchedule.registration_date <= control_date
+    ).order_by(
+        CostElementSchedule.registration_date.desc(),
+        CostElementSchedule.created_at.desc(),
+    )
+    schedule = session.exec(prioritized).first()
+    if schedule:
+        return schedule
+
+    fallback = base_statement.order_by(
+        CostElementSchedule.registration_date.asc(),
+        CostElementSchedule.created_at.asc(),
+    )
+    return session.exec(fallback).first()
+
+
+def _get_schedule_map(
+    session: SessionDep, cost_element_ids: list[uuid.UUID], control_date: date
+) -> dict[uuid.UUID, CostElementSchedule]:
+    schedule_map: dict[uuid.UUID, CostElementSchedule] = {}
+    for cost_element_id in cost_element_ids:
+        schedule = _select_schedule_for_cost_element(
+            session, cost_element_id, control_date
         )
-    ).all()
-    return {schedule.cost_element_id: schedule for schedule in schedules}
+        if schedule:
+            schedule_map[cost_element_id] = schedule
+    return schedule_map
 
 
 @router.get(
@@ -65,11 +93,9 @@ def get_cost_element_planned_value(
     if not wbe or wbe.project_id != project.project_id:
         raise HTTPException(status_code=404, detail="Cost element not found")
 
-    schedule = session.exec(
-        select(CostElementSchedule).where(
-            CostElementSchedule.cost_element_id == cost_element.cost_element_id
-        )
-    ).first()
+    schedule = _select_schedule_for_cost_element(
+        session, cost_element.cost_element_id, control_date
+    )
 
     planned_value, percent = calculate_cost_element_planned_value(
         cost_element=cost_element, schedule=schedule, control_date=control_date
@@ -108,7 +134,7 @@ def get_wbe_planned_value(
     ).all()
 
     schedule_map = _get_schedule_map(
-        session, [ce.cost_element_id for ce in cost_elements]
+        session, [ce.cost_element_id for ce in cost_elements], control_date
     )
 
     tuples: list[tuple[Decimal, Decimal]] = []
@@ -155,7 +181,7 @@ def get_project_planned_value(
         cost_elements = []
 
     schedule_map = _get_schedule_map(
-        session, [ce.cost_element_id for ce in cost_elements]
+        session, [ce.cost_element_id for ce in cost_elements], control_date
     )
 
     tuples: list[tuple[Decimal, Decimal]] = []

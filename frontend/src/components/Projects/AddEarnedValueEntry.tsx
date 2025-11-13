@@ -123,6 +123,16 @@ const AddEarnedValueEntry = ({
       })
       setIsOpen(false)
       queryClient.invalidateQueries({ queryKey: ["earned-value-entries"] })
+      // Invalidate timeline queries
+      queryClient.invalidateQueries({
+        queryKey: ["cost-elements-with-schedules"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["cost-timeline"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["earned-value-timeline"],
+      })
       if (warning) {
         // eslint-disable-next-line no-alert -- temporary surface of warning until UI integration
         alert(warning)

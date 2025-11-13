@@ -1,6 +1,6 @@
 """Tests for Baseline Log API routes."""
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from fastapi.testclient import TestClient
@@ -18,6 +18,7 @@ from app.models import (
     BaselineLogCreate,
     CostElement,
     CostElementCreate,
+    CostElementSchedule,
     CostElementType,
     CostElementTypeCreate,
     CostRegistration,
@@ -32,9 +33,11 @@ from app.models import (
     UserCreate,
     WBECreate,
 )
+from app.services.planned_value import calculate_cost_element_planned_value
 from tests.utils.cost_element import create_random_cost_element
 from tests.utils.cost_element_schedule import create_schedule_for_cost_element
 from tests.utils.project import create_random_project
+from tests.utils.wbe import create_random_wbe
 
 
 def test_create_baseline_cost_elements_with_cost_elements(db: Session) -> None:
@@ -144,6 +147,140 @@ def test_create_baseline_cost_elements_with_cost_elements(db: Session) -> None:
     assert bce.earned_ev is None  # No earned value yet
     assert bce.percent_complete is None
     assert bce.planned_value == Decimal("0.00")
+
+
+def test_create_baseline_copies_latest_schedule_prior_to_date(db: Session) -> None:
+    """Baseline creation should snapshot the latest schedule registered on/before the baseline date."""
+    today = date.today()
+    baseline_date = today - timedelta(days=10)
+
+    project = create_random_project(db)
+    wbe = create_random_wbe(db, project_id=project.project_id)
+    cost_element = create_random_cost_element(db, wbe_id=wbe.wbe_id)
+
+    create_schedule_for_cost_element(
+        db,
+        cost_element_id=cost_element.cost_element_id,
+        start_date=today - timedelta(days=120),
+        end_date=today - timedelta(days=60),
+        progression_type="linear",
+        registration_date=today - timedelta(days=140),
+        description="Original launch plan",
+    )
+    latest_schedule = create_schedule_for_cost_element(
+        db,
+        cost_element_id=cost_element.cost_element_id,
+        start_date=today - timedelta(days=45),
+        end_date=today + timedelta(days=60),
+        progression_type="gaussian",
+        registration_date=today - timedelta(days=30),
+        description="Supply chain adjustment",
+    )
+    create_schedule_for_cost_element(
+        db,
+        cost_element_id=cost_element.cost_element_id,
+        start_date=today - timedelta(days=5),
+        end_date=today + timedelta(days=90),
+        progression_type="logarithmic",
+        registration_date=today - timedelta(days=5),
+        description="Future draft (post-baseline)",
+    )
+
+    baseline_in = BaselineLogCreate(
+        baseline_type="schedule",
+        baseline_date=baseline_date,
+        milestone_type="kickoff",
+        description="Mid-project baseline",
+        project_id=project.project_id,
+        created_by_id=project.project_manager_id,
+    )
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    create_baseline_cost_elements_for_baseline_log(
+        session=db, baseline_log=baseline, created_by_id=project.project_manager_id
+    )
+
+    baseline_schedule = db.exec(
+        select(CostElementSchedule).where(
+            CostElementSchedule.baseline_id == baseline.baseline_id
+        )
+    ).one()
+    assert baseline_schedule.cost_element_id == cost_element.cost_element_id
+    assert baseline_schedule.start_date == latest_schedule.start_date
+    assert baseline_schedule.end_date == latest_schedule.end_date
+    assert baseline_schedule.progression_type == latest_schedule.progression_type
+    assert baseline_schedule.registration_date == latest_schedule.registration_date
+    assert baseline_schedule.description == latest_schedule.description
+
+    baseline_cost_element = db.exec(
+        select(BaselineCostElement).where(
+            BaselineCostElement.baseline_id == baseline.baseline_id
+        )
+    ).one()
+    expected_planned_value, _ = calculate_cost_element_planned_value(
+        cost_element=cost_element,
+        schedule=baseline_schedule,
+        control_date=baseline.baseline_date,
+    )
+    assert baseline_cost_element.planned_value == expected_planned_value
+
+
+def test_create_baseline_handles_multiple_cost_elements(db: Session) -> None:
+    """Baseline snapshot should include all project cost elements without crashing."""
+    today = date.today()
+    baseline_date = today - timedelta(days=1)
+
+    project = create_random_project(db)
+    wbe_a = create_random_wbe(db, project_id=project.project_id)
+    wbe_b = create_random_wbe(db, project_id=project.project_id)
+    cost_element_a = create_random_cost_element(db, wbe_id=wbe_a.wbe_id)
+    cost_element_b = create_random_cost_element(db, wbe_id=wbe_b.wbe_id)
+
+    create_schedule_for_cost_element(
+        db,
+        cost_element_id=cost_element_a.cost_element_id,
+        start_date=today - timedelta(days=30),
+        end_date=today + timedelta(days=60),
+        progression_type="linear",
+        registration_date=today - timedelta(days=10),
+    )
+    create_schedule_for_cost_element(
+        db,
+        cost_element_id=cost_element_b.cost_element_id,
+        start_date=today - timedelta(days=20),
+        end_date=today + timedelta(days=45),
+        progression_type="gaussian",
+        registration_date=today - timedelta(days=5),
+    )
+
+    baseline_in = BaselineLogCreate(
+        baseline_type="schedule",
+        baseline_date=baseline_date,
+        milestone_type="kickoff",
+        description="Multiple cost elements baseline",
+        project_id=project.project_id,
+        created_by_id=project.project_manager_id,
+    )
+    baseline = BaselineLog.model_validate(baseline_in)
+    db.add(baseline)
+    db.commit()
+    db.refresh(baseline)
+
+    create_baseline_cost_elements_for_baseline_log(
+        session=db, baseline_log=baseline, created_by_id=project.project_manager_id
+    )
+
+    baseline_cost_elements = db.exec(
+        select(BaselineCostElement).where(
+            BaselineCostElement.baseline_id == baseline.baseline_id
+        )
+    ).all()
+    assert sorted(bce.cost_element_id for bce in baseline_cost_elements) == sorted(
+        [cost_element_a.cost_element_id, cost_element_b.cost_element_id]
+    )
 
 
 def test_create_baseline_cost_elements_calculates_planned_value(db: Session) -> None:

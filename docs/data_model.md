@@ -262,17 +262,19 @@ Maintains a log of all baseline creation events. Each baseline is identified by 
 
 ### 15. Cost Element Schedule
 
-Defines the schedule baseline for a cost element, used to calculate Planned Value (PV). The schedule includes start date, end date, and progression type that determines how planned completion percentage is calculated over time.
+Defines versioned schedule baselines for a cost element. Each registration captures the planned cadence used to calculate Planned Value (PV) as of that point in time. Users can perform full CRUD on schedule records, retaining history for auditability while the application automatically selects the latest registration for live EVM calculations.
 
 **Primary Key:** `schedule_id`
 
 **Attributes:**
 - `schedule_id` (UUID, PK) - Unique system-generated identifier
-- `cost_element_id` (UUID, FK → Cost Element, UNIQUE) - Target cost element (one schedule per cost element)
+- `cost_element_id` (UUID, FK → Cost Element, INDEX) - Target cost element (multiple schedules allowed, newest record wins)
 - `baseline_id` (UUID, FK → Baseline Log, NULL) - Reference to baseline log entry when schedule is baselined
 - `start_date` (DATE) - Planned start date for the cost element
 - `end_date` (DATE) - Planned end date for the cost element
 - `progression_type` (ENUM) - Type: linear, gaussian, logarithmic
+- `registration_date` (DATE) - User-supplied effective date for this schedule registration (defaults to creation date if omitted)
+- `description` (TEXT, NULL) - Optional narrative describing the schedule rationale or scope
 - `notes` (TEXT, NULL) - Schedule notes and assumptions
 - `created_by` (UUID, FK → User) - User who created schedule
 - `created_at` (TIMESTAMP) - Record creation timestamp
@@ -288,7 +290,9 @@ Defines the schedule baseline for a cost element, used to calculate Planned Valu
   - Linear: Even distribution over duration
   - Gaussian: Normal distribution curve with peak at midpoint
   - Logarithmic: Slow start with accelerating completion
-- When a schedule is baselined, it references a Baseline Log entry via baseline_id
+- Operational EVM calculations always use the schedule registration with the most recent `registration_date` (ties resolved by `created_at`)
+- Full CRUD history is retained; prior registrations stay queryable for audit and reporting while operational calculations only consider the newest applicable registration.
+- When a baseline is created, the system copies the latest schedule registration whose `registration_date` is on or before the baseline date into a **Baseline Cost Element Schedule** record linked via `baseline_id`. PV/EV calculations for that baseline use the frozen copy, preserving historical context even as operational schedules evolve.
 
 ---
 

@@ -20,6 +20,8 @@ const testEntities: {
   wbeId?: string
   costElementId?: string
   baselineId?: string
+  latestScheduleRegistrationDate?: string
+  previousScheduleRegistrationDate?: string
 } = {}
 
 async function callApi<T>(label: string, fn: () => Promise<T>): Promise<T> {
@@ -58,6 +60,14 @@ test.beforeAll(async () => {
   const now = new Date()
   const today = now.toISOString().slice(0, 10)
   const nextMonth = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10)
+  const secondMonth = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10)
+  const secondRegistrationDate = new Date(
+    now.getTime() + 7 * 24 * 60 * 60 * 1000,
+  )
     .toISOString()
     .slice(0, 10)
 
@@ -120,6 +130,22 @@ test.beforeAll(async () => {
         end_date: nextMonth,
         progression_type: "linear",
         notes: "Timeline schedule for Playwright test",
+        registration_date: today,
+        description: "Initial schedule registration",
+      },
+    }),
+  )
+
+  await callApi("createCostElementSchedule", () =>
+    CostElementSchedulesService.createSchedule({
+      costElementId: costElement.cost_element_id,
+      requestBody: {
+        start_date: secondRegistrationDate,
+        end_date: secondMonth,
+        progression_type: "gaussian",
+        notes: "Updated schedule for Playwright test",
+        registration_date: secondRegistrationDate,
+        description: "Second schedule registration",
       },
     }),
   )
@@ -165,6 +191,8 @@ test.beforeAll(async () => {
   testEntities.wbeId = wbe.wbe_id
   testEntities.costElementId = costElement.cost_element_id
   testEntities.baselineId = baseline.baseline_id
+  testEntities.previousScheduleRegistrationDate = today
+  testEntities.latestScheduleRegistrationDate = secondRegistrationDate
 })
 
 test("Earned Value tab displays the earned value entries table", async ({
@@ -225,6 +253,73 @@ test("Baseline modal shows earned value tab with baseline entries", async ({
   await expect(page.getByRole("cell", { name: "25.00%" })).toBeVisible()
 
   await page.keyboard.press("Escape")
+})
+
+test("Edit cost element modal exposes schedule registration metadata", async ({
+  page,
+}) => {
+  const { projectId, wbeId, costElementId } = testEntities
+
+  if (!projectId || !wbeId || !costElementId) {
+    test.fail(
+      true,
+      "Cost element schedule test data was not initialized correctly",
+    )
+    return
+  }
+
+  await page.goto(
+    `/projects/${projectId}/wbes/${wbeId}/cost-elements/${costElementId}`,
+  )
+
+  await page.getByRole("button", { name: "Edit cost element" }).first().click()
+
+  await expect(page.getByLabel("Registration Date")).toBeVisible()
+  await expect(page.getByLabel("Registration Date")).toHaveValue(
+    testEntities.latestScheduleRegistrationDate,
+  )
+  await expect(page.getByLabel("Schedule Description")).toHaveValue(
+    "Second schedule registration",
+  )
+
+  await page.getByRole("button", { name: "Cancel" }).click()
+})
+
+test("Edit cost element modal shows schedule history entries", async ({
+  page,
+}) => {
+  const { projectId, wbeId, costElementId, latestScheduleRegistrationDate } =
+    testEntities
+
+  if (
+    !projectId ||
+    !wbeId ||
+    !costElementId ||
+    !latestScheduleRegistrationDate
+  ) {
+    test.fail(true, "Schedule history test data was not initialized correctly")
+    return
+  }
+
+  await page.goto(
+    `/projects/${projectId}/wbes/${wbeId}/cost-elements/${costElementId}`,
+  )
+
+  await page.getByRole("button", { name: "Edit cost element" }).first().click()
+
+  const historyRows = page.locator('[data-testid="schedule-history-row"]')
+  await expect(historyRows).toHaveCount(2)
+  await expect(historyRows.first()).toContainText(
+    `${latestScheduleRegistrationDate}`,
+  )
+  await expect(historyRows.first()).toContainText(
+    "Second schedule registration",
+  )
+  await expect(historyRows.nth(1)).toContainText(
+    "Initial schedule registration",
+  )
+
+  await page.getByRole("button", { name: "Cancel" }).click()
 })
 
 test("Budget Summary tab displays the budget summary view", async ({

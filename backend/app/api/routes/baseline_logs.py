@@ -1,6 +1,7 @@
 """Baseline Log API routes."""
 
 import uuid
+from datetime import date
 from decimal import Decimal
 from typing import Any
 
@@ -34,6 +35,32 @@ from app.models import (
 from app.services.planned_value import calculate_cost_element_planned_value
 
 router = APIRouter(prefix="/projects", tags=["baseline-logs"])
+
+
+def _select_schedule_for_baseline(
+    session: Session, cost_element_id: uuid.UUID, reference_date: date
+) -> CostElementSchedule | None:
+    base_statement = (
+        select(CostElementSchedule)
+        .where(CostElementSchedule.cost_element_id == cost_element_id)
+        .where(CostElementSchedule.baseline_id.is_(None))
+    )
+
+    prioritized = base_statement.where(
+        CostElementSchedule.registration_date <= reference_date
+    ).order_by(
+        CostElementSchedule.registration_date.desc(),
+        CostElementSchedule.created_at.desc(),
+    )
+    schedule = session.exec(prioritized).first()
+    if schedule:
+        return schedule
+
+    fallback = base_statement.order_by(
+        CostElementSchedule.registration_date.asc(),
+        CostElementSchedule.created_at.asc(),
+    )
+    return session.exec(fallback).first()
 
 
 def create_baseline_cost_elements_for_baseline_log(
@@ -78,22 +105,21 @@ def create_baseline_cost_elements_for_baseline_log(
         select(WBE).where(WBE.project_id == baseline_log.project_id)
     ).all()
 
-    cost_elements = []
-    for wbe in wbes:
-        elements = session.exec(
-            select(CostElement).where(CostElement.wbe_id == wbe.wbe_id)
-        ).all()
-        cost_elements.extend(elements)
+    existing_baseline_schedules = session.exec(
+        select(CostElementSchedule).where(
+            CostElementSchedule.baseline_id == baseline_log.baseline_id
+        )
+    ).all()
+    for baseline_schedule in existing_baseline_schedules:
+        session.delete(baseline_schedule)
+    session.flush()
 
-    cost_element_ids = [ce.cost_element_id for ce in cost_elements]
-    schedule_map: dict[uuid.UUID, CostElementSchedule] = {}
-    if cost_element_ids:
-        schedules = session.exec(
-            select(CostElementSchedule).where(
-                CostElementSchedule.cost_element_id.in_(cost_element_ids)
-            )
+    cost_elements: list[CostElement] = []
+    if wbes:
+        wbe_ids = [wbe.wbe_id for wbe in wbes]
+        cost_elements = session.exec(
+            select(CostElement).where(CostElement.wbe_id.in_(wbe_ids))
         ).all()
-        schedule_map = {schedule.cost_element_id: schedule for schedule in schedules}
 
     # For each cost element, create BaselineCostElement record
     for cost_element in cost_elements:
@@ -135,13 +161,27 @@ def create_baseline_cost_elements_for_baseline_log(
 
         # Calculate planned value using schedule baseline (if available)
         planned_value = Decimal("0.00")
-        schedule = schedule_map.get(cost_element.cost_element_id)
+        schedule = _select_schedule_for_baseline(
+            session, cost_element.cost_element_id, baseline_log.baseline_date
+        )
         if schedule:
             planned_value, _ = calculate_cost_element_planned_value(
                 cost_element=cost_element,
                 schedule=schedule,
                 control_date=baseline_log.baseline_date,
             )
+            baseline_schedule = CostElementSchedule(
+                cost_element_id=schedule.cost_element_id,
+                baseline_id=baseline_log.baseline_id,
+                start_date=schedule.start_date,
+                end_date=schedule.end_date,
+                progression_type=schedule.progression_type,
+                registration_date=schedule.registration_date,
+                description=schedule.description,
+                notes=schedule.notes,
+                created_by_id=schedule.created_by_id,
+            )
+            session.add(baseline_schedule)
 
         # Create BaselineCostElement record
         baseline_cost_element_in = BaselineCostElementCreate(
@@ -569,6 +609,15 @@ def get_baseline_cost_elements_by_wbe(
     # Get all WBEs for the project
     wbes = session.exec(select(WBE).where(WBE.project_id == project_id)).all()
 
+    baseline_schedule_map = {
+        schedule.cost_element_id: schedule
+        for schedule in session.exec(
+            select(CostElementSchedule).where(
+                CostElementSchedule.baseline_id == baseline_id
+            )
+        ).all()
+    }
+
     # Build response: for each WBE, get baseline cost elements and aggregate
     wbes_with_cost_elements = []
     for wbe in wbes:
@@ -588,6 +637,7 @@ def get_baseline_cost_elements_by_wbe(
         # Build list of cost elements with CostElement and WBE fields
         cost_elements_list = []
         for bce, ce in baseline_cost_elements:
+            baseline_schedule = baseline_schedule_map.get(bce.cost_element_id)
             cost_element_data = BaselineCostElementWithCostElementPublic(
                 baseline_cost_element_id=bce.baseline_cost_element_id,
                 baseline_id=bce.baseline_id,
@@ -604,6 +654,22 @@ def get_baseline_cost_elements_by_wbe(
                 cost_element_type_id=ce.cost_element_type_id,
                 wbe_id=wbe.wbe_id,
                 wbe_machine_type=wbe.machine_type,
+                schedule_start_date=baseline_schedule.start_date
+                if baseline_schedule
+                else None,
+                schedule_end_date=baseline_schedule.end_date
+                if baseline_schedule
+                else None,
+                schedule_progression_type=baseline_schedule.progression_type
+                if baseline_schedule
+                else None,
+                schedule_registration_date=baseline_schedule.registration_date
+                if baseline_schedule
+                else None,
+                schedule_description=baseline_schedule.description
+                if baseline_schedule
+                else None,
+                schedule_notes=baseline_schedule.notes if baseline_schedule else None,
             )
             cost_elements_list.append(cost_element_data)
 
@@ -735,6 +801,15 @@ def get_baseline_cost_elements(
     )
     count = session.exec(count_statement).one()
 
+    baseline_schedule_map = {
+        schedule.cost_element_id: schedule
+        for schedule in session.exec(
+            select(CostElementSchedule).where(
+                CostElementSchedule.baseline_id == baseline_id
+            )
+        ).all()
+    }
+
     # Get paginated BaselineCostElement records with joins to CostElement and WBE
     statement = (
         select(BaselineCostElement, CostElement, WBE)
@@ -752,6 +827,7 @@ def get_baseline_cost_elements(
     # Build response list with all required fields
     cost_elements_list = []
     for bce, ce, wbe in results:
+        baseline_schedule = baseline_schedule_map.get(bce.cost_element_id)
         cost_element_data = BaselineCostElementWithCostElementPublic(
             baseline_cost_element_id=bce.baseline_cost_element_id,
             baseline_id=bce.baseline_id,
@@ -769,6 +845,20 @@ def get_baseline_cost_elements(
             cost_element_type_id=ce.cost_element_type_id,
             wbe_id=wbe.wbe_id,
             wbe_machine_type=wbe.machine_type,
+            schedule_start_date=baseline_schedule.start_date
+            if baseline_schedule
+            else None,
+            schedule_end_date=baseline_schedule.end_date if baseline_schedule else None,
+            schedule_progression_type=baseline_schedule.progression_type
+            if baseline_schedule
+            else None,
+            schedule_registration_date=baseline_schedule.registration_date
+            if baseline_schedule
+            else None,
+            schedule_description=baseline_schedule.description
+            if baseline_schedule
+            else None,
+            schedule_notes=baseline_schedule.notes if baseline_schedule else None,
         )
         cost_elements_list.append(cost_element_data)
 

@@ -60,4 +60,8 @@ Suggest a descriptive commit message following this format:
 - Summary: [concise description]
 - Details: [what changed and why]
 
-Provide your completeness analysis now and save in docs/completions folder.
+## DOCUMENTATION UPDATE
+
+- Get current time
+- Provide your completeness analysis and record it in [completions](/docs/completions/) folder
+- Update the project status in [project status](/docs/project_status.md)

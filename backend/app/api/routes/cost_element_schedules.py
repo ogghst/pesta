@@ -1,4 +1,5 @@
 import uuid
+from datetime import date
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
@@ -18,6 +19,36 @@ from app.models import (
 router = APIRouter(prefix="/cost-element-schedules", tags=["cost-element-schedules"])
 
 
+def _select_latest_operational_schedule(
+    session: SessionDep, cost_element_id: uuid.UUID
+) -> CostElementSchedule | None:
+    statement = (
+        select(CostElementSchedule)
+        .where(CostElementSchedule.cost_element_id == cost_element_id)
+        .where(CostElementSchedule.baseline_id.is_(None))
+        .order_by(
+            CostElementSchedule.registration_date.desc(),
+            CostElementSchedule.created_at.desc(),
+        )
+    )
+    return session.exec(statement).first()
+
+
+def _select_operational_schedule_history(
+    session: SessionDep, cost_element_id: uuid.UUID
+) -> list[CostElementSchedule]:
+    statement = (
+        select(CostElementSchedule)
+        .where(CostElementSchedule.cost_element_id == cost_element_id)
+        .where(CostElementSchedule.baseline_id.is_(None))
+        .order_by(
+            CostElementSchedule.registration_date.desc(),
+            CostElementSchedule.created_at.desc(),
+        )
+    )
+    return list(session.exec(statement).all())
+
+
 @router.get("/", response_model=CostElementSchedulePublic)
 def read_schedule_by_cost_element(
     session: SessionDep,
@@ -25,15 +56,24 @@ def read_schedule_by_cost_element(
     cost_element_id: uuid.UUID = Query(..., description="Cost element ID"),
 ) -> Any:
     """
-    Get schedule for a cost element.
+    Get the latest operational schedule for a cost element.
     """
-    statement = select(CostElementSchedule).where(
-        CostElementSchedule.cost_element_id == cost_element_id
-    )
-    schedule = session.exec(statement).first()
+    schedule = _select_latest_operational_schedule(session, cost_element_id)
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
     return schedule
+
+
+@router.get("/history", response_model=list[CostElementSchedulePublic])
+def read_schedule_history_by_cost_element(
+    session: SessionDep,
+    _current_user: CurrentUser,
+    cost_element_id: uuid.UUID = Query(..., description="Cost element ID"),
+) -> list[CostElementSchedule]:
+    """
+    Get the full operational schedule history for a cost element.
+    """
+    return _select_operational_schedule_history(session, cost_element_id)
 
 
 @router.post("/", response_model=CostElementSchedulePublic)
@@ -45,7 +85,7 @@ def create_schedule(
     cost_element_id: uuid.UUID = Query(..., description="Cost element ID"),
 ) -> Any:
     """
-    Create a new schedule for a cost element.
+    Create a new schedule registration for a cost element.
     """
     # Validate that cost element exists
     cost_element = session.get(CostElement, cost_element_id)
@@ -59,16 +99,7 @@ def create_schedule(
             detail="end_date must be greater than or equal to start_date",
         )
 
-    # Check if schedule already exists for this cost element
-    existing_statement = select(CostElementSchedule).where(
-        CostElementSchedule.cost_element_id == cost_element_id
-    )
-    existing = session.exec(existing_statement).first()
-    if existing:
-        raise HTTPException(
-            status_code=400,
-            detail="Schedule already exists for this cost element",
-        )
+    registration_date = schedule_base.registration_date or date.today()
 
     # Create schedule with current user as created_by
     schedule_create = CostElementScheduleCreate(
@@ -76,6 +107,8 @@ def create_schedule(
         start_date=schedule_base.start_date,
         end_date=schedule_base.end_date,
         progression_type=schedule_base.progression_type,
+        registration_date=registration_date,
+        description=schedule_base.description,
         notes=schedule_base.notes,
         created_by_id=current_user.id,
     )
@@ -95,11 +128,15 @@ def update_schedule(
     schedule_in: CostElementScheduleUpdate,
 ) -> Any:
     """
-    Update a schedule.
+    Update a schedule registration.
     """
     schedule = session.get(CostElementSchedule, id)
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
+    if schedule.baseline_id is not None:
+        raise HTTPException(
+            status_code=400, detail="Baseline schedule snapshots cannot be modified"
+        )
 
     update_dict = schedule_in.model_dump(exclude_unset=True)
 
@@ -125,11 +162,15 @@ def delete_schedule(
     session: SessionDep, _current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
     """
-    Delete a schedule.
+    Delete a schedule registration.
     """
     schedule = session.get(CostElementSchedule, id)
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
+    if schedule.baseline_id is not None:
+        raise HTTPException(
+            status_code=400, detail="Baseline schedule snapshots cannot be deleted"
+        )
     session.delete(schedule)
     session.commit()
     return Message(message="Schedule deleted successfully")

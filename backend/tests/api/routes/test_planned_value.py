@@ -19,8 +19,81 @@ from app.models import (
     UserCreate,
     WBECreate,
 )
+from app.services.planned_value import calculate_cost_element_planned_value
 from tests.utils.cost_element_schedule import create_schedule_for_cost_element
 from tests.utils.cost_element_type import create_random_cost_element_type
+
+
+def test_cost_element_planned_value_uses_latest_schedule_registration_date(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Planned value selection should use the most recent schedule registered on/before the control date."""
+    project, created_by_id = _create_project_with_manager(db)
+    wbe = _create_wbe(db, project.project_id, Decimal("100000.00"))
+    cet = _create_cost_element_type(db)
+
+    cost_element = _create_cost_element(
+        db,
+        wbe.wbe_id,
+        cet,
+        department_code="ENG-REG",
+        department_name="Engineering Registration",
+        budget_bac=Decimal("100000.00"),
+        revenue_plan=Decimal("120000.00"),
+    )
+
+    create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 2, 1),
+        progression_type="linear",
+        registration_date=date(2024, 1, 5),
+        description="Original baseline",
+        created_by_id=created_by_id,
+    )
+    late_schedule = create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2024, 3, 1),
+        end_date=date(2024, 4, 1),
+        progression_type="linear",
+        registration_date=date(2024, 2, 20),
+        description="March replan",
+        created_by_id=created_by_id,
+    )
+
+    # Control date before the late registration should still use the original schedule (100% complete)
+    response_before = client.get(
+        (
+            f"{settings.API_V1_STR}/projects/{project.project_id}"
+            f"/planned-value/cost-elements/{cost_element.cost_element_id}"
+        ),
+        headers=superuser_token_headers,
+        params={"control_date": date(2024, 2, 15).isoformat()},
+    )
+    assert response_before.status_code == 200
+    data_before = response_before.json()
+    assert Decimal(data_before["planned_value"]) == Decimal("100000.00")
+
+    # Control date after the late registration should use the new schedule
+    control_after = date(2024, 3, 15)
+    response_after = client.get(
+        (
+            f"{settings.API_V1_STR}/projects/{project.project_id}"
+            f"/planned-value/cost-elements/{cost_element.cost_element_id}"
+        ),
+        headers=superuser_token_headers,
+        params={"control_date": control_after.isoformat()},
+    )
+    assert response_after.status_code == 200
+    data_after = response_after.json()
+    expected_after, _ = calculate_cost_element_planned_value(
+        cost_element=cost_element,
+        schedule=late_schedule,
+        control_date=control_after,
+    )
+    assert Decimal(data_after["planned_value"]) == expected_after
 
 
 def _create_project_with_manager(db: Session) -> tuple[Project, uuid.UUID]:

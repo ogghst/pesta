@@ -36,7 +36,7 @@ describe("BudgetTimeline chart configuration", () => {
     expect(labels).toContain("Earned Value (EV)")
   })
 
-  it("keeps earned value line styling aligned with actual cost styling", () => {
+  it("uses green color for earned value line", () => {
     const config = createBudgetTimelineConfig({
       viewMode: "aggregated",
       plannedValue: [],
@@ -44,21 +44,14 @@ describe("BudgetTimeline chart configuration", () => {
       earnedValue: [{ date: sampleDates.jan1, earnedValue: 5 }],
     })
 
-    const actualCostDataset = config.datasets.find(
-      (dataset) => dataset.label === "Actual Cost (AC)",
-    )
     const earnedValueDataset = config.datasets.find(
       (dataset) => dataset.label === "Earned Value (EV)",
     )
 
-    expect(actualCostDataset).toBeDefined()
     expect(earnedValueDataset).toBeDefined()
-    expect(earnedValueDataset?.borderColor).toEqual(
-      actualCostDataset?.borderColor,
-    )
-    expect(earnedValueDataset?.borderDash).toEqual(
-      actualCostDataset?.borderDash,
-    )
+    expect(earnedValueDataset?.borderColor).toEqual("#48bb78")
+    expect(earnedValueDataset?.borderWidth).toEqual(2)
+    expect(earnedValueDataset?.fill).toEqual(false)
   })
 
   it("leaves earned value data as provided (no cumulative transformation)", () => {

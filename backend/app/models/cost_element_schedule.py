@@ -3,7 +3,7 @@
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import Column, Date, DateTime, UniqueConstraint
+from sqlalchemy import Column, Date, DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.baseline_log import BaselineLog
@@ -21,6 +21,10 @@ class CostElementScheduleBase(SQLModel):
     progression_type: str = Field(
         max_length=50
     )  # Will be validated as enum in application logic
+    registration_date: date = Field(
+        default_factory=date.today, sa_column=Column(Date, nullable=False)
+    )
+    description: str | None = Field(default=None)
     notes: str | None = Field(default=None)
 
 
@@ -37,21 +41,17 @@ class CostElementScheduleUpdate(SQLModel):
     start_date: date | None = None
     end_date: date | None = None
     progression_type: str | None = Field(default=None, max_length=50)
+    registration_date: date | None = None
+    description: str | None = None
     notes: str | None = None
 
 
 class CostElementSchedule(CostElementScheduleBase, table=True):
     """Cost Element Schedule database model."""
 
-    __table_args__ = (
-        UniqueConstraint(
-            "cost_element_id", name="uq_cost_element_schedule_cost_element"
-        ),
-    )
-
     schedule_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     cost_element_id: uuid.UUID = Field(
-        foreign_key="costelement.cost_element_id", nullable=False, unique=True
+        foreign_key="costelement.cost_element_id", nullable=False, index=True
     )
     baseline_id: uuid.UUID | None = Field(
         default=None, foreign_key="baselinelog.baseline_id", nullable=True
