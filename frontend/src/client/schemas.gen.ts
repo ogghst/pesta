@@ -112,6 +112,75 @@ export const BaselineCostElementWithCostElementPublicSchema = {
             type: 'string',
             maxLength: 100,
             title: 'Wbe Machine Type'
+        },
+        schedule_start_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Schedule Start Date'
+        },
+        schedule_end_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Schedule End Date'
+        },
+        schedule_progression_type: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Schedule Progression Type'
+        },
+        schedule_registration_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Schedule Registration Date'
+        },
+        schedule_description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Schedule Description'
+        },
+        schedule_notes: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Schedule Notes'
         }
     },
     type: 'object',
@@ -802,6 +871,22 @@ export const CostElementScheduleBaseSchema = {
             maxLength: 50,
             title: 'Progression Type'
         },
+        registration_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Registration Date'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
         notes: {
             anyOf: [
                 {
@@ -836,6 +921,22 @@ export const CostElementSchedulePublicSchema = {
             type: 'string',
             maxLength: 50,
             title: 'Progression Type'
+        },
+        registration_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Registration Date'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
         },
         notes: {
             anyOf: [
@@ -929,6 +1030,29 @@ export const CostElementScheduleUpdateSchema = {
                 }
             ],
             title: 'Progression Type'
+        },
+        registration_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Registration Date'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
         },
         notes: {
             anyOf: [
@@ -1603,6 +1727,48 @@ export const CostTimelinePublicSchema = {
     description: 'Public schema for cost timeline response.'
 } as const;
 
+export const EarnedValueCostElementPublicSchema = {
+    properties: {
+        level: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Level'
+        },
+        control_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Control Date'
+        },
+        earned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Earned Value',
+            default: '0.00'
+        },
+        percent_complete: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Percent Complete',
+            default: '0.0000'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        cost_element_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Cost Element Id'
+        }
+    },
+    type: 'object',
+    required: ['level', 'control_date', 'cost_element_id'],
+    title: 'EarnedValueCostElementPublic',
+    description: 'Earned value response for cost elements.'
+} as const;
+
 export const EarnedValueEntriesPublicSchema = {
     properties: {
         data: {
@@ -1843,6 +2009,90 @@ export const EarnedValueEntryUpdateSchema = {
     type: 'object',
     title: 'EarnedValueEntryUpdate',
     description: 'Schema for updating an earned value entry.'
+} as const;
+
+export const EarnedValueProjectPublicSchema = {
+    properties: {
+        level: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Level'
+        },
+        control_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Control Date'
+        },
+        earned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Earned Value',
+            default: '0.00'
+        },
+        percent_complete: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Percent Complete',
+            default: '0.0000'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        project_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Id'
+        }
+    },
+    type: 'object',
+    required: ['level', 'control_date', 'project_id'],
+    title: 'EarnedValueProjectPublic',
+    description: 'Earned value response for projects.'
+} as const;
+
+export const EarnedValueWBEPublicSchema = {
+    properties: {
+        level: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Level'
+        },
+        control_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Control Date'
+        },
+        earned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Earned Value',
+            default: '0.00'
+        },
+        percent_complete: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Percent Complete',
+            default: '0.0000'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Wbe Id'
+        }
+    },
+    type: 'object',
+    required: ['level', 'control_date', 'wbe_id'],
+    title: 'EarnedValueWBEPublic',
+    description: 'Earned value response for WBEs.'
 } as const;
 
 export const HTTPValidationErrorSchema = {

@@ -36,6 +36,12 @@ export type BaselineCostElementWithCostElementPublic = {
     cost_element_type_id: string;
     wbe_id: string;
     wbe_machine_type: string;
+    schedule_start_date?: (string | null);
+    schedule_end_date?: (string | null);
+    schedule_progression_type?: (string | null);
+    schedule_registration_date?: (string | null);
+    schedule_description?: (string | null);
+    schedule_notes?: (string | null);
 };
 
 /**
@@ -182,6 +188,8 @@ export type CostElementScheduleBase = {
     start_date: string;
     end_date: string;
     progression_type: string;
+    registration_date?: string;
+    description?: (string | null);
     notes?: (string | null);
 };
 
@@ -192,6 +200,8 @@ export type CostElementSchedulePublic = {
     start_date: string;
     end_date: string;
     progression_type: string;
+    registration_date?: string;
+    description?: (string | null);
     notes?: (string | null);
     schedule_id: string;
     cost_element_id: string;
@@ -208,6 +218,8 @@ export type CostElementScheduleUpdate = {
     start_date?: (string | null);
     end_date?: (string | null);
     progression_type?: (string | null);
+    registration_date?: (string | null);
+    description?: (string | null);
     notes?: (string | null);
 };
 
@@ -362,6 +374,18 @@ export type CostTimelinePublic = {
 };
 
 /**
+ * Earned value response for cost elements.
+ */
+export type EarnedValueCostElementPublic = {
+    level: string;
+    control_date: string;
+    earned_value?: string;
+    percent_complete?: string;
+    budget_bac?: string;
+    cost_element_id: string;
+};
+
+/**
  * Public earned value entries list schema.
  */
 export type EarnedValueEntriesPublic = {
@@ -408,6 +432,30 @@ export type EarnedValueEntryUpdate = {
     earned_value?: (number | string | null);
     deliverables?: (string | null);
     description?: (string | null);
+};
+
+/**
+ * Earned value response for projects.
+ */
+export type EarnedValueProjectPublic = {
+    level: string;
+    control_date: string;
+    earned_value?: string;
+    percent_complete?: string;
+    budget_bac?: string;
+    project_id: string;
+};
+
+/**
+ * Earned value response for WBEs.
+ */
+export type EarnedValueWBEPublic = {
+    level: string;
+    control_date: string;
+    earned_value?: string;
+    percent_complete?: string;
+    budget_bac?: string;
+    wbe_id: string;
 };
 
 export type HTTPValidationError = {
@@ -978,6 +1026,38 @@ export type CostTimelineGetProjectCostTimelineData = {
 };
 
 export type CostTimelineGetProjectCostTimelineResponse = (CostTimelinePublic);
+
+export type EarnedValueGetCostElementEarnedValueData = {
+    /**
+     * Control date for earned value
+     */
+    controlDate: string;
+    costElementId: string;
+    projectId: string;
+};
+
+export type EarnedValueGetCostElementEarnedValueResponse = (EarnedValueCostElementPublic);
+
+export type EarnedValueGetWbeEarnedValueData = {
+    /**
+     * Control date for earned value
+     */
+    controlDate: string;
+    projectId: string;
+    wbeId: string;
+};
+
+export type EarnedValueGetWbeEarnedValueResponse = (EarnedValueWBEPublic);
+
+export type EarnedValueGetProjectEarnedValueData = {
+    /**
+     * Control date for earned value
+     */
+    controlDate: string;
+    projectId: string;
+};
+
+export type EarnedValueGetProjectEarnedValueResponse = (EarnedValueProjectPublic);
 
 export type EarnedValueEntriesReadEarnedValueEntriesData = {
     /**

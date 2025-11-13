@@ -101,6 +101,12 @@ from app.models.department import (
     DepartmentPublic,
     DepartmentUpdate,
 )
+from app.models.earned_value import (
+    EarnedValueBase,
+    EarnedValueCostElementPublic,
+    EarnedValueProjectPublic,
+    EarnedValueWBEPublic,
+)
 from app.models.earned_value_entry import (
     EarnedValueEntriesPublic,
     EarnedValueEntry,
@@ -241,6 +247,11 @@ __all__ = [
     "PlannedValueCostElementPublic",
     "PlannedValueWBEPublic",
     "PlannedValueProjectPublic",
+    # Earned Value models
+    "EarnedValueBase",
+    "EarnedValueCostElementPublic",
+    "EarnedValueWBEPublic",
+    "EarnedValueProjectPublic",
     # Project models
     "Project",
     "ProjectBase",

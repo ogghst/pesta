@@ -35,6 +35,7 @@ import BudgetTimeline from "@/components/Projects/BudgetTimeline"
 import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
 import CostSummary from "@/components/Projects/CostSummary"
 import DeleteCostElement from "@/components/Projects/DeleteCostElement"
+import EarnedValueSummary from "@/components/Projects/EarnedValueSummary"
 import EditCostElement from "@/components/Projects/EditCostElement"
 import type { CostElementView } from "./projects.$id.wbes.$wbeId.cost-elements.$costElementId"
 
@@ -414,6 +415,13 @@ function WBEDetail() {
         <Tabs.Content value="summary">
           <Box mt={4}>
             <BudgetSummary level="wbe" wbeId={wbe.wbe_id} />
+            <Box mt={6}>
+              <EarnedValueSummary
+                level="wbe"
+                projectId={projectId}
+                wbeId={wbe.wbe_id}
+              />
+            </Box>
           </Box>
         </Tabs.Content>
 

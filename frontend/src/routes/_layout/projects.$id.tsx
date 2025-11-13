@@ -31,6 +31,7 @@ import BudgetTimeline from "@/components/Projects/BudgetTimeline"
 import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
 import CostSummary from "@/components/Projects/CostSummary"
 import DeleteWBE from "@/components/Projects/DeleteWBE"
+import EarnedValueSummary from "@/components/Projects/EarnedValueSummary"
 import EditWBE from "@/components/Projects/EditWBE"
 
 const projectDetailSearchSchema = z.object({
@@ -371,6 +372,12 @@ function ProjectDetail() {
         <Tabs.Content value="summary">
           <Box mt={4}>
             <BudgetSummary level="project" projectId={project.project_id} />
+            <Box mt={6}>
+              <EarnedValueSummary
+                level="project"
+                projectId={project.project_id}
+              />
+            </Box>
           </Box>
         </Tabs.Content>
 

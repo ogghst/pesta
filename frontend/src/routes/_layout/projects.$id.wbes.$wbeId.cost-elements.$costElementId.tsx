@@ -23,6 +23,7 @@ import CostElementSchedulesTable from "@/components/Projects/CostElementSchedule
 import CostRegistrationsTable from "@/components/Projects/CostRegistrationsTable"
 import CostSummary from "@/components/Projects/CostSummary"
 import EarnedValueEntriesTable from "@/components/Projects/EarnedValueEntriesTable"
+import EarnedValueSummary from "@/components/Projects/EarnedValueSummary"
 
 const COST_ELEMENT_VIEW_OPTIONS = [
   "info",
@@ -226,10 +227,17 @@ function CostElementDetail() {
 
         <Tabs.Content value="earned-value">
           <Box mt={4}>
-            <EarnedValueEntriesTable
+            <EarnedValueSummary
+              level="cost-element"
+              projectId={projectId}
               costElementId={costElementId}
-              budgetBac={costElement.budget_bac ?? null}
             />
+            <Box mt={6}>
+              <EarnedValueEntriesTable
+                costElementId={costElementId}
+                budgetBac={costElement.budget_bac ?? null}
+              />
+            </Box>
           </Box>
         </Tabs.Content>
 
