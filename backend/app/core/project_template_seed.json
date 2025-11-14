@@ -1,202 +1,4204 @@
 {
   "project": {
-    "project_name": "PRE_LSI2300157_05_03_ET_01-",
+    "project_name": "Sample Project",
     "customer_name": "",
-    "contract_value": 1507417.0,
-    "project_code": "PRE_LSI2300157_05_03_ET_01-",
-    "pricelist_code": "LISTINO 118",
-    "start_date": "2025-11-03",
-    "planned_completion_date": "2026-11-03",
+    "contract_value": 3562699.0,
+    "project_code": "CC2134",
+    "pricelist_code": "",
+    "start_date": "2025-01-01",
+    "planned_completion_date": "2026-12-31",
     "project_manager_id": "REPLACE_WITH_VALID_USER_UUID",
     "status": "active",
-    "notes": "Generated from quotation: PRE_LSI2300157_05_03_ET_01-"
+    "notes": "Generated from CSV: Project Costs and Hours.csv"
   },
   "wbes": [
     {
       "wbe": {
-        "machine_type": "PROJECT MANAGER",
-        "serial_number": "PROMAN-001",
-        "contracted_delivery_date": "2026-11-03",
-        "revenue_allocation": 143637.0,
+        "machine_type": "PROGETTAZIONE DI IMPIANTO",
+        "serial_number": "CC2134-A-CCZK01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 20944.0,
         "status": "designing",
-        "notes": "WBE generated from category: PROJECT MANAGER"
+        "notes": "WBE generated from CSV: PROGETTAZIONE DI IMPIANTO"
       },
       "cost_elements": [
+        {
+          "department_code": "SUPPORT",
+          "department_name": "DOCUMENTAZIONE",
+          "cost_element_type_id": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+          "budget_bac": 14960.0,
+          "revenue_plan": 20944.0,
+          "status": "planned",
+          "notes": "Cost element for Technical documentation from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Technical documentation"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 3141.6,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial technical documentation cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 4188.8,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early technical documentation cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 5236.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid technical documentation cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 5236.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late technical documentation cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 3146.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final technical documentation cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 5.0,
+              "earned_value": 748.0,
+              "deliverables": "Initial documentation draft completed (behind schedule)",
+              "description": "Documentation 5% complete - delayed start to project"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 15.0,
+              "earned_value": 2244.0,
+              "deliverables": "Design documentation 30% complete (significantly behind schedule)",
+              "description": "Documentation 15% complete - substantial delay evident"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 25.0,
+              "earned_value": 3740.0,
+              "deliverables": "Design documentation 50% complete (major delay)",
+              "description": "Documentation 25% complete - major schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 35.0,
+              "earned_value": 5236.0,
+              "deliverables": "Documentation nearly complete but still behind schedule",
+              "description": "Documentation 35% complete - continuing behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 42.0,
+              "earned_value": 6283.2,
+              "deliverables": "Final documentation delivery",
+              "description": "Documentation 42% complete - project significantly delayed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "SISTEMA DI BIBERONAGGIO A INDUZIONE",
+        "serial_number": "CC2134-A-GIZZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 43552.6,
+        "status": "designing",
+        "notes": "WBE generated from CSV: SISTEMA DI BIBERONAGGIO A INDUZIONE"
+      },
+      "cost_elements": [
+        {
+          "department_code": "MECH",
+          "department_name": "Robot Mechanical Engineering",
+          "cost_element_type_id": "226d529f-8495-575f-b8b7-44a553ad379c",
+          "budget_bac": 80.0,
+          "revenue_plan": 112.0,
+          "status": "planned",
+          "notes": "Cost element for Hardware design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Hardware design - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 16.8,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 22.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 28.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 28.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 16.8,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final hardware design cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.0,
+              "earned_value": 2.4,
+              "deliverables": "Initial hardware design started (very slow progress)",
+              "description": "Hardware design 3% complete - very slow start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 8.0,
+              "earned_value": 6.4,
+              "deliverables": "Hardware design 15% complete (poor progress)",
+              "description": "Hardware design 8% complete - poor progress rate"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 12.0,
+              "earned_value": 9.6,
+              "deliverables": "Hardware design 25% complete (significant delay)",
+              "description": "Hardware design 12% complete - significant schedule delay"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 18.0,
+              "earned_value": 14.4,
+              "deliverables": "Hardware design 40% complete (continuing delay)",
+              "description": "Hardware design 18% complete - continuing schedule problems"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 22.0,
+              "earned_value": 17.6,
+              "deliverables": "Hardware design final phase begun",
+              "description": "Hardware design 22% complete - project badly delayed"
+            }
+          ]
+        },
+        {
+          "department_code": "MAT",
+          "department_name": "CONSUMO MATERIALI DEL COMMERCIO",
+          "cost_element_type_id": "dc7a6217-6dd3-5daa-9aea-88166ec10310",
+          "budget_bac": 31029.0,
+          "revenue_plan": 43440.6,
+          "status": "planned",
+          "notes": "Cost element for TP Materials from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for TP Materials - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 6516.09,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-01-001",
+              "description": "Initial tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 8688.12,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-02-002",
+              "description": "Early tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 10860.15,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 10860.15,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 6516.09,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final tp materials cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 40.0,
+              "earned_value": 12411.6,
+              "deliverables": "Materials procurement initiated (good progress)",
+              "description": "Materials 40% complete - better progress than other areas"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 60.0,
+              "earned_value": 18617.4,
+              "deliverables": "Materials 70% procured (sustained progress)",
+              "description": "Materials 60% complete - steady progress"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 75.0,
+              "earned_value": 23272.125,
+              "deliverables": "Materials almost completed (approaching completion)",
+              "description": "Materials 75% complete - approaching completion"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 85.0,
+              "earned_value": 26359.215,
+              "deliverables": "Final materials delivery (approaching end)",
+              "description": "Materials 85% complete - final deliveries"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 90.0,
+              "earned_value": 27926.1,
+              "deliverables": "Materials completion",
+              "description": "Materials 90% complete - project still delayed overall"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "LGV MANAGER-HW FISICO/VIRTUALE CLIENTE",
+        "serial_number": "CC2134-A-GVLZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 102065.6,
+        "status": "designing",
+        "notes": "WBE generated from CSV: LGV MANAGER-HW FISICO/VIRTUALE CLIENTE"
+      },
+      "cost_elements": [
+        {
+          "department_code": "MECH",
+          "department_name": "Robot Mechanical Engineering",
+          "cost_element_type_id": "226d529f-8495-575f-b8b7-44a553ad379c",
+          "budget_bac": 484.0,
+          "revenue_plan": 677.6,
+          "status": "planned",
+          "notes": "Cost element for Hardware design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Hardware design - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 101.64,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 135.52,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 169.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 169.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 101.64,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final hardware design cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 2.5,
+              "earned_value": 12.1,
+              "deliverables": "Initial hardware design started (very slow progress)",
+              "description": "Hardware design 2.5% complete - very slow start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 6.5,
+              "earned_value": 31.46,
+              "deliverables": "Hardware design 12% complete (poor progress)",
+              "description": "Hardware design 6.5% complete - poor progress rate"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 10.0,
+              "earned_value": 48.4,
+              "deliverables": "Hardware design 20% complete (significant delay)",
+              "description": "Hardware design 10% complete - significant schedule delay"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 15.0,
+              "earned_value": 72.6,
+              "deliverables": "Hardware design 35% complete (continuing delay)",
+              "description": "Hardware design 15% complete - continuing schedule problems"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 18.0,
+              "earned_value": 87.12,
+              "deliverables": "Hardware design final phase begun",
+              "description": "Hardware design 18% complete - project badly delayed"
+            }
+          ]
+        },
+        {
+          "department_code": "ASM",
+          "department_name": "PROD: assemblaggio meccanico",
+          "cost_element_type_id": "c9fdb631-4f3c-5e74-9d9f-eb98da68d4df",
+          "budget_bac": 1463.0,
+          "revenue_plan": 2048.2,
+          "status": "planned",
+          "notes": "Cost element for Manufacturing from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Manufacturing - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 307.23,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 409.64,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 512.05,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 512.05,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 307.23,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final manufacturing cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 8.0,
+              "earned_value": 116.96,
+              "deliverables": "Manufacturing setup initiated (slow start)",
+              "description": "Manufacturing 8% complete - slower than planned"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 18.0,
+              "earned_value": 263.16,
+              "deliverables": "Manufacturing 35% complete (behind schedule)",
+              "description": "Manufacturing 18% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 25.0,
+              "earned_value": 365.75,
+              "deliverables": "Manufacturing 50% complete (delay evident)",
+              "description": "Manufacturing 25% complete - significant schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 32.0,
+              "earned_value": 468.64,
+              "deliverables": "Manufacturing progressing (continuing delay)",
+              "description": "Manufacturing 32% complete - continuing behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 38.0,
+              "earned_value": 555.74,
+              "deliverables": "Manufacturing nearing completion",
+              "description": "Manufacturing 38% complete - project delayed"
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Prog. SW PC",
+          "cost_element_type_id": "ae3333b4-ce17-5da7-a8f3-2c23012bf2e8",
+          "budget_bac": 20104.0,
+          "revenue_plan": 28145.6,
+          "status": "planned",
+          "notes": "Cost element for Software design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software design - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 4221.84,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 5629.12,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 7036.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 7036.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 4221.84,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software design cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.5,
+              "earned_value": 703.64,
+              "deliverables": "Software requirements draft (slower than planned)",
+              "description": "Software design 3.5% complete - delayed project start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 12.0,
+              "earned_value": 2412.42,
+              "deliverables": "Software design 25% complete (behind schedule)",
+              "description": "Software design 12% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 18.0,
+              "earned_value": 3618.65,
+              "deliverables": "Software design 40% complete (continuing delay)",
+              "description": "Software design 18% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 25.0,
+              "earned_value": 5026.05,
+              "deliverables": "Software design 65% complete (progressing slowly)",
+              "description": "Software design 25% complete - still behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 30.0,
+              "earned_value": 6030.12,
+              "deliverables": "Software design 75% complete (final phases)",
+              "description": "Software design 30% complete - project significantly delayed"
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Collaudo interno wms del BA",
+          "cost_element_type_id": "356f6b74-2c09-4c74-9b19-caf03e22fa57",
+          "budget_bac": 8325.0,
+          "revenue_plan": 11655.0,
+          "status": "planned",
+          "notes": "Cost element for Software testing from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software testing - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1748.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 2331.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2913.75,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2913.75,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1748.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software testing cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 4.0,
+              "earned_value": 333.0,
+              "deliverables": "Test plan draft completed (slightly ahead of schedule)",
+              "description": "Software testing 4% complete - early progress"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 15.0,
+              "earned_value": 1248.75,
+              "deliverables": "Test cases 30% complete (behind other areas)",
+              "description": "Software testing 15% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 22.0,
+              "earned_value": 1831.5,
+              "deliverables": "Test execution 45% complete (continuing delays)",
+              "description": "Software testing 22% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 30.0,
+              "earned_value": 2497.5,
+              "deliverables": "Testing 70% complete (progressing but delayed)",
+              "description": "Software testing 30% complete - still behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 35.0,
+              "earned_value": 2913.75,
+              "deliverables": "Testing final phases (approaching completion)",
+              "description": "Software testing 35% complete - project delayed overall"
+            }
+          ]
+        },
+        {
+          "department_code": "MAT",
+          "department_name": "CONSUMO MATERIALI DEL COMMERCIO",
+          "cost_element_type_id": "dc7a6217-6dd3-5daa-9aea-88166ec10310",
+          "budget_bac": 42528.0,
+          "revenue_plan": 59539.2,
+          "status": "planned",
+          "notes": "Cost element for TP Materials from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for TP Materials - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 8930.88,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-01-001",
+              "description": "Initial tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 11907.84,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-02-002",
+              "description": "Early tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 14884.8,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 14884.8,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 8930.88,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final tp materials cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 45.0,
+              "earned_value": 19123.2,
+              "deliverables": "Material procurement phase 1 (good progress here)",
+              "description": "Materials 45% complete - better progress than other areas"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 65.0,
+              "earned_value": 27643.2,
+              "deliverables": "Material procurement phase 2 (consistent progress)",
+              "description": "Materials 65% complete - sustained progress"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 80.0,
+              "earned_value": 34022.4,
+              "deliverables": "Material procurement phase 3 (approaching completion)",
+              "description": "Materials 80% complete - approaching completion"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 90.0,
+              "earned_value": 38275.2,
+              "deliverables": "Material final delivery phase (nearing end)",
+              "description": "Materials 90% complete - final deliveries"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 95.0,
+              "earned_value": 40401.6,
+              "deliverables": "Materials completion",
+              "description": "Materials 95% complete - project still delayed overall"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "LGV A FORCHE - REACH 14 TRIPLEX",
+        "serial_number": "CC2134-A-LRTZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 1410535.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: LGV A FORCHE - REACH 14 TRIPLEX"
+      },
+      "cost_elements": [
+        {
+          "department_code": "MECH",
+          "department_name": "Robot Mechanical Engineering",
+          "cost_element_type_id": "226d529f-8495-575f-b8b7-44a553ad379c",
+          "budget_bac": 16308.0,
+          "revenue_plan": 22831.2,
+          "status": "planned",
+          "notes": "Cost element for Hardware design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Hardware design - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 3424.68,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 4566.24,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 5707.8,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 5707.8,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 3424.68,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final hardware design cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.0,
+              "earned_value": 489.24,
+              "deliverables": "Initial hardware design begun (behind schedule)",
+              "description": "Hardware design 3% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 10.0,
+              "earned_value": 1630.8,
+              "deliverables": "Preliminary hardware design 20% complete (delayed)",
+              "description": "Hardware design 10% complete - significant delay"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 18.0,
+              "earned_value": 2935.44,
+              "deliverables": "Hardware design 40% complete (well behind schedule)",
+              "description": "Hardware design 18% complete - substantial delay"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 25.0,
+              "earned_value": 4077.0,
+              "deliverables": "Hardware design 70% complete (still delayed)",
+              "description": "Hardware design 25% complete - continuing delay"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 32.0,
+              "earned_value": 5218.56,
+              "deliverables": "Final hardware design phase",
+              "description": "Hardware design 32% complete - project significantly delayed"
+            }
+          ]
+        },
+        {
+          "department_code": "ASM",
+          "department_name": "PROD: assemblaggio meccanico",
+          "cost_element_type_id": "c9fdb631-4f3c-5e74-9d9f-eb98da68d4df",
+          "budget_bac": 45565.0,
+          "revenue_plan": 63791.0,
+          "status": "planned",
+          "notes": "Cost element for Manufacturing from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Manufacturing - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 9568.65,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 12758.2,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 15947.75,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 15947.75,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 9568.65,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final manufacturing cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 5.0,
+              "earned_value": 2278.25,
+              "deliverables": "Manufacturing planning initiated (significantly behind)",
+              "description": "Manufacturing 5% complete - severely delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 12.0,
+              "earned_value": 5467.8,
+              "deliverables": "Manufacturing 20% complete (continuing delay)",
+              "description": "Manufacturing 12% complete - continuing behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 18.0,
+              "earned_value": 8201.7,
+              "deliverables": "Manufacturing 40% complete (substantial delay)",
+              "description": "Manufacturing 18% complete - substantial schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 25.0,
+              "earned_value": 11391.25,
+              "deliverables": "Manufacturing progressing slowly (continuing delay)",
+              "description": "Manufacturing 25% complete - still significantly behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 30.0,
+              "earned_value": 13669.5,
+              "deliverables": "Manufacturing approaching end (project delayed)",
+              "description": "Manufacturing 30% complete - project significantly delayed"
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Prog. SW PC",
+          "cost_element_type_id": "ae3333b4-ce17-5da7-a8f3-2c23012bf2e8",
+          "budget_bac": 3040.0,
+          "revenue_plan": 4256.0,
+          "status": "planned",
+          "notes": "Cost element for Software design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software design - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 638.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 851.2,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 1064.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 1064.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 638.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software design cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 4.0,
+              "earned_value": 121.6,
+              "deliverables": "Software design requirements initiated (behind schedule)",
+              "description": "Software design 4% complete - delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 10.0,
+              "earned_value": 304.0,
+              "deliverables": "Software design 15% complete (lagging behind plan)",
+              "description": "Software design 10% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 15.0,
+              "earned_value": 456.0,
+              "deliverables": "Software design 30% complete (continuing delay)",
+              "description": "Software design 15% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 20.0,
+              "earned_value": 608.0,
+              "deliverables": "Software design 55% complete (progressing slowly)",
+              "description": "Software design 20% complete - still behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 25.0,
+              "earned_value": 760.0,
+              "deliverables": "Software design finalizing (approaching completion)",
+              "description": "Software design 25% complete - project delayed overall"
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Collaudo interno wms del BA",
+          "cost_element_type_id": "356f6b74-2c09-4c74-9b19-caf03e22fa57",
+          "budget_bac": 11456.0,
+          "revenue_plan": 16038.4,
+          "status": "planned",
+          "notes": "Cost element for Software testing from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software testing - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 2405.76,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 3207.68,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 4009.6,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 4009.6,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 2405.76,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software testing cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 2.5,
+              "earned_value": 286.4,
+              "deliverables": "Testing plan completed (behind other areas)",
+              "description": "Software testing 2.5% complete - delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 7.0,
+              "earned_value": 802.24,
+              "deliverables": "Test cases 12% complete (lagging schedule)",
+              "description": "Software testing 7% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 12.0,
+              "earned_value": 1374.72,
+              "deliverables": "Test execution 25% complete (continuing delay)",
+              "description": "Software testing 12% complete - continuing schedule issues"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 18.0,
+              "earned_value": 2062.08,
+              "deliverables": "Testing 60% complete (slow progress)",
+              "description": "Software testing 18% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 22.0,
+              "earned_value": 2520.32,
+              "deliverables": "Testing final phase (approaching end)",
+              "description": "Software testing 22% complete - project significantly delayed"
+            }
+          ]
+        },
+        {
+          "department_code": "MAT",
+          "department_name": "CONSUMO MATERIALI DEL COMMERCIO",
+          "cost_element_type_id": "dc7a6217-6dd3-5daa-9aea-88166ec10310",
+          "budget_bac": 931156.0,
+          "revenue_plan": 1303618.4,
+          "status": "planned",
+          "notes": "Cost element for TP Materials from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for TP Materials - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 195542.76,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-01-001",
+              "description": "Initial tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 260723.68,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-02-002",
+              "description": "Early tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 325904.6,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 325904.6,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 195542.76,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final tp materials cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "DESIGN: LABELER PAL. RB",
+        "serial_number": "CC2134-A-PCLK01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 14942.2,
+        "status": "designing",
+        "notes": "WBE generated from CSV: DESIGN: LABELER PAL. RB"
+      },
+      "cost_elements": [
+        {
+          "department_code": "MECH",
+          "department_name": "Robot Mechanical Engineering",
+          "cost_element_type_id": "226d529f-8495-575f-b8b7-44a553ad379c",
+          "budget_bac": 4416.0,
+          "revenue_plan": 6182.4,
+          "status": "planned",
+          "notes": "Cost element for Hardware design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Hardware design"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 662.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 883.2,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 1104.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 1104.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 662.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final hardware design cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Prog. SW PC",
+          "cost_element_type_id": "ae3333b4-ce17-5da7-a8f3-2c23012bf2e8",
+          "budget_bac": 6257.0,
+          "revenue_plan": 8759.8,
+          "status": "planned",
+          "notes": "Cost element for Software design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software design"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 938.55,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 1251.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 1564.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 1564.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 938.55,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software design cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 6.0,
+              "earned_value": 265.02,
+              "deliverables": "Software design requirements completed (slightly behind)",
+              "description": "Software design 6% complete - project delayed"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 14.0,
+              "earned_value": 617.71,
+              "deliverables": "Software design 25% complete (behind schedule)",
+              "description": "Software design 14% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 20.0,
+              "earned_value": 883.4,
+              "deliverables": "Software design 45% complete (continuing delays)",
+              "description": "Software design 20% complete - continuing delays"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 28.0,
+              "earned_value": 1236.52,
+              "deliverables": "Software design 70% complete (progressing slowly)",
+              "description": "Software design 28% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 33.0,
+              "earned_value": 1455.51,
+              "deliverables": "Software design finalizing (approaching end)",
+              "description": "Software design 33% complete - project significantly delayed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ETICHETTATRICE PAL. RB",
+        "serial_number": "CC2134-A-PCLZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 260696.8,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ETICHETTATRICE PAL. RB"
+      },
+      "cost_elements": [
+        {
+          "department_code": "ASM",
+          "department_name": "PROD: assemblaggio meccanico",
+          "cost_element_type_id": "c9fdb631-4f3c-5e74-9d9f-eb98da68d4df",
+          "budget_bac": 11668.0,
+          "revenue_plan": 16335.2,
+          "status": "planned",
+          "notes": "Cost element for Manufacturing from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Manufacturing"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1750.2,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 2333.6,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2917.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2917.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1750.2,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final manufacturing cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.0,
+              "earned_value": 350.04,
+              "deliverables": "Manufacturing planning initiated (significantly delayed)",
+              "description": "Manufacturing 3% complete - delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 8.0,
+              "earned_value": 933.44,
+              "deliverables": "Manufacturing 15% complete (behind schedule)",
+              "description": "Manufacturing 8% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 12.0,
+              "earned_value": 1399.32,
+              "deliverables": "Manufacturing 30% complete (continuing delay)",
+              "description": "Manufacturing 12% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 18.0,
+              "earned_value": 2099.4,
+              "deliverables": "Manufacturing 60% complete (progressing slowly)",
+              "description": "Manufacturing 18% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 22.0,
+              "earned_value": 2564.86,
+              "deliverables": "Manufacturing finalizing (approaching end)",
+              "description": "Manufacturing 22% complete - project delayed overall"
+            }
+          ]
+        },
+        {
+          "department_code": "OTHER",
+          "department_name": "Prestazioni diverse",
+          "cost_element_type_id": "73dc6c72-6048-4b6b-b806-43e552d201e4",
+          "budget_bac": 9101.0,
+          "revenue_plan": 12741.4,
+          "status": "planned",
+          "notes": "Cost element for Other costs from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other costs"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1365.15,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 1820.2,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2275.25,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2275.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1365.15,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final other costs cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 7.0,
+              "earned_value": 637.07,
+              "deliverables": "Other costs planning initiated (slight delay)",
+              "description": "Other costs 7% complete - slightly behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 16.0,
+              "earned_value": 1456.16,
+              "deliverables": "Other costs 25% complete (moderate delay)",
+              "description": "Other costs 16% complete - moderate schedule variance"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 22.0,
+              "earned_value": 2002.22,
+              "deliverables": "Other costs 40% complete (continuing delay)",
+              "description": "Other costs 22% complete - continuing schedule problems"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 30.0,
+              "earned_value": 2730.3,
+              "deliverables": "Other costs 70% complete (progressing but delayed)",
+              "description": "Other costs 30% complete - still behind schedule"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 35.0,
+              "earned_value": 3185.35,
+              "deliverables": "Other costs finalizing (approaching end)",
+              "description": "Other costs 35% complete - project delayed overall"
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Collaudo interno wms del BA",
+          "cost_element_type_id": "356f6b74-2c09-4c74-9b19-caf03e22fa57",
+          "budget_bac": 2948.0,
+          "revenue_plan": 4127.2,
+          "status": "planned",
+          "notes": "Cost element for Software testing from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software testing"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 442.2,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 589.6,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 737.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 737.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 442.2,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software testing cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 4.5,
+              "earned_value": 132.66,
+              "deliverables": "Testing plan completed (slightly behind)",
+              "description": "Software testing 4.5% complete - early progress"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 10.0,
+              "earned_value": 294.8,
+              "deliverables": "Test cases 18% complete (lagging schedule)",
+              "description": "Software testing 10% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 15.0,
+              "earned_value": 442.2,
+              "deliverables": "Test execution 35% complete (continuing delays)",
+              "description": "Software testing 15% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 22.0,
+              "earned_value": 649.36,
+              "deliverables": "Testing 65% complete (progressing slowly)",
+              "description": "Software testing 22% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 26.0,
+              "earned_value": 762.32,
+              "deliverables": "Testing final phase (approaching end)",
+              "description": "Software testing 26% complete - project delayed overall"
+            }
+          ]
+        },
+        {
+          "department_code": "MAT",
+          "department_name": "CONSUMO MATERIALI DEL COMMERCIO",
+          "cost_element_type_id": "dc7a6217-6dd3-5daa-9aea-88166ec10310",
+          "budget_bac": 162495.0,
+          "revenue_plan": 227493.0,
+          "status": "planned",
+          "notes": "Cost element for TP Materials from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for TP Materials"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 24374.25,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-01-001",
+              "description": "Initial tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 32499.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-02-002",
+              "description": "Early tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 40623.75,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 40623.75,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 24374.25,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final tp materials cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 35.0,
+              "earned_value": 56874.75,
+              "deliverables": "Materials procurement phase 1 (good progress here)",
+              "description": "Materials 35% complete - better progress than other areas"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 55.0,
+              "earned_value": 89372.25,
+              "deliverables": "Materials procurement phase 2 (consistently progressing)",
+              "description": "Materials 55% complete - sustained good progress"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 70.0,
+              "earned_value": 113746.5,
+              "deliverables": "Materials procurement phase 3 (approaching completion)",
+              "description": "Materials 70% complete - approaching completion"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 88.0,
+              "earned_value": 142995.6,
+              "deliverables": "Materials final delivery phase (nearing end)",
+              "description": "Materials 88% complete - final deliveries"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 95.0,
+              "earned_value": 154370.25,
+              "deliverables": "Materials completion",
+              "description": "Materials 95% complete - though project still delayed overall"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "DESIGN: PALLET CONVEYOR",
+        "serial_number": "CC2134-A-PCZK01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 10194.8,
+        "status": "designing",
+        "notes": "WBE generated from CSV: DESIGN: PALLET CONVEYOR"
+      },
+      "cost_elements": [
+        {
+          "department_code": "MECH",
+          "department_name": "Robot Mechanical Engineering",
+          "cost_element_type_id": "226d529f-8495-575f-b8b7-44a553ad379c",
+          "budget_bac": 4452.0,
+          "revenue_plan": 6232.8,
+          "status": "planned",
+          "notes": "Cost element for Hardware design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Hardware design"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 667.8,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 890.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 1113.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 1113.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late hardware design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 667.8,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final hardware design cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 2.0,
+              "earned_value": 89.04,
+              "deliverables": "Hardware design requirements initiated (very slow start)",
+              "description": "Hardware design 2% complete - very delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 6.0,
+              "earned_value": 267.12,
+              "deliverables": "Hardware design 12% complete (severely behind)",
+              "description": "Hardware design 6% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 10.0,
+              "earned_value": 445.2,
+              "deliverables": "Hardware design 25% complete (continuing delay)",
+              "description": "Hardware design 10% complete - continuing schedule problems"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 16.0,
+              "earned_value": 712.32,
+              "deliverables": "Hardware design 50% complete (progressing slowly)",
+              "description": "Hardware design 16% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 20.0,
+              "earned_value": 890.4,
+              "deliverables": "Hardware design finalizing (approaching end)",
+              "description": "Hardware design 20% complete - project significantly delayed"
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Prog. SW PC",
+          "cost_element_type_id": "ae3333b4-ce17-5da7-a8f3-2c23012bf2e8",
+          "budget_bac": 2830.0,
+          "revenue_plan": 3962.0,
+          "status": "planned",
+          "notes": "Cost element for Software design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software design"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 424.5,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 566.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 707.5,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 707.5,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 424.5,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software design cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 3.0,
+              "earned_value": 84.9,
+              "deliverables": "Software design requirements initiated (slightly behind)",
+              "description": "Software design 3% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 8.0,
+              "earned_value": 226.4,
+              "deliverables": "Software design 15% complete (lagging schedule)",
+              "description": "Software design 8% complete - lagging schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 12.0,
+              "earned_value": 339.6,
+              "deliverables": "Software design 30% complete (continuing delays)",
+              "description": "Software design 12% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 18.0,
+              "earned_value": 509.4,
+              "deliverables": "Software design 60% complete (progressing slowly)",
+              "description": "Software design 18% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 22.0,
+              "earned_value": 622.9,
+              "deliverables": "Software design finalizing approach (near completion)",
+              "description": "Software design 22% complete - project delayed overall"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "TRASPORTI PALLET - RULLIERA + NASTRI",
+        "serial_number": "CC2134-A-PCZZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 152731.6,
+        "status": "designing",
+        "notes": "WBE generated from CSV: TRASPORTI PALLET - RULLIERA + NASTRI"
+      },
+      "cost_elements": [
+        {
+          "department_code": "ASM",
+          "department_name": "PROD: assemblaggio meccanico",
+          "cost_element_type_id": "c9fdb631-4f3c-5e74-9d9f-eb98da68d4df",
+          "budget_bac": 8255.0,
+          "revenue_plan": 11557.0,
+          "status": "planned",
+          "notes": "Cost element for Manufacturing from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Manufacturing"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1238.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 1651.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2063.75,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2063.75,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late manufacturing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1238.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final manufacturing cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Collaudo interno wms del BA",
+          "cost_element_type_id": "356f6b74-2c09-4c74-9b19-caf03e22fa57",
+          "budget_bac": 1957.0,
+          "revenue_plan": 2739.8,
+          "status": "planned",
+          "notes": "Cost element for Software testing from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software testing"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 293.55,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 391.4,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 489.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 489.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 293.55,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software testing cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        },
+        {
+          "department_code": "MAT",
+          "department_name": "CONSUMO MATERIALI DEL COMMERCIO",
+          "cost_element_type_id": "dc7a6217-6dd3-5daa-9aea-88166ec10310",
+          "budget_bac": 98882.0,
+          "revenue_plan": 138434.8,
+          "status": "planned",
+          "notes": "Cost element for TP Materials from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for TP Materials"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 14832.3,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-01-001",
+              "description": "Initial tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 19776.4,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-02-002",
+              "description": "Early tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 24720.5,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 24720.5,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 14832.3,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final tp materials cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "SMILE.80/SDM - SOFTWARE DEVELOPMENT",
+        "serial_number": "CC2134-A-SWZZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 144592.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: SMILE.80/SDM - SOFTWARE DEVELOPMENT"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prestazioni diverse",
+          "cost_element_type_id": "73dc6c72-6048-4b6b-b806-43e552d201e4",
+          "budget_bac": 36000.0,
+          "revenue_plan": 50400.0,
+          "status": "planned",
+          "notes": "Cost element for Other costs from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other costs"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 5400.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 7200.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 9000.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 9000.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 5400.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final other costs cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 5.0,
+              "earned_value": 1785.0,
+              "deliverables": "Other activities planning phase (slow start)",
+              "description": "Other costs 5% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 12.0,
+              "earned_value": 4284.0,
+              "deliverables": "Other costs 20% complete (lagging schedule)",
+              "description": "Other costs 12% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 18.0,
+              "earned_value": 6426.0,
+              "deliverables": "Other costs 40% complete (continuing delay)",
+              "description": "Other costs 18% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 25.0,
+              "earned_value": 8925.0,
+              "deliverables": "Other costs 70% complete (progressing slowly)",
+              "description": "Other costs 25% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 30.0,
+              "earned_value": 10710.0,
+              "deliverables": "Other costs finalizing (approaching completion)",
+              "description": "Other costs 30% complete - project delayed overall"
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Prog. SW PC",
+          "cost_element_type_id": "ae3333b4-ce17-5da7-a8f3-2c23012bf2e8",
+          "budget_bac": 47360.0,
+          "revenue_plan": 66304.0,
+          "status": "planned",
+          "notes": "Cost element for Software design from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software design"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 7104.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 9472.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 11840.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 11840.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software design cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 7104.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software design cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 2.5,
+              "earned_value": 1184.0,
+              "deliverables": "Software design planning initiated (behind schedule)",
+              "description": "Software design 2.5% complete - delayed start"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 7.0,
+              "earned_value": 3315.2,
+              "deliverables": "Software design 12% complete (lagging behind)",
+              "description": "Software design 7% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 10.0,
+              "earned_value": 4736.0,
+              "deliverables": "Software design 25% complete (continuing delays)",
+              "description": "Software design 10% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 15.0,
+              "earned_value": 7104.0,
+              "deliverables": "Software design 60% complete (progressing slowly)",
+              "description": "Software design 15% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 18.0,
+              "earned_value": 8524.8,
+              "deliverables": "Software design finalizing (approaching completion)",
+              "description": "Software design 18% complete - project delayed overall"
+            }
+          ]
+        },
+        {
+          "department_code": "SW",
+          "department_name": "Collaudo interno wms del BA",
+          "cost_element_type_id": "356f6b74-2c09-4c74-9b19-caf03e22fa57",
+          "budget_bac": 19920.0,
+          "revenue_plan": 27888.0,
+          "status": "planned",
+          "notes": "Cost element for Software testing from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Software testing"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 2988.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 3984.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 4980.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 4980.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late software testing cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 2988.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final software testing cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "MACCHINA DA TERZI - INFRASTRUTTURA IT",
+        "serial_number": "CC2134-B-M0ZZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 275405.2,
+        "status": "designing",
+        "notes": "WBE generated from CSV: MACCHINA DA TERZI - INFRASTRUTTURA IT"
+      },
+      "cost_elements": [
+        {
+          "department_code": "MAT",
+          "department_name": "CONSUMO MATERIALI DEL COMMERCIO",
+          "cost_element_type_id": "dc7a6217-6dd3-5daa-9aea-88166ec10310",
+          "budget_bac": 196718.0,
+          "revenue_plan": 275405.2,
+          "status": "planned",
+          "notes": "Cost element for TP Materials from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for TP Materials"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 29507.7,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-01-001",
+              "description": "Initial tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 39343.6,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-02-002",
+              "description": "Early tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 49179.5,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 49179.5,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 29507.7,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final tp materials cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "PACKAGING AND TRANSPORT",
+        "serial_number": "CC2134-I-T0ZZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 40726.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: PACKAGING AND TRANSPORT"
+      },
+      "cost_elements": [
+        {
+          "department_code": "MAT",
+          "department_name": "IMBALLAGGIO",
+          "cost_element_type_id": "b9b2bd40-5f4f-5a4c-96d7-6d0c9ab88543",
+          "budget_bac": 22000.0,
+          "revenue_plan": 30800.0,
+          "status": "planned",
+          "notes": "Cost element for Logistic costs from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Logistic costs"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 3300.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-01-001",
+              "description": "Initial logistic costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 4400.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-02-002",
+              "description": "Early logistic costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 5500.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid logistic costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 5500.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late logistic costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 3300.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final logistic costs cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        },
+        {
+          "department_code": "OTHER",
+          "department_name": "Prestazioni diverse",
+          "cost_element_type_id": "73dc6c72-6048-4b6b-b806-43e552d201e4",
+          "budget_bac": 7090.0,
+          "revenue_plan": 9926.0,
+          "status": "planned",
+          "notes": "Cost element for Other costs from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other costs"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1063.5,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 1418.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 1772.5,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 1772.5,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1063.5,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final other costs cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 6.0,
+              "earned_value": 425.4,
+              "deliverables": "Other costs planning initiated (on schedule)",
+              "description": "Other costs 6% complete - meeting expectations"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 15.0,
+              "earned_value": 1063.5,
+              "deliverables": "Other costs 25% complete (slightly behind)",
+              "description": "Other costs 15% complete - slight delay"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 22.0,
+              "earned_value": 1567.5,
+              "deliverables": "Other costs 40% complete (continuing delay)",
+              "description": "Other costs 22% complete - continuing schedule issues"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 30.0,
+              "earned_value": 2127.0,
+              "deliverables": "Other costs 70% complete (progressing slowly)",
+              "description": "Other costs 30% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 35.0,
+              "earned_value": 2494.5,
+              "deliverables": "Other costs finalizing (approaching completion)",
+              "description": "Other costs 35% complete - project delayed overall"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "PROJECT MANAGEMENT",
+        "serial_number": "CC2134-L-J0ZZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 125921.6,
+        "status": "designing",
+        "notes": "WBE generated from CSV: PROJECT MANAGEMENT"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "ALTRE SPESE TRASFERTA",
+          "cost_element_type_id": "cf4888e1-ebd5-47b4-b80a-8b5282b683af",
+          "budget_bac": 7125.0,
+          "revenue_plan": 9975.0,
+          "status": "planned",
+          "notes": "Cost element for Expenses from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Expenses - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1496.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial expenses cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 1995.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early expenses cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2493.75,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid expenses cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2493.75,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late expenses cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1496.25,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final expenses cost registration",
+              "is_quality_cost": false
+            }
+          ],
+          "earned_value_entries": [
+            {
+              "completion_date": "2025-03-14",
+              "percent_complete": 4.0,
+              "earned_value": 399.0,
+              "deliverables": "Expenses planning initiated (slow start)",
+              "description": "Expenses 4% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-08-07",
+              "percent_complete": 10.0,
+              "earned_value": 997.5,
+              "deliverables": "Expenses 18% complete (lagging behind)",
+              "description": "Expenses 10% complete - behind schedule"
+            },
+            {
+              "completion_date": "2025-12-31",
+              "percent_complete": 15.0,
+              "earned_value": 1496.25,
+              "deliverables": "Expenses 35% complete (continuing delays)",
+              "description": "Expenses 15% complete - continuing schedule variance"
+            },
+            {
+              "completion_date": "2026-05-26",
+              "percent_complete": 22.0,
+              "earned_value": 2194.5,
+              "deliverables": "Expenses 70% complete (progressing slowly)",
+              "description": "Expenses 22% complete - still behind"
+            },
+            {
+              "completion_date": "2026-10-19",
+              "percent_complete": 26.0,
+              "earned_value": 2595.0,
+              "deliverables": "Expenses finalizing (approaching completion)",
+              "description": "Expenses 26% complete - project delayed overall"
+            }
+          ]
+        },
+        {
+          "department_code": "OTHER",
+          "department_name": "Prestazioni diverse",
+          "cost_element_type_id": "73dc6c72-6048-4b6b-b806-43e552d201e4",
+          "budget_bac": 50000.0,
+          "revenue_plan": 70000.0,
+          "status": "planned",
+          "notes": "Cost element for Other costs from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other costs - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 10500.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 14000.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 17500.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 17500.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other costs cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 10500.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final other costs cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        },
         {
           "department_code": "PM",
-          "department_name": "Project Management",
+          "department_name": "PM",
           "cost_element_type_id": "c76dc252-17f9-5c8f-937a-8e48558102a5",
-          "budget_bac": 419035.76,
-          "revenue_plan": 502842.91,
+          "budget_bac": 32819.0,
+          "revenue_plan": 45946.6,
           "status": "planned",
-          "notes": "Cost element for Project Management (type: pm_cost) aggregated from category items",
+          "notes": "Cost element for Project management from CSV data",
           "schedule": {
-            "start_date": "2025-11-03",
-            "end_date": "2026-11-03",
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Project management runs throughout entire project duration"
-          }
+            "notes": "Schedule for Project management - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 6891.99,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial project management cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 9189.32,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early project management cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 11486.65,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid project management cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 11486.65,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late project management cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 6891.99,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Final project management cost registration",
+              "is_quality_cost": false
+            }
+          ]
         }
       ]
     },
     {
       "wbe": {
-        "machine_type": "PALLET CONVEYORS INFEED 1",
-        "serial_number": "PALCON-002",
-        "contracted_delivery_date": "2026-11-03",
-        "revenue_allocation": 284250.0,
+        "machine_type": "INSTAL., START-UP",
+        "serial_number": "CC2134-P-E0ZZ10-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 540842.4,
         "status": "designing",
-        "notes": "WBE generated from category: PALLET CONVEYORS INFEED 1"
+        "notes": "WBE generated from CSV: INSTAL., START-UP"
       },
       "cost_elements": [
         {
-          "department_code": "MECH",
-          "department_name": "Mechanical Engineering",
-          "cost_element_type_id": "226d529f-8495-575f-b8b7-44a553ad379c",
-          "budget_bac": 4058.22,
-          "revenue_plan": 4869.86,
+          "department_code": "OTHER",
+          "department_name": "ALTRE SPESE TRASFERTA",
+          "cost_element_type_id": "cf4888e1-ebd5-47b4-b80a-8b5282b683af",
+          "budget_bac": 176400.0,
+          "revenue_plan": 246960.0,
           "status": "planned",
-          "notes": "Cost element for Mechanical Engineering (type: utm_robot) aggregated from category items",
+          "notes": "Cost element for Expenses from CSV data",
           "schedule": {
-            "start_date": "2025-11-10",
-            "end_date": "2026-04-15",
-            "progression_type": "gaussian",
-            "notes": "Mechanical engineering design phase with peak activity in mid-phase"
-          }
-        },
-        {
-          "department_code": "ELEC",
-          "department_name": "Electrical Engineering",
-          "cost_element_type_id": "7ee61ba9-4cb1-53b1-b956-5deb8423fdfe",
-          "budget_bac": 2109.56,
-          "revenue_plan": 2531.47,
-          "status": "planned",
-          "notes": "Cost element for Electrical Engineering (type: ute) aggregated from category items",
-          "schedule": {
-            "start_date": "2025-11-15",
-            "end_date": "2026-04-30",
-            "progression_type": "gaussian",
-            "notes": "Electrical engineering design phase, parallel with mechanical"
-          }
-        },
-        {
-          "department_code": "SW",
-          "department_name": "Software Development",
-          "cost_element_type_id": "2300b3bd-8505-5938-a8fb-f60cf42a173d",
-          "budget_bac": 3355.67,
-          "revenue_plan": 4026.8,
-          "status": "planned",
-          "notes": "Cost element for Software Development (type: sw_plc) aggregated from category items",
-          "schedule": {
-            "start_date": "2026-02-01",
-            "end_date": "2026-08-31",
-            "progression_type": "logarithmic",
-            "notes": "PLC software development, accelerating as design matures"
-          }
-        },
-        {
-          "department_code": "ASM",
-          "department_name": "Montaggio Meccanico",
-          "cost_element_type_id": "c9fdb631-4f3c-5e74-9d9f-eb98da68d4df",
-          "budget_bac": 2913.88,
-          "revenue_plan": 3496.66,
-          "status": "planned",
-          "notes": "Cost element for Assembly (type: mtg_mec) aggregated from category items",
-          "schedule": {
-            "start_date": "2026-05-01",
-            "end_date": "2026-09-30",
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Mechanical assembly phase"
-          }
-        },
-        {
-          "department_code": "ASM",
-          "department_name": "Cablaggio Elettrico",
-          "cost_element_type_id": "7ef5e693-b075-5bc8-b507-e12ddff6eb6f",
-          "budget_bac": 8870.97,
-          "revenue_plan": 10645.16,
-          "status": "planned",
-          "notes": "Cost element for Assembly (type: cab_ele) aggregated from category items",
-          "schedule": {
-            "start_date": "2026-06-01",
-            "end_date": "2026-10-15",
-            "progression_type": "gaussian",
-            "notes": "Electrical cabinet assembly and wiring, peak activity mid-phase"
-          }
-        },
-        {
-          "department_code": "SW",
-          "department_name": "Software Development PC",
-          "cost_element_type_id": "ae3333b4-ce17-5da7-a8f3-2c23012bf2e8",
-          "budget_bac": 288.0,
-          "revenue_plan": 345.6,
-          "status": "planned",
-          "notes": "Cost element for Software Development (type: sw_pc) aggregated from category items",
-          "schedule": {
-            "start_date": "2026-02-15",
-            "end_date": "2026-07-31",
-            "progression_type": "logarithmic",
-            "notes": "PC software development, integrated with PLC development"
-          }
+            "notes": "Schedule for Expenses - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 37044.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial expenses cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 49392.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early expenses cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 61740.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid expenses cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 61740.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late expenses cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 37044.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final expenses cost registration",
+              "is_quality_cost": false
+            }
+          ]
         },
         {
           "department_code": "MECH",
-          "department_name": "UTM Layout",
-          "cost_element_type_id": "027c11ab-84aa-5bbe-99cf-760a6e36f272",
-          "budget_bac": 152.44,
-          "revenue_plan": 182.93,
+          "department_name": "Site manager",
+          "cost_element_type_id": "8a81ad45-f2c1-5378-b0a4-377e8574fd11",
+          "budget_bac": 209916.0,
+          "revenue_plan": 293882.4,
           "status": "planned",
-          "notes": "Cost element for Mechanical Engineering (type: utm_layout) aggregated from category items",
+          "notes": "Cost element for Field engineering from CSV data",
           "schedule": {
-            "start_date": "2025-11-10",
-            "end_date": "2026-03-31",
+            "start_date": "2025-01-01",
+            "end_date": "2027-03-31",
             "progression_type": "linear",
-            "notes": "Layout design work, early phase engineering"
-          }
+            "notes": "Schedule for Field engineering - extended due to delay"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 44082.36,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial field engineering cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 58776.48,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early field engineering cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 73470.6,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Mid field engineering cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 73470.6,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late field engineering cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 44082.36,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final field engineering cost registration",
+              "is_quality_cost": false
+            }
+          ]
         }
       ]
     },
     {
       "wbe": {
-        "machine_type": "SMILE FULL VERSION - SOFTWARE",
-        "serial_number": "SMIFUL-003",
-        "contracted_delivery_date": "2026-11-03",
-        "revenue_allocation": 1079530.0,
+        "machine_type": "WARRANTY WW STD",
+        "serial_number": "CC2134-T-WWZZ01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 64283.8,
         "status": "designing",
-        "notes": "WBE generated from category: SMILE FULL VERSION - SOFTWARE"
+        "notes": "WBE generated from CSV: WARRANTY WW STD"
       },
       "cost_elements": [
         {
-          "department_code": "SW",
-          "department_name": "Software Development PC",
-          "cost_element_type_id": "ae3333b4-ce17-5da7-a8f3-2c23012bf2e8",
-          "budget_bac": 54720.0,
-          "revenue_plan": 65664.0,
+          "department_code": "MAT",
+          "department_name": "CONSUMO MATERIALI DEL COMMERCIO",
+          "cost_element_type_id": "dc7a6217-6dd3-5daa-9aea-88166ec10310",
+          "budget_bac": 45917.0,
+          "revenue_plan": 64283.8,
           "status": "planned",
-          "notes": "Cost element for Software Development (type: sw_pc) aggregated from category items",
+          "notes": "Cost element for TP Materials from CSV data",
           "schedule": {
-            "start_date": "2025-12-01",
-            "end_date": "2026-09-30",
-            "progression_type": "logarithmic",
-            "notes": "Major software development effort for SMILE system, accelerating development curve"
-          }
-        },
-        {
-          "department_code": "SW",
-          "department_name": "Software Development LGV",
-          "cost_element_type_id": "30121226-f9db-55b6-83c8-bb9eccd174e0",
-          "budget_bac": 5440.0,
-          "revenue_plan": 6528.0,
-          "status": "planned",
-          "notes": "Cost element for Software Development (type: sw_lgv) aggregated from category items",
-          "schedule": {
-            "start_date": "2026-01-15",
-            "end_date": "2026-08-31",
-            "progression_type": "logarithmic",
-            "notes": "LGV software integration, builds on core system development"
-          }
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for TP Materials"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 6887.55,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-01-001",
+              "description": "Initial tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 9183.4,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-02-002",
+              "description": "Early tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 11479.25,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 11479.25,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-04-004",
+              "description": "Late tp materials cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 6887.55,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final tp materials cost registration",
+              "is_quality_cost": false
+            }
+          ]
         }
       ]
+    },
+    {
+      "wbe": {
+        "machine_type": "3-4-5 yrs Extended warranty for battery",
+        "serial_number": "CC2134-Z-AGBZ03-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 12600.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: 3-4-5 yrs Extended warranty for battery"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 9000.0,
+          "revenue_plan": 12600.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1350.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 1800.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2250.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2250.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1350.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ESTENSIONE GARANZIA 2°ANNO",
+        "serial_number": "CC2134-Z-AGZZ02-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 31416.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ESTENSIONE GARANZIA 2°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 22440.0,
+          "revenue_plan": 31416.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 3366.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 4488.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 5610.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 5610.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 3366.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ESTENSIONE GARANZIA 3°ANNO",
+        "serial_number": "CC2134-Z-AGZZ03-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 31416.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ESTENSIONE GARANZIA 3°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 22440.0,
+          "revenue_plan": 31416.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 3366.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 4488.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 5610.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 5610.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 3366.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ESTENSIONE GARANZIA 4°ANNO",
+        "serial_number": "CC2134-Z-AGZZ04-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 31416.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ESTENSIONE GARANZIA 4°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 22440.0,
+          "revenue_plan": 31416.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 3366.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 4488.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 5610.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 5610.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 3366.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ESTENSIONE GARANZIA 5°ANNO",
+        "serial_number": "CC2134-Z-AGZZ05-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 31416.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ESTENSIONE GARANZIA 5°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 22440.0,
+          "revenue_plan": 31416.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 3366.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 4488.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 5610.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 5610.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 3366.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "MANUTENZIONE PROGRAMMATA  2°ANNO",
+        "serial_number": "CC2134-Z-AMZZ02-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 27552.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: MANUTENZIONE PROGRAMMATA  2°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 19680.0,
+          "revenue_plan": 27552.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 2952.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 3936.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 4920.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 4920.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 2952.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "MANUTENZIONE PROGRAMMATA  3°ANNO",
+        "serial_number": "CC2134-Z-AMZZ03-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 27552.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: MANUTENZIONE PROGRAMMATA  3°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 19680.0,
+          "revenue_plan": 27552.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 2952.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 3936.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 4920.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 4920.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 2952.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "MANUTENZIONE PROGRAMMATA  4°ANNO",
+        "serial_number": "CC2134-Z-AMZZ04-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 27552.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: MANUTENZIONE PROGRAMMATA  4°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 19680.0,
+          "revenue_plan": 27552.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 2952.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 3936.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 4920.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 4920.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 2952.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "MANUTENZIONE PROGRAMMATA  5°ANNO",
+        "serial_number": "CC2134-Z-AMZZ05-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 27552.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: MANUTENZIONE PROGRAMMATA  5°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 19680.0,
+          "revenue_plan": 27552.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 2952.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 3936.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 4920.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 4920.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 2952.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "MANUTENZIONE PROGRAMMATA  6°ANNO",
+        "serial_number": "CC2134-Z-AMZZ06-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 27552.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: MANUTENZIONE PROGRAMMATA  6°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 19680.0,
+          "revenue_plan": 27552.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 2952.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 3936.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 4920.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 4920.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 2952.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ASSISTENZA TELEFONICA H24 1°ANNO",
+        "serial_number": "CC2134-Z-H24Z01-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 17529.4,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ASSISTENZA TELEFONICA H24 1°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 12521.0,
+          "revenue_plan": 17529.4,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1878.15,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 2504.2,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 3130.25,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 3130.25,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1878.15,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ASSISTENZA TELEFONICA H24 2°ANNO",
+        "serial_number": "CC2134-Z-H24Z02-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 15428.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ASSISTENZA TELEFONICA H24 2°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 11020.0,
+          "revenue_plan": 15428.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1653.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 2204.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2755.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2755.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1653.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ASSISTENZA TELEFONICA H24 3°ANNO",
+        "serial_number": "CC2134-Z-H24Z03-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 15428.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ASSISTENZA TELEFONICA H24 3°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 11020.0,
+          "revenue_plan": 15428.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1653.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 2204.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2755.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2755.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1653.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ASSISTENZA TELEFONICA H24 4°ANNO",
+        "serial_number": "CC2134-Z-H24Z04-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 15428.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ASSISTENZA TELEFONICA H24 4°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 11020.0,
+          "revenue_plan": 15428.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1653.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 2204.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2755.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2755.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1653.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wbe": {
+        "machine_type": "ASSISTENZA TELEFONICA H24 5°ANNO",
+        "serial_number": "CC2134-Z-H24Z05-IT",
+        "contracted_delivery_date": "2026-12-31",
+        "revenue_allocation": 15428.0,
+        "status": "designing",
+        "notes": "WBE generated from CSV: ASSISTENZA TELEFONICA H24 5°ANNO"
+      },
+      "cost_elements": [
+        {
+          "department_code": "OTHER",
+          "department_name": "Prest.Esterni Customer Services (Ord.ne)",
+          "cost_element_type_id": "7ad93eec-9914-4d78-8d39-a630255031a2",
+          "budget_bac": 11020.0,
+          "revenue_plan": 15428.0,
+          "status": "planned",
+          "notes": "Cost element for Other activities from CSV data",
+          "schedule": {
+            "start_date": "2025-01-01",
+            "end_date": "2026-12-31",
+            "progression_type": "linear",
+            "notes": "Schedule for Other activities"
+          },
+          "cost_registrations": [
+            {
+              "registration_date": "2025-03-14",
+              "amount": 1653.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Initial other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-08-07",
+              "amount": 2204.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Early other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2025-12-31",
+              "amount": 2755.0,
+              "cost_category": "materials",
+              "invoice_number": "INV-CC2134-03-003",
+              "description": "Mid other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-05-26",
+              "amount": 2755.0,
+              "cost_category": "labor",
+              "invoice_number": null,
+              "description": "Late other activities cost registration",
+              "is_quality_cost": false
+            },
+            {
+              "registration_date": "2026-10-19",
+              "amount": 1653.0,
+              "cost_category": "subcontractors",
+              "invoice_number": "INV-CC2134-05-005",
+              "description": "Final other activities cost registration",
+              "is_quality_cost": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "earned_value_entries": [
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2025-03-14",
+      "percent_complete": 5.0,
+      "earned_value": 748.0,
+      "deliverables": "Initial documentation draft completed (behind schedule)",
+      "description": "Documentation 5% complete - delayed start to project"
+    },
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2025-08-07",
+      "percent_complete": 15.0,
+      "earned_value": 2244.0,
+      "deliverables": "Design documentation 30% complete (significantly behind schedule)",
+      "description": "Documentation 15% complete - substantial delay evident"
+    },
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2025-12-31",
+      "percent_complete": 25.0,
+      "earned_value": 3740.0,
+      "deliverables": "Design documentation 50% complete (major delay)",
+      "description": "Documentation 25% complete - major schedule variance"
+    },
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2026-05-26",
+      "percent_complete": 35.0,
+      "earned_value": 5236.0,
+      "deliverables": "Documentation nearly complete but still behind schedule",
+      "description": "Documentation 35% complete - continuing behind schedule"
+    },
+    {
+      "cost_element_ref": "c3e1583b-5011-5574-bdd2-4d8a6f745d66",
+      "completion_date": "2026-10-19",
+      "percent_complete": 42.0,
+      "earned_value": 6283.2,
+      "deliverables": "Final documentation delivery",
+      "description": "Documentation 42% complete - project significantly delayed"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2025-03-14",
+      "percent_complete": 3.0,
+      "earned_value": 2.4,
+      "deliverables": "Initial hardware design started (very slow progress)",
+      "description": "Hardware design 3% complete - very slow start"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2025-08-07",
+      "percent_complete": 8.0,
+      "earned_value": 6.4,
+      "deliverables": "Hardware design 15% complete (poor progress)",
+      "description": "Hardware design 8% complete - poor progress rate"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2025-12-31",
+      "percent_complete": 12.0,
+      "earned_value": 9.6,
+      "deliverables": "Hardware design 25% complete (significant delay)",
+      "description": "Hardware design 12% complete - significant schedule delay"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2026-05-26",
+      "percent_complete": 18.0,
+      "earned_value": 14.4,
+      "deliverables": "Hardware design 40% complete (continuing delay)",
+      "description": "Hardware design 18% complete - continuing schedule problems"
+    },
+    {
+      "cost_element_ref": "226d529f-8495-575f-b8b7-44a553ad379c",
+      "completion_date": "2026-10-19",
+      "percent_complete": 22.0,
+      "earned_value": 17.6,
+      "deliverables": "Hardware design final phase begun",
+      "description": "Hardware design 22% complete - project badly delayed"
     }
   ]
 }

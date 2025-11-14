@@ -1,4 +1,5 @@
 """Cost Registration model and related schemas."""
+
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
@@ -28,10 +29,12 @@ class CostRegistrationBase(SQLModel):
 
 
 class CostRegistrationCreate(CostRegistrationBase):
-    """Schema for creating a new cost registration."""
+    """Schema for creating a new cost registration.
+
+    Note: created_by_id is set automatically by the API from current_user.
+    """
 
     cost_element_id: uuid.UUID
-    created_by_id: uuid.UUID
 
 
 class CostRegistrationUpdate(SQLModel):
@@ -86,3 +89,10 @@ class CostRegistrationPublic(CostRegistrationBase):
     created_by_id: uuid.UUID
     created_at: datetime
     last_modified_at: datetime
+
+
+class CostRegistrationsPublic(SQLModel):
+    """Public cost registrations list schema."""
+
+    data: list[CostRegistrationPublic]
+    count: int

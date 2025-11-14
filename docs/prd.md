@@ -56,11 +56,11 @@ The system must maintain the integrity of budget allocations and provide warning
 
 ### 6.1.1 Cost Element Schedule Baseline
 
-For each cost element, the system shall support the creation and maintenance of a schedule baseline that defines the planned progression of work over time. The schedule baseline must include a start date and end date defining the planned duration of the cost element, and a progression type that determines how the planned work completion percentage is calculated over the schedule period.
+For each cost element, the system shall support versioned schedule registrations that define the planned progression of work over time. Each registration must include a start date, end date, progression type, user-provided registration date, and optional description so that users can record the business context driving the change. Users must be able to perform full CRUD operations on schedule registrations while retaining historical entries.
 
-The system shall support the following progression types: linear (even distribution over the duration), gaussian (normal distribution curve with peak at midpoint), and logarithmic (slow start with accelerating completion). The schedule baseline shall be used to calculate Planned Value (PV) at any point in time based on the planned percentage of completion according to the selected progression type.
+The system shall support the following progression types: linear (even distribution over the duration), gaussian (normal distribution curve with peak at midpoint), and logarithmic (slow start with accelerating completion). The planned value engine shall always use the schedule registration with the most recent registration date (ties resolved by creation time) whose registration date is on or before the control date.
 
-Once baselined, the schedule may be modified only through approved change orders or formal baseline revisions, maintaining the original baseline for historical comparison.
+When a baseline is created, the system shall copy the latest schedule registration whose registration date is on or before the baseline date into a baseline schedule snapshot tied to the baseline log, preserving the registration date and description exactly as recorded. Once captured, baseline schedules remain immutable unless superseded through approved change orders or formal baseline revisions, maintaining the original baseline for historical comparison.
 
 ### 6.2 Cost Registration and Actual Cost Tracking
 
@@ -70,11 +70,11 @@ Cost registrations shall update the Actual Cost (AC) for the associated cost ele
 
 ### 6.3 Earned Value Recording
 
-Users must be able to record the percentage of work completed for cost elements based on physical progress and deliverables achieved. The system shall maintain a baseline of earned value progression for each cost element, tracking the percentage of work completed at specific dates.
+Users must be able to record the percentage of work completed for cost elements based on physical progress and deliverables achieved. Operational earned value entries remain editable until replaced, while baseline snapshots capture the latest values for historical comparison.
 
 Each earned value entry shall capture the completion date and the percentage of work completed (percent complete) representing the physical completion of the work scope. The system shall calculate Earned Value (EV) using the formula $EV = BAC \times \%\ \text{di completamento fisico}$ where BAC is the Budget at Completion for the cost element. For example, if a cost element has $BAC = €100{,}000$ and is 30% physically complete, then $EV = 100{,}000 \times 0{,}30 = €30{,}000$.
 
-Earned value entries may also capture specific deliverables achieved and descriptive notes. The system shall use these entries to calculate performance metrics and identify variances. The earned value percentage must be baselined and maintained as historical record for trend analysis.
+Earned value entries may also capture specific deliverables achieved and descriptive notes. Whenever a baseline is created, the system shall snapshot the latest percent complete and earned value onto the corresponding Baseline Cost Element, enabling trend analysis without restricting subsequent operational updates.
 
 ## 7. Forecasting Requirements
 
@@ -126,11 +126,15 @@ The system must account for quality event costs in EVM calculations without adju
 
 The system shall support the creation of cost and schedule baselines at significant project milestones. Baseline events must be configurable but shall include at minimum the following standard milestones: project kickoff, bill of materials release, engineering completion, procurement completion, manufacturing start, shipment, site arrival, commissioning start, commissioning completion, and project closeout.
 
-Each baseline creation event must capture the baseline date, event description, event classification (milestone type), responsible department or function, and a snapshot of all current budget, cost, revenue, and forecast data for all WBEs and cost elements.
+Each baseline creation event must capture the baseline date, event description, event classification (milestone type), responsible department or function, and a snapshot of all current budget, cost, revenue, earned value, percent complete, and forecast data for all WBEs and cost elements.
+
+Baseline metadata (including owning department, `is_pmb` flag, cancellation status, and milestone classification) shall be stored directly on the **Baseline Log** record, which serves as the single source of truth for baseline identity. Detailed financial snapshots, including the latest physical percent complete and earned value for each cost element, remain in **Baseline Cost Element** records referencing the associated `baseline_id`.
 
 ### 10.2 Baseline Comparison and Variance Analysis
 
 The system shall maintain all historical baselines and provide comparison capabilities to analyze changes between any two baselines or between any baseline and current actuals. Variance analysis must be available at project, WBE, and cost element levels, showing changes in budgets, costs, revenues, forecasts, and performance metrics between baseline periods.
+
+Baseline comparisons shall leverage the consolidated Baseline Log data model (Baseline Log + Baseline Cost Elements) without reliance on a separate Baseline Snapshot table. Any historical reporting must read from these canonical sources.
 
 ### 10.3 Performance Measurement Baseline (PMB)
 

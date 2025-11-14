@@ -27,28 +27,40 @@ function BudgetTimelinePage() {
     costElementIds?: string[]
     costElementTypeIds?: string[]
   }>({})
-
   // Fetch project data
   const { data: project, isLoading: isLoadingProject } = useQuery(
     getProjectQueryOptions({ id: projectId }),
   )
 
   // Fetch cost elements with schedules based on filter
+  // Normalize filter arrays for consistent query key comparison
+  const normalizedFilter = {
+    wbeIds: filter.wbeIds?.length ? [...filter.wbeIds].sort() : undefined,
+    costElementIds: filter.costElementIds?.length
+      ? [...filter.costElementIds].sort()
+      : undefined,
+    costElementTypeIds: filter.costElementTypeIds?.length
+      ? [...filter.costElementTypeIds].sort()
+      : undefined,
+  }
+
   const { data: costElements, isLoading: isLoadingCostElements } = useQuery<
     CostElementWithSchedulePublic[]
   >({
     queryFn: () =>
       BudgetTimelineService.getCostElementsWithSchedules({
         projectId: projectId,
-        wbeIds: filter.wbeIds?.length ? filter.wbeIds : undefined,
-        costElementIds: filter.costElementIds?.length
-          ? filter.costElementIds
-          : undefined,
-        costElementTypeIds: filter.costElementTypeIds?.length
-          ? filter.costElementTypeIds
-          : undefined,
+        wbeIds: normalizedFilter.wbeIds,
+        costElementIds: normalizedFilter.costElementIds,
+        costElementTypeIds: normalizedFilter.costElementTypeIds,
       }),
-    queryKey: ["cost-elements-with-schedules", { projectId, ...filter }],
+    queryKey: [
+      "cost-elements-with-schedules",
+      projectId,
+      normalizedFilter.wbeIds,
+      normalizedFilter.costElementIds,
+      normalizedFilter.costElementTypeIds,
+    ],
     enabled: !!projectId,
   })
 
@@ -84,7 +96,7 @@ function BudgetTimelinePage() {
           <Link
             to="/projects/$id"
             params={{ id: projectId } as any}
-            search={{ page: 1 }}
+            search={{ page: 1, tab: "wbes" } as any}
             style={{ textDecoration: "none" }}
           >
             <Text
@@ -131,6 +143,9 @@ function BudgetTimelinePage() {
           <BudgetTimeline
             costElements={costElements || []}
             viewMode="aggregated"
+            projectId={projectId}
+            wbeIds={normalizedFilter.wbeIds}
+            costElementIds={normalizedFilter.costElementIds}
           />
         )}
       </VStack>

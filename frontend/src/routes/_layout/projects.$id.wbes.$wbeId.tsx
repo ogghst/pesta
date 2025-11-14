@@ -9,7 +9,13 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useNavigate,
+  useRouterState,
+} from "@tanstack/react-router"
 import { useState } from "react"
 import { FiChevronRight, FiTag } from "react-icons/fi"
 import { z } from "zod"
@@ -27,17 +33,29 @@ import AddCostElement from "@/components/Projects/AddCostElement"
 import BudgetSummary from "@/components/Projects/BudgetSummary"
 import BudgetTimeline from "@/components/Projects/BudgetTimeline"
 import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
+import CostSummary from "@/components/Projects/CostSummary"
 import DeleteCostElement from "@/components/Projects/DeleteCostElement"
+import EarnedValueSummary from "@/components/Projects/EarnedValueSummary"
 import EditCostElement from "@/components/Projects/EditCostElement"
+import type { CostElementView } from "./projects.$id.wbes.$wbeId.cost-elements.$costElementId"
+
+const WBE_TAB_OPTIONS = [
+  "info",
+  "cost-elements",
+  "summary",
+  "cost-summary",
+  "timeline",
+] as const
+
+type WbeDetailTab = (typeof WBE_TAB_OPTIONS)[number]
 
 const wbeDetailSearchSchema = z.object({
   page: z.number().catch(1),
-  tab: z
-    .enum(["info", "cost-elements", "summary", "timeline"])
-    .catch("cost-elements"),
+  tab: z.enum(WBE_TAB_OPTIONS).catch("cost-elements"),
 })
 
 const PER_PAGE = 10
+const COST_ELEMENT_DETAIL_DEFAULT_VIEW: CostElementView = "cost-registrations"
 
 function getProjectQueryOptions({ id }: { id: string }) {
   return {
@@ -148,6 +166,7 @@ const costElementsColumns: ColumnDefExtended<CostElementPublic>[] = [
         <DeleteCostElement
           id={row.original.cost_element_id}
           departmentName={row.original.department_name}
+          wbeId={row.original.wbe_id}
         />
       </Flex>
     ),
@@ -172,6 +191,23 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
   const costElements = data?.data ?? []
   const count = data?.count ?? 0
 
+  const { id: projectId } = Route.useParams()
+
+  const handleRowClick = (costElement: CostElementPublic) => {
+    navigate({
+      to: "/projects/$id/wbes/$wbeId/cost-elements/$costElementId",
+      params: {
+        id: projectId,
+        wbeId: wbeId,
+        costElementId: costElement.cost_element_id,
+      },
+      search: (prev) => ({
+        ...prev,
+        view: COST_ELEMENT_DETAIL_DEFAULT_VIEW,
+      }),
+    })
+  }
+
   if (!isLoading && costElements.length === 0) {
     return (
       <EmptyState.Root>
@@ -195,6 +231,7 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
       data={costElements}
       columns={costElementsColumns}
       tableId="cost-elements-table"
+      onRowClick={handleRowClick}
       isLoading={isLoading}
       count={count}
       page={page}
@@ -207,6 +244,12 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
 function WBEDetail() {
   const { id: projectId, wbeId } = Route.useParams()
   const navigate = useNavigate({ from: Route.fullPath })
+  const location = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+
+  // Check if we're on a cost element detail route (child route)
+  const isCostElementRoute = location.includes("/cost-elements/")
 
   const { tab } = Route.useSearch()
 
@@ -227,23 +270,35 @@ function WBEDetail() {
   }>({
     wbeIds: [wbeId],
   })
-
   // Fetch cost elements with schedules based on filter
+  // Normalize filter arrays for consistent query key comparison
+  const normalizedFilter = {
+    wbeIds: filter.wbeIds?.length ? [...filter.wbeIds].sort() : undefined,
+    costElementIds: filter.costElementIds?.length
+      ? [...filter.costElementIds].sort()
+      : undefined,
+    costElementTypeIds: filter.costElementTypeIds?.length
+      ? [...filter.costElementTypeIds].sort()
+      : undefined,
+  }
+
   const { data: costElements, isLoading: isLoadingCostElements } = useQuery<
     CostElementWithSchedulePublic[]
   >({
     queryFn: () =>
       BudgetTimelineService.getCostElementsWithSchedules({
         projectId: projectId,
-        wbeIds: filter.wbeIds?.length ? filter.wbeIds : undefined,
-        costElementIds: filter.costElementIds?.length
-          ? filter.costElementIds
-          : undefined,
-        costElementTypeIds: filter.costElementTypeIds?.length
-          ? filter.costElementTypeIds
-          : undefined,
+        wbeIds: normalizedFilter.wbeIds,
+        costElementIds: normalizedFilter.costElementIds,
+        costElementTypeIds: normalizedFilter.costElementTypeIds,
       }),
-    queryKey: ["cost-elements-with-schedules", { projectId, ...filter }],
+    queryKey: [
+      "cost-elements-with-schedules",
+      projectId,
+      normalizedFilter.wbeIds,
+      normalizedFilter.costElementIds,
+      normalizedFilter.costElementTypeIds,
+    ],
     enabled: !!projectId && !!wbeId,
   })
 
@@ -255,12 +310,13 @@ function WBEDetail() {
     setFilter(newFilter)
   }
 
-  const handleTabChange = (value: string) => {
+  const handleTabChange = (value: WbeDetailTab) => {
     navigate({
-      search: (prev) => ({
-        ...prev,
-        tab: value as "info" | "cost-elements" | "summary" | "timeline",
-      }),
+      search: (prev) =>
+        ({
+          ...prev,
+          tab: value,
+        }) as typeof prev,
     })
   }
 
@@ -282,6 +338,11 @@ function WBEDetail() {
         </EmptyState.Root>
       </Container>
     )
+  }
+
+  // If we're on a cost element detail route (child route), render Outlet for child route
+  if (isCostElementRoute) {
+    return <Outlet />
   }
 
   return (
@@ -321,7 +382,7 @@ function WBEDetail() {
 
       <Tabs.Root
         value={tab}
-        onValueChange={({ value }) => handleTabChange(value)}
+        onValueChange={({ value }) => handleTabChange(value as WbeDetailTab)}
         variant="subtle"
         mt={4}
       >
@@ -329,6 +390,7 @@ function WBEDetail() {
           <Tabs.Trigger value="info">WBE Information</Tabs.Trigger>
           <Tabs.Trigger value="cost-elements">Cost Elements</Tabs.Trigger>
           <Tabs.Trigger value="summary">Budget Summary</Tabs.Trigger>
+          <Tabs.Trigger value="cost-summary">Cost Summary</Tabs.Trigger>
           <Tabs.Trigger value="timeline">Budget Timeline</Tabs.Trigger>
         </Tabs.List>
 
@@ -353,6 +415,19 @@ function WBEDetail() {
         <Tabs.Content value="summary">
           <Box mt={4}>
             <BudgetSummary level="wbe" wbeId={wbe.wbe_id} />
+            <Box mt={6}>
+              <EarnedValueSummary
+                level="wbe"
+                projectId={projectId}
+                wbeId={wbe.wbe_id}
+              />
+            </Box>
+          </Box>
+        </Tabs.Content>
+
+        <Tabs.Content value="cost-summary">
+          <Box mt={4}>
+            <CostSummary level="wbe" wbeId={wbe.wbe_id} />
           </Box>
         </Tabs.Content>
 
@@ -394,6 +469,9 @@ function WBEDetail() {
                 <BudgetTimeline
                   costElements={costElements || []}
                   viewMode="aggregated"
+                  projectId={projectId}
+                  wbeIds={normalizedFilter.wbeIds}
+                  costElementIds={normalizedFilter.costElementIds}
                 />
               </Box>
             )}

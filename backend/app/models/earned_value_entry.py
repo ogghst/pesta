@@ -1,4 +1,5 @@
 """Earned Value Entry model and related schemas."""
+
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
@@ -6,7 +7,6 @@ from decimal import Decimal
 from sqlalchemy import DECIMAL, Column, Date, DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.baseline_log import BaselineLog
 from app.models.cost_element import CostElement
 
 # Import for forward references
@@ -28,10 +28,12 @@ class EarnedValueEntryBase(SQLModel):
 
 
 class EarnedValueEntryCreate(EarnedValueEntryBase):
-    """Schema for creating a new earned value entry."""
+    """Schema for creating a new earned value entry.
+
+    Note: created_by_id is set automatically by the API from current_user.
+    """
 
     cost_element_id: uuid.UUID
-    created_by_id: uuid.UUID
 
 
 class EarnedValueEntryUpdate(SQLModel):
@@ -55,14 +57,10 @@ class EarnedValueEntry(EarnedValueEntryBase, table=True):
     cost_element_id: uuid.UUID = Field(
         foreign_key="costelement.cost_element_id", nullable=False
     )
-    baseline_id: uuid.UUID | None = Field(
-        default=None, foreign_key="baselinelog.baseline_id", nullable=True
-    )
     created_by_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
 
     # Relationships
     cost_element: CostElement | None = Relationship()
-    baseline_log: BaselineLog | None = Relationship()
     created_by: User | None = Relationship()
 
     created_at: datetime = Field(
@@ -80,7 +78,13 @@ class EarnedValueEntryPublic(EarnedValueEntryBase):
 
     earned_value_id: uuid.UUID
     cost_element_id: uuid.UUID
-    baseline_id: uuid.UUID | None = Field(default=None)
     created_by_id: uuid.UUID
     created_at: datetime
     last_modified_at: datetime
+
+
+class EarnedValueEntriesPublic(SQLModel):
+    """Public earned value entries list schema."""
+
+    data: list[EarnedValueEntryPublic]
+    count: int

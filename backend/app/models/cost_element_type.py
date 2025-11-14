@@ -1,4 +1,5 @@
 """Cost Element Type lookup model."""
+
 import uuid
 from datetime import datetime
 

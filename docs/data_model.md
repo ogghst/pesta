@@ -138,26 +138,26 @@ Tracks all significant events at the project level. From image: phase changes, m
 
 ---
 
-### 10. Baseline Snapshot
+### 10. Baseline Log Summary
 
-Captures baseline state at specific project milestones. From image: specific date points where baseline values are recorded.
+Summarises baseline metadata captured directly on `BaselineLog`. These fields replaced the legacy BaselineSnapshot table.
 
 **Primary Key:** `baseline_id`
 
 **Attributes:**
-- `baseline_id` (UUID, PK) - Unique system-generated identifier
+- `baseline_id` (UUID, PK) - Unique system-generated identifier (same as BaselineLog)
 - `project_id` (UUID, FK → Project) - Associated project
 - `baseline_date` (DATE) - Date of baseline creation
-- `milestone_type` (ENUM) - Milestone: kickoff, bom_release, engineering_complete, procurement_complete, manufacturing_start, shipment, site_arrival, commissioning_start, commissioning_complete, closeout
-- `description` (TEXT, NULL) - Milestone description
-- `department` (STRING, 100, NULL) - Responsible department
-- `is_pmb` (BOOLEAN) - True if this is the Performance Measurement Baseline
-- `created_by` (UUID, FK → User) - User who created baseline
+- `milestone_type` (ENUM) - Milestone classification (kickoff, bom_release, engineering_complete, etc.)
+- `description` (TEXT, NULL) - Optional milestone description
+- `department` (STRING, 100, NULL) - Responsible department stored on `BaselineLog`
+- `is_pmb` (BOOLEAN) - Indicates if this entry represents the Performance Measurement Baseline
+- `created_by` (UUID, FK → User) - User who created the baseline entry
 - `created_at` (TIMESTAMP) - Record creation timestamp
 
 **Relationships:**
 - Belongs to **Project**
-- Has many **Baseline Cost Elements**
+- Has many **Baseline Cost Elements** via `BaselineLog.baseline_id`
 
 ---
 
@@ -169,13 +169,14 @@ Captures cost element state at baseline creation.
 
 **Attributes:**
 - `baseline_cost_element_id` (UUID, PK) - Unique system-generated identifier
-- `baseline_id` (UUID, FK → Baseline Snapshot) - Parent baseline
+- `baseline_id` (UUID, FK → Baseline Log) - Parent baseline entry
 - `cost_element_id` (UUID, FK → Cost Element) - Referenced cost element
 - `budget_bac` (DECIMAL 15,2) - Snapshot of BAC
 - `revenue` (DECIMAL 15,2) - Snapshot of revenue
 - `forecast_eac` (DECIMAL 15,2, NULL) - Snapshot of EAC forecast
 - `actual_ac` (DECIMAL 15,2, NULL) - Snapshot of actual cost
 - `earned_ev` (DECIMAL 15,2, NULL) - Snapshot of earned value
+- `percent_complete` (DECIMAL 5,2, NULL) - Snapshot of physical percent complete captured at baseline
 
 ---
 
@@ -239,13 +240,20 @@ Maintains a log of all baseline creation events. Each baseline is identified by 
 
 **Attributes:**
 - `baseline_id` (UUID, PK) - Unique system-generated identifier
+- `project_id` (UUID, FK → Project) - Associated project
 - `baseline_type` (ENUM) - Type: schedule, earned_value, budget, forecast, combined
 - `baseline_date` (DATE) - Date when baseline was created
+- `milestone_type` (ENUM) - Milestone classification linked to project lifecycle
 - `description` (TEXT, NULL) - Description of the baseline
+- `is_cancelled` (BOOLEAN) - Soft-delete flag for superseded baselines
+- `department` (STRING, 100, NULL) - Responsible department captured at creation
+- `is_pmb` (BOOLEAN) - Indicates whether entry represents the Performance Measurement Baseline
 - `created_by` (UUID, FK → User) - User who created baseline
 - `created_at` (TIMESTAMP) - Record creation timestamp
 
 **Relationships:**
+- Belongs to **Project**
+- Has many **Baseline Cost Elements** (baseline financial snapshot)
 - Has many **Cost Element Schedules** (schedule baselines)
 - Has many **Earned Value Entries** (earned value baselines)
 - Belongs to **User** (created_by)
@@ -254,17 +262,19 @@ Maintains a log of all baseline creation events. Each baseline is identified by 
 
 ### 15. Cost Element Schedule
 
-Defines the schedule baseline for a cost element, used to calculate Planned Value (PV). The schedule includes start date, end date, and progression type that determines how planned completion percentage is calculated over time.
+Defines versioned schedule baselines for a cost element. Each registration captures the planned cadence used to calculate Planned Value (PV) as of that point in time. Users can perform full CRUD on schedule records, retaining history for auditability while the application automatically selects the latest registration for live EVM calculations.
 
 **Primary Key:** `schedule_id`
 
 **Attributes:**
 - `schedule_id` (UUID, PK) - Unique system-generated identifier
-- `cost_element_id` (UUID, FK → Cost Element, UNIQUE) - Target cost element (one schedule per cost element)
+- `cost_element_id` (UUID, FK → Cost Element, INDEX) - Target cost element (multiple schedules allowed, newest record wins)
 - `baseline_id` (UUID, FK → Baseline Log, NULL) - Reference to baseline log entry when schedule is baselined
 - `start_date` (DATE) - Planned start date for the cost element
 - `end_date` (DATE) - Planned end date for the cost element
 - `progression_type` (ENUM) - Type: linear, gaussian, logarithmic
+- `registration_date` (DATE) - User-supplied effective date for this schedule registration (defaults to creation date if omitted)
+- `description` (TEXT, NULL) - Optional narrative describing the schedule rationale or scope
 - `notes` (TEXT, NULL) - Schedule notes and assumptions
 - `created_by` (UUID, FK → User) - User who created schedule
 - `created_at` (TIMESTAMP) - Record creation timestamp
@@ -280,20 +290,21 @@ Defines the schedule baseline for a cost element, used to calculate Planned Valu
   - Linear: Even distribution over duration
   - Gaussian: Normal distribution curve with peak at midpoint
   - Logarithmic: Slow start with accelerating completion
-- When a schedule is baselined, it references a Baseline Log entry via baseline_id
+- Operational EVM calculations always use the schedule registration with the most recent `registration_date` (ties resolved by `created_at`)
+- Full CRUD history is retained; prior registrations stay queryable for audit and reporting while operational calculations only consider the newest applicable registration.
+- When a baseline is created, the system copies the latest schedule registration whose `registration_date` is on or before the baseline date into a **Baseline Cost Element Schedule** record linked via `baseline_id`. PV/EV calculations for that baseline use the frozen copy, preserving historical context even as operational schedules evolve.
 
 ---
 
 ### 16. Earned Value Entry
 
-Records the percentage of work completed (physical progress) for a cost element, used to calculate Earned Value (EV). The earned value percentage must be baselined and maintained as historical record.
+Records the percentage of work completed (physical progress) for a cost element, used to calculate Earned Value (EV). Historical snapshots are maintained separately on `BaselineCostElement`.
 
 **Primary Key:** `earned_value_id`
 
 **Attributes:**
 - `earned_value_id` (UUID, PK) - Unique system-generated identifier
 - `cost_element_id` (UUID, FK → Cost Element) - Target cost element
-- `baseline_id` (UUID, FK → Baseline Log, NULL) - Reference to baseline log entry when earned value is baselined
 - `completion_date` (DATE) - Date when work completion was measured
 - `percent_complete` (DECIMAL 5,2) - Percentage of physical work completed (0-100)
 - `earned_value` (DECIMAL 15,2, NULL) - Calculated Earned Value (EV = BAC × percent_complete)
@@ -305,12 +316,11 @@ Records the percentage of work completed (physical progress) for a cost element,
 
 **Relationships:**
 - Belongs to **Cost Element**
-- Belongs to **Baseline Log** (optional, when baselined)
 
 **Notes:**
 - Earned Value (EV) is calculated as: $EV = BAC \times \%\ \text{di completamento fisico}$
 - Example: if $BAC = €100{,}000$ and percent_complete = 30%, then $EV = €30{,}000$
-- When earned value entries are baselined, they reference a Baseline Log entry via baseline_id for historical comparison and trend analysis
+- Baseline snapshots capture the latest `percent_complete` and `earned_ev` for each cost element on the associated `BaselineCostElement` record, keeping operational entries independent from baselines.
 
 ---
 
@@ -591,15 +601,14 @@ Project
   │      │      └── Has Many: Quality Event
   │      └── Has Many: Change Order Line Item
   ├── Has Many: Project Event
-  ├── Has Many: Baseline Snapshot
-  │      └── Has Many: Baseline Cost Element
+  ├── Has Many: Baseline Log
+  │      ├── Has Many: Baseline Cost Element
+  │      ├── Has Many: Cost Element Schedule records (schedule baselines)
+  │      └── Has Many: Earned Value Entry
   ├── Has Many: Change Order
   │      └── Has Many: Change Order Line Item
   └── Has Many: Quality Event
 
-Baseline Log
-  ├── Has Many: Cost Element Schedules (schedule baselines)
-  └── Has Many: Earned Value Entries (earned value baselines)
 
 User
   ├── Has Many: Audit Log
@@ -629,7 +638,7 @@ Cost Element Type (Reference)
 
 7. **Forecast Versioning**: `is_current` marks the active forecast per cost element.
 
-8. **Baseline Snapshotting**: Separate table stores baseline state to compare against current actuals.
+8. **Baseline Logging**: Baseline metadata (department, is_pmb) and summary values live on `BaselineLog`, providing the single source of truth for baseline state when compared against current actuals.
 
 9. **Audit Trail**: `Audit_Log` tracks all modifications with before/after values.
 
@@ -639,9 +648,9 @@ Cost Element Type (Reference)
 
 12. **Schedule Baseline for Planned Value**: Each Cost Element has a schedule baseline (Cost Element Schedule) with start date, end date, and progression type (linear, gaussian, logarithmic). Planned Value (PV) is calculated as $PV = BAC \times \%\ \text{di completamento pianificato}$, where the planned completion percentage is derived from the schedule baseline at any control date.
 
-13. **Baseline Log**: All baselines are tracked in a Baseline Log table with a unique baseline_id. Schedule baselines and earned value baselines reference this log via baseline_id, ensuring proper baseline identification and historical tracking.
+13. **Baseline Log**: All baselines are tracked in a Baseline Log table with a unique baseline_id. Schedule baselines and baseline cost element snapshots reference this log via baseline_id, ensuring proper baseline identification and historical tracking.
 
-14. **Earned Value Baseline**: Earned Value (EV) is calculated from baselined percentage of work completed using $EV = BAC \times \%\ \text{di completamento fisico}$. The earned value entries track physical completion percentages which reference Baseline Log entries via baseline_id for historical comparison and trend analysis.
+14. **Earned Value Baseline**: Earned Value (EV) is calculated from baselined percentage of work completed using $EV = BAC \times \%\ \text{di completamento fisico}$. Operational earned value entries remain independent, while the latest `percent_complete` and `earned_ev` values are captured on `BaselineCostElement` snapshots for historical comparison and trend analysis.
 
 ---
 
@@ -672,7 +681,7 @@ Mapping columns from the example image to the data model:
 | data (Date) | Project Event.event_date, other event dates |
 | reparto (Department) | Cost Element.department_code |
 | note (Notes) | Project Event.description, various notes fields |
-| p0 | Baseline Snapshot budget value |
+| p0 | BaselineCostElement.budget_bac captured at BaselineLog creation |
 | revenues | Budget Allocation.revenue_amount, aggregated |
 | forecast | Forecast.estimate_at_completion |
 | actual | Cost Registration.amount, aggregated to AC |
@@ -697,4 +706,3 @@ Mapping columns from the example image to the data model:
 4. API design for data access and manipulation
 5. Dashboard and reporting queries
 6. Data migration procedures
-

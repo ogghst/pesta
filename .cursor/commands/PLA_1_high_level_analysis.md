@@ -34,9 +34,10 @@ Ask the user over the Objective if not clear
 
 ## OUTPUT CONSTRAINTS
 
+- Summarize the feature with a short user story
 - Focus on "what" and "why" rather than implementation details
 - Keep analysis human-readable and concise
 - Flag any ambiguities or missing information
 - Identify risks and unknown factors
 
-After you provide the analysis, wait for my feedback before proceeding to detailed planning.
+After you provide the analysis, record your analysis in Record your plan in [analysis](/docs/analysis/) folder and wait for my feedback before proceeding to detailed planning.

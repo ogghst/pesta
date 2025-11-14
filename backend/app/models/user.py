@@ -1,4 +1,5 @@
 """User model and related schemas."""
+
 import uuid
 from datetime import datetime
 from enum import Enum

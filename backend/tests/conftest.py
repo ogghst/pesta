@@ -10,8 +10,8 @@ from app.main import app
 from app.models import (
     WBE,
     AuditLog,
+    BaselineCostElement,
     BaselineLog,
-    BaselineSnapshot,
     BudgetAllocation,
     ChangeOrder,
     CostElement,
@@ -55,6 +55,10 @@ def db() -> Generator[Session, None, None]:
             BudgetAllocation
         )  # Must be before CostElement/User due to FK
         session.execute(statement)
+        statement = delete(
+            BaselineCostElement
+        )  # Must be before CostElement/BaselineLog due to FK
+        session.execute(statement)
         statement = delete(CostElement)  # Must be before WBE due to FK
         session.execute(statement)
         statement = delete(WBE)  # Must be before Project due to FK
@@ -67,11 +71,9 @@ def db() -> Generator[Session, None, None]:
         session.execute(statement)
         statement = delete(ProjectEvent)  # Must be before Project due to FK
         session.execute(statement)
-        statement = delete(BaselineSnapshot)  # Must be before Project due to FK
+        statement = delete(BaselineLog)  # Must be before Project due to FK
         session.execute(statement)
         statement = delete(Project)  # Must be before User due to FK
-        session.execute(statement)
-        statement = delete(BaselineLog)  # Must be before User due to FK
         session.execute(statement)
         statement = delete(AuditLog)  # Must be before User due to FK
         session.execute(statement)

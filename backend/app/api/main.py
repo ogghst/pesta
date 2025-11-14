@@ -1,12 +1,20 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
+    baseline_logs,
     budget_summary,
     budget_timeline,
+    cost_categories,
     cost_element_schedules,
     cost_element_types,
     cost_elements,
+    cost_registrations,
+    cost_summary,
+    cost_timeline,
+    earned_value,
+    earned_value_entries,
     login,
+    planned_value,
     private,
     projects,
     users,
@@ -24,8 +32,16 @@ api_router.include_router(wbes.router)
 api_router.include_router(cost_elements.router)
 api_router.include_router(cost_element_schedules.router)
 api_router.include_router(cost_element_types.router)
+api_router.include_router(cost_categories.router)
+api_router.include_router(cost_registrations.router)
+api_router.include_router(cost_summary.router)
+api_router.include_router(cost_timeline.router)
+api_router.include_router(earned_value_entries.router)
 api_router.include_router(budget_summary.router)
 api_router.include_router(budget_timeline.router)
+api_router.include_router(planned_value.router)
+api_router.include_router(earned_value.router)
+api_router.include_router(baseline_logs.router)
 
 
 if settings.ENVIRONMENT == "local":

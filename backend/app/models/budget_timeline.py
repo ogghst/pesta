@@ -1,6 +1,5 @@
 """Budget Timeline model and related schemas."""
 
-
 from app.models.cost_element import CostElementPublic
 from app.models.cost_element_schedule import CostElementSchedulePublic
 

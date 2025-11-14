@@ -154,6 +154,7 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["cost-elements"] })
+      queryClient.invalidateQueries({ queryKey: ["cost-summary"] })
     },
   })
 

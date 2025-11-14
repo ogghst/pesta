@@ -2,7 +2,7 @@
 
 Review our session against the original objectives:
 
-## VERIFICATION CHECKLIST:
+## VERIFICATION CHECKLIST
 
 ### FUNCTIONAL VERIFICATION
 
@@ -36,10 +36,11 @@ Review our session against the original objectives:
 
 ### DOCUMENTATION COMPLETENESS
 
-- docs/project_status.md updated if needed
-- docs/plan.md updated if needed
-- docs/prd.md updated if needed
-- /README.md updated if needed
+- docs/project_status.md aligned with codebase
+- docs/plan.md updated aligned with codebase
+- docs/prd.md updated aligned with codebase
+- docs/data_model.md aligned with codebase
+- /README.md updated aligned with codebase
 - API documentation current
 - Configuration changes documented
 - Migration steps noted if applicable
@@ -59,4 +60,8 @@ Suggest a descriptive commit message following this format:
 - Summary: [concise description]
 - Details: [what changed and why]
 
-Provide your completeness analysis now.
+## DOCUMENTATION UPDATE
+
+- Get current time
+- Provide your completeness analysis and record it in [completions](/docs/completions/) folder
+- Update the project status in [project status](/docs/project_status.md)

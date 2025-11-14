@@ -1,17 +1,27 @@
 import { Box, Heading, Text, VStack } from "@chakra-ui/react"
 import {
   CategoryScale,
+  type ChartDataset,
   Chart as ChartJS,
+  type ChartOptions,
   Legend,
   LinearScale,
   LineElement,
   PointElement,
   TimeScale,
   Tooltip,
+  type TooltipItem,
 } from "chart.js"
 import "chartjs-adapter-date-fns"
+import { useQuery } from "@tanstack/react-query"
 import { Line } from "react-chartjs-2"
-import type { CostElementWithSchedulePublic } from "@/client"
+import {
+  type CostElementWithSchedulePublic,
+  CostTimelineService,
+  EarnedValueEntriesService,
+  type EarnedValueEntryPublic,
+} from "@/client"
+import { buildEarnedValueTimeline } from "@/utils/earnedValueAggregation"
 import type { TimePeriod } from "@/utils/progressionCalculations"
 import {
   calculateGaussianProgression,
@@ -35,16 +45,246 @@ ChartJS.register(
 export interface BudgetTimelineProps {
   costElements: CostElementWithSchedulePublic[]
   viewMode?: "aggregated" | "multi-line" // Default: "aggregated"
+  projectId?: string // Required for cost timeline fetching
+  wbeIds?: string[] // Optional filter for cost timeline
+  costElementIds?: string[] // Optional filter for cost timeline
+}
+
+interface PlannedValueSeries {
+  label: string
+  data: { x: Date; y: number }[]
+  color?: string
+}
+
+export interface BudgetTimelineChartConfig {
+  datasets: ChartDataset<"line", { x: Date; y: number }[]>[]
+  options: ChartOptions<"line">
+}
+
+const PLANNED_VALUE_COLOR = "#3182ce"
+const ACTUAL_COST_COLOR = "#f56565"
+const EARNED_VALUE_COLOR = "#48bb78"
+
+export function createBudgetTimelineConfig({
+  viewMode,
+  plannedValue,
+  actualCost,
+  earnedValue,
+}: {
+  viewMode: "aggregated" | "multi-line"
+  plannedValue: PlannedValueSeries[]
+  actualCost: { x: Date; y: number }[]
+  earnedValue: { date: Date; earnedValue: number }[]
+}): BudgetTimelineChartConfig {
+  const plannedDatasets: ChartDataset<"line", { x: Date; y: number }[]>[] =
+    plannedValue.length > 0
+      ? plannedValue.map((series, index) => ({
+          label: series.label,
+          data: series.data,
+          borderColor:
+            series.color ??
+            (viewMode === "aggregated"
+              ? PLANNED_VALUE_COLOR
+              : [
+                  "#3182ce",
+                  "#48bb78",
+                  "#ed8936",
+                  "#9f7aea",
+                  "#38b2ac",
+                  "#dd6b20",
+                ][index % 6]),
+          backgroundColor: "transparent",
+          borderWidth: 2,
+          fill: false,
+        }))
+      : [
+          {
+            label: "Planned Value (PV)",
+            data: [],
+            borderColor: PLANNED_VALUE_COLOR,
+            backgroundColor: "transparent",
+            borderWidth: 2,
+            fill: false,
+          },
+        ]
+
+  const actualCostDataset: ChartDataset<"line", { x: Date; y: number }[]> = {
+    label: "Actual Cost (AC)",
+    data: actualCost,
+    borderColor: ACTUAL_COST_COLOR,
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    fill: false,
+  }
+
+  const earnedValueDataset: ChartDataset<"line", { x: Date; y: number }[]> = {
+    label: "Earned Value (EV)",
+    data: earnedValue.map((point) => ({
+      x: point.date,
+      y: point.earnedValue,
+    })),
+    borderColor: EARNED_VALUE_COLOR,
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    fill: false,
+  }
+
+  const formatCurrency = (value: number) =>
+    `€${value.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`
+
+  const options: ChartOptions<"line"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      intersect: false,
+      mode: "index",
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: "top",
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: TooltipItem<"line">) => {
+            const datasetLabel = context.dataset.label ?? ""
+            const value = context.parsed.y ?? 0
+            return `${datasetLabel}: ${formatCurrency(value)}`
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        type: "time",
+        time: {
+          unit: "day",
+          displayFormats: {
+            day: "MMM d, yyyy",
+          },
+        },
+        title: {
+          display: true,
+          text: "Date",
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Amount (€)",
+        },
+        ticks: {
+          callback: (value: string | number) => {
+            const numericValue =
+              typeof value === "number" ? value : Number(value)
+
+            if (Number.isNaN(numericValue)) {
+              return value
+            }
+
+            return formatCurrency(numericValue)
+          },
+        },
+      },
+    },
+  }
+
+  return {
+    datasets: [...plannedDatasets, actualCostDataset, earnedValueDataset],
+    options,
+  }
+}
+
+async function fetchAllEarnedValueEntries(
+  costElementId: string,
+): Promise<EarnedValueEntryPublic[]> {
+  const limit = 100
+  let skip = 0
+  const collected: EarnedValueEntryPublic[] = []
+
+  while (true) {
+    const response = await EarnedValueEntriesService.readEarnedValueEntries({
+      costElementId,
+      skip,
+      limit,
+    })
+
+    const data = response?.data ?? []
+    const count = response?.count ?? data.length
+
+    collected.push(...data)
+
+    if (collected.length >= count || data.length < limit) {
+      break
+    }
+
+    skip += limit
+  }
+
+  return collected
 }
 
 export default function BudgetTimeline({
   costElements,
   viewMode = "aggregated",
+  projectId,
+  wbeIds,
+  costElementIds,
 }: BudgetTimelineProps) {
-  // Filter out cost elements without schedules
+  const normalizedWbeIds = wbeIds?.length ? [...wbeIds].sort() : undefined
+  const normalizedCostElementIds = costElementIds?.length
+    ? [...costElementIds].sort()
+    : undefined
+
   const elementsWithSchedules = costElements.filter(
     (ce) => ce.schedule !== null && ce.schedule !== undefined,
   )
+
+  const costElementIdsForEarnedValue = elementsWithSchedules
+    .map((ce) => ce.cost_element_id)
+    .filter(Boolean)
+  const sortedCostElementIdsForEarnedValue =
+    costElementIdsForEarnedValue.length > 0
+      ? [...costElementIdsForEarnedValue].sort()
+      : []
+
+  const { data: costTimelineData } = useQuery({
+    queryFn: () =>
+      CostTimelineService.getProjectCostTimeline({
+        projectId: projectId!,
+        wbeIds: normalizedWbeIds,
+        costElementIds: normalizedCostElementIds,
+      }),
+    queryKey: [
+      "cost-timeline",
+      projectId,
+      normalizedWbeIds,
+      normalizedCostElementIds,
+    ],
+    enabled: !!projectId,
+  })
+
+  const { data: earnedValueEntriesData } = useQuery({
+    queryFn: async () => {
+      const allEntries = await Promise.all(
+        sortedCostElementIdsForEarnedValue.map((id) =>
+          fetchAllEarnedValueEntries(id),
+        ),
+      )
+      return allEntries.flat()
+    },
+    queryKey: [
+      "earned-value-timeline",
+      projectId,
+      normalizedWbeIds,
+      normalizedCostElementIds,
+      sortedCostElementIdsForEarnedValue,
+    ],
+    enabled: sortedCostElementIdsForEarnedValue.length > 0,
+  })
 
   if (elementsWithSchedules.length === 0) {
     return (
@@ -57,7 +297,6 @@ export default function BudgetTimeline({
     )
   }
 
-  // Calculate timelines for each cost element
   const timelines: TimePeriod[][] = elementsWithSchedules
     .map((ce) => {
       const schedule = ce.schedule!
@@ -65,7 +304,6 @@ export default function BudgetTimeline({
       const endDate = new Date(schedule.end_date)
       const budgetBac = Number(ce.budget_bac || 0)
 
-      // Validate dates
       if (
         Number.isNaN(startDate.getTime()) ||
         Number.isNaN(endDate.getTime())
@@ -76,7 +314,6 @@ export default function BudgetTimeline({
         return null
       }
 
-      // Validate end date >= start date
       if (endDate < startDate) {
         console.warn(
           `End date before start date for cost element ${ce.cost_element_id}`,
@@ -84,7 +321,6 @@ export default function BudgetTimeline({
         return null
       }
 
-      // Validate budget_bac >= 0
       if (budgetBac < 0) {
         console.warn(
           `Negative budget for cost element ${ce.cost_element_id}: ${budgetBac}`,
@@ -92,10 +328,8 @@ export default function BudgetTimeline({
         return null
       }
 
-      // Generate time series (daily granularity for now)
       const timePoints = generateTimeSeries(startDate, endDate, "daily")
 
-      // Calculate progression based on progression type
       let progression: TimePeriod[]
       switch (schedule.progression_type) {
         case "linear":
@@ -123,7 +357,6 @@ export default function BudgetTimeline({
           )
           break
         default:
-          // Default to linear if unknown type
           progression = calculateLinearProgression(
             startDate,
             endDate,
@@ -136,195 +369,112 @@ export default function BudgetTimeline({
     })
     .filter((timeline): timeline is TimePeriod[] => timeline !== null)
 
-  // Check if we have any valid timelines after filtering
-  if (timelines.length === 0) {
+  const costTimelinePoints = costTimelineData?.data || []
+  const costData = costTimelinePoints.map((point) => ({
+    x: new Date(point.point_date),
+    y: parseFloat(point.cumulative_cost),
+  }))
+
+  const earnedValueTimeline =
+    earnedValueEntriesData && earnedValueEntriesData.length > 0
+      ? buildEarnedValueTimeline({
+          entries: earnedValueEntriesData,
+        })
+      : []
+
+  const hasBudgetData = timelines.length > 0
+  const hasCostData = costData.length > 0
+  const hasEarnedValueData = earnedValueTimeline.length > 0
+
+  if (!hasBudgetData && !hasCostData && !hasEarnedValueData) {
     return (
       <Box p={4} borderWidth="1px" borderRadius="lg" bg="bg.surface">
         <Text color="fg.muted">
-          No valid timelines found. Some cost elements may have invalid schedule
-          dates or negative budgets.
+          No budget, cost, or earned value data available for the selected
+          filters.
         </Text>
       </Box>
     )
   }
 
-  // Prepare chart data
-  let chartData: any
-  let chartOptions: any
+  let plannedValueSeries: PlannedValueSeries[]
 
   if (viewMode === "aggregated") {
-    // Aggregate all timelines into one
-    const aggregated = aggregateTimelines(timelines)
-
-    chartData = {
-      labels: aggregated.map((period) => period.date),
-      datasets: [
-        {
-          label: "Aggregated Budget",
-          data: aggregated.map((period) => ({
-            x: period.date,
-            y: period.cumulativeBudget,
-          })),
-          borderColor: "#3182ce", // blue.500
-          backgroundColor: "rgba(49, 130, 206, 0.1)",
-          borderWidth: 2,
-          fill: true,
-        },
-      ],
-    }
-
-    chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        intersect: false,
-        mode: "index" as const,
+    plannedValueSeries = [
+      {
+        label: "Planned Value (PV)",
+        data: aggregateTimelines(timelines).map((period) => ({
+          x: period.date,
+          y: period.cumulativeBudget,
+        })),
+        color: PLANNED_VALUE_COLOR,
       },
-      plugins: {
-        legend: {
-          display: true,
-          position: "top" as const,
-        },
-        tooltip: {
-          callbacks: {
-            label: (context: any) => {
-              const value = context.parsed.y
-              return `Budget: €${value.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}`
-            },
-          },
-        },
-      },
-      scales: {
-        x: {
-          type: "time" as const,
-          time: {
-            unit: "day" as const,
-            displayFormats: {
-              day: "MMM d, yyyy",
-            },
-          },
-          title: {
-            display: true,
-            text: "Date",
-          },
-        },
-        y: {
-          title: {
-            display: true,
-            text: "Cumulative Budget (€)",
-          },
-          ticks: {
-            callback: (value: number) => {
-              return `€${value.toLocaleString("en-US", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              })}`
-            },
-          },
-        },
-      },
-    }
-  } else {
-    // Multi-line mode: one line per cost element
-    const colors = [
-      "#3182ce", // blue.500
-      "#48bb78", // green.500
-      "#ed8936", // orange.500
-      "#9f7aea", // purple.500
-      "#f56565", // red.500
-      "#38b2ac", // teal.500
     ]
+  } else {
+    const colorPalette = [
+      "#3182ce",
+      "#48bb78",
+      "#ed8936",
+      "#9f7aea",
+      "#38b2ac",
+      "#dd6b20",
+    ]
+    const multiLineSeries: PlannedValueSeries[] = []
 
-    chartData = {
-      labels: timelines.flatMap((timeline) =>
-        timeline.map((period) => period.date),
-      ),
-      datasets: elementsWithSchedules.map((ce, index) => {
-        const timeline = timelines[index]
-        return {
-          label: `${ce.department_name} (€${Number(ce.budget_bac).toLocaleString()})`,
-          data: timeline.map((period) => ({
-            x: period.date,
-            y: period.cumulativeBudget,
-          })),
-          borderColor: colors[index % colors.length],
-          backgroundColor: "transparent",
-          borderWidth: 2,
-          fill: false,
-        }
-      }),
-    }
+    elementsWithSchedules.forEach((ce, index) => {
+      const timeline = timelines[index]
+      if (!timeline) {
+        return
+      }
 
-    chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        intersect: false,
-        mode: "index" as const,
-      },
-      plugins: {
-        legend: {
-          display: true,
-          position: "top" as const,
-        },
-        tooltip: {
-          callbacks: {
-            label: (context: any) => {
-              const datasetLabel = context.dataset.label || ""
-              const value = context.parsed.y
-              return `${datasetLabel}: €${value.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}`
+      multiLineSeries.push({
+        label: `${ce.department_name} - PV (€${Number(ce.budget_bac).toLocaleString()})`,
+        data: timeline.map((period) => ({
+          x: period.date,
+          y: period.cumulativeBudget,
+        })),
+        color: colorPalette[index % colorPalette.length],
+      })
+    })
+
+    plannedValueSeries =
+      multiLineSeries.length > 0
+        ? multiLineSeries
+        : [
+            {
+              label: "Planned Value (PV)",
+              data: [],
+              color: PLANNED_VALUE_COLOR,
             },
-          },
-        },
-      },
-      scales: {
-        x: {
-          type: "time" as const,
-          time: {
-            unit: "day" as const,
-            displayFormats: {
-              day: "MMM d, yyyy",
-            },
-          },
-          title: {
-            display: true,
-            text: "Date",
-          },
-        },
-        y: {
-          title: {
-            display: true,
-            text: "Cumulative Budget (€)",
-          },
-          ticks: {
-            callback: (value: number) => {
-              return `€${value.toLocaleString("en-US", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              })}`
-            },
-          },
-        },
-      },
-    }
+          ]
+  }
+
+  const chartConfig = createBudgetTimelineConfig({
+    viewMode,
+    plannedValue: plannedValueSeries,
+    actualCost: costData,
+    earnedValue: earnedValueTimeline,
+  })
+
+  const chartData = {
+    datasets: chartConfig.datasets,
   }
 
   return (
     <Box borderWidth="1px" borderRadius="lg" p={4} bg="bg.surface" mb={4}>
       <VStack gap={4} align="stretch">
-        <Heading size="md">Budget Timeline</Heading>
+        <Heading size="md">Budget, Cost & Earned Value Timeline</Heading>
         <Box height="400px">
-          <Line data={chartData} options={chartOptions} />
+          <Line data={chartData} options={chartConfig.options} />
         </Box>
         <Text fontSize="sm" color="fg.muted">
-          Showing {elementsWithSchedules.length} cost element(s)
-          {viewMode === "aggregated" ? " (aggregated)" : " (individual lines)"}
+          Showing {timelines.length} cost element(s) with schedules.{" "}
+          {costData.length > 0
+            ? `Actual cost includes ${costData.length} point(s). `
+            : "No actual cost data available. "}
+          {hasEarnedValueData
+            ? `Earned value includes ${earnedValueTimeline.length} entry(ies).`
+            : "No earned value entries available."}
         </Text>
       </VStack>
     </Box>

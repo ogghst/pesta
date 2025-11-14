@@ -1,4 +1,5 @@
 """Budget Timeline API routes."""
+
 import uuid
 from typing import Any
 

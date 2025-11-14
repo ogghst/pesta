@@ -1,4 +1,5 @@
 """Cost Element Types API routes."""
+
 from typing import Any
 
 from fastapi import APIRouter

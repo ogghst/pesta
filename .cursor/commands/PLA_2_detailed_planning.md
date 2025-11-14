@@ -42,6 +42,8 @@ Based on our analysis and the approach we've selected, create a coherent impleme
 
 Format your plan as a numbered checklist that can be tracked during implementation.
 
+Record your plan in [plans](/docs/plans/) folder
+
 ## CONFIRM
 
 Confirm you understand the plan structure requirements before generating the plan.

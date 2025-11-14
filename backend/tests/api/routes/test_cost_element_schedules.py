@@ -21,6 +21,8 @@ def test_get_schedule_by_cost_element_id(
         start_date=date(2025, 1, 1),
         end_date=date(2025, 12, 31),
         progression_type="linear",
+        registration_date=date(2024, 11, 15),
+        description="Initial rollout plan",
     )
 
     # Test: GET /cost-element-schedules/?cost_element_id={id}
@@ -35,6 +37,8 @@ def test_get_schedule_by_cost_element_id(
     assert content["start_date"] == "2025-01-01"
     assert content["end_date"] == "2025-12-31"
     assert content["progression_type"] == "linear"
+    assert content["registration_date"] == "2024-11-15"
+    assert content["description"] == "Initial rollout plan"
 
 
 def test_get_schedule_not_found(
@@ -55,7 +59,7 @@ def test_get_schedule_not_found(
 
 
 def test_get_schedule_invalid_cost_element_id(
-    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
+    client: TestClient, superuser_token_headers: dict[str, str]
 ) -> None:
     """Test getting schedule with invalid cost_element_id."""
     invalid_id = uuid.uuid4()
@@ -81,6 +85,8 @@ def test_create_schedule(
         "start_date": "2025-01-01",
         "end_date": "2025-12-31",
         "progression_type": "linear",
+        "registration_date": "2024-10-01",
+        "description": "Initial schedule submission",
     }
     response = client.post(
         f"{settings.API_V1_STR}/cost-element-schedules/?cost_element_id={cost_element.cost_element_id}",
@@ -93,6 +99,8 @@ def test_create_schedule(
     assert content["end_date"] == "2025-12-31"
     assert content["progression_type"] == "linear"
     assert content["cost_element_id"] == str(cost_element.cost_element_id)
+    assert content["registration_date"] == "2024-10-01"
+    assert content["description"] == "Initial schedule submission"
 
 
 def test_create_schedule_invalid_dates(
@@ -107,6 +115,7 @@ def test_create_schedule_invalid_dates(
         "start_date": "2025-12-31",
         "end_date": "2025-01-01",  # End before start
         "progression_type": "linear",
+        "registration_date": "2024-10-01",
     }
     response = client.post(
         f"{settings.API_V1_STR}/cost-element-schedules/?cost_element_id={cost_element.cost_element_id}",
@@ -119,7 +128,7 @@ def test_create_schedule_invalid_dates(
 
 
 def test_create_schedule_invalid_cost_element(
-    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
+    client: TestClient, superuser_token_headers: dict[str, str]
 ) -> None:
     """Test creating schedule with invalid cost_element_id should fail."""
     invalid_id = uuid.uuid4()
@@ -158,6 +167,8 @@ def test_update_schedule(
         "start_date": "2025-02-01",
         "end_date": "2025-11-30",
         "progression_type": "gaussian",
+        "registration_date": "2025-01-10",
+        "description": "Adjusted for supplier change",
     }
     response = client.put(
         f"{settings.API_V1_STR}/cost-element-schedules/{schedule.schedule_id}",
@@ -170,6 +181,8 @@ def test_update_schedule(
     assert content["end_date"] == "2025-11-30"
     assert content["progression_type"] == "gaussian"
     assert content["schedule_id"] == str(schedule.schedule_id)
+    assert content["registration_date"] == "2025-01-10"
+    assert content["description"] == "Adjusted for supplier change"
 
 
 def test_update_schedule_invalid_dates(
@@ -185,6 +198,7 @@ def test_update_schedule_invalid_dates(
         "start_date": "2025-12-31",
         "end_date": "2025-01-01",  # End before start
         "progression_type": "linear",
+        "registration_date": "2024-10-01",
     }
     response = client.put(
         f"{settings.API_V1_STR}/cost-element-schedules/{schedule.schedule_id}",
@@ -197,7 +211,7 @@ def test_update_schedule_invalid_dates(
 
 
 def test_update_schedule_not_found(
-    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
+    client: TestClient, superuser_token_headers: dict[str, str]
 ) -> None:
     """Test updating a schedule that doesn't exist returns 404."""
     invalid_id = uuid.uuid4()
@@ -244,7 +258,7 @@ def test_delete_schedule(
 
 
 def test_delete_schedule_not_found(
-    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
+    client: TestClient, superuser_token_headers: dict[str, str]
 ) -> None:
     """Test deleting a schedule that doesn't exist returns 404."""
     invalid_id = uuid.uuid4()
@@ -256,3 +270,148 @@ def test_delete_schedule_not_found(
     assert response.status_code == 404
     content = response.json()
     assert "not found" in content["detail"].lower()
+
+
+def test_get_schedule_returns_latest_registration(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """The GET endpoint should surface the latest registration by registration_date."""
+    cost_element = create_random_cost_element(db)
+    create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2025, 1, 1),
+        end_date=date(2025, 3, 31),
+        progression_type="linear",
+        registration_date=date(2024, 11, 1),
+        description="Initial",
+    )
+    create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2025, 2, 1),
+        end_date=date(2025, 6, 30),
+        progression_type="gaussian",
+        registration_date=date(2025, 1, 20),
+        description="Rebaseline",
+    )
+
+    response = client.get(
+        f"{settings.API_V1_STR}/cost-element-schedules/",
+        headers=superuser_token_headers,
+        params={"cost_element_id": str(cost_element.cost_element_id)},
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["registration_date"] == "2025-01-20"
+    assert content["description"] == "Rebaseline"
+    assert content["progression_type"] == "gaussian"
+
+
+def test_create_schedule_defaults_registration_date_to_today(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Registration date defaults to today's date when omitted."""
+    cost_element = create_random_cost_element(db)
+
+    payload = {
+        "start_date": "2025-04-01",
+        "end_date": "2025-09-30",
+        "progression_type": "logarithmic",
+    }
+    response = client.post(
+        f"{settings.API_V1_STR}/cost-element-schedules/?cost_element_id={cost_element.cost_element_id}",
+        headers=superuser_token_headers,
+        json=payload,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["registration_date"] == date.today().isoformat()
+
+
+def test_list_schedule_history_orders_by_registration_date(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """History endpoint should order registrations newest first."""
+    cost_element = create_random_cost_element(db)
+    create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 3, 31),
+        progression_type="linear",
+        registration_date=date(2024, 1, 10),
+        description="Initial",
+    )
+    second = create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2024, 4, 1),
+        end_date=date(2024, 6, 30),
+        progression_type="gaussian",
+        registration_date=date(2024, 3, 5),
+        description="Spring replan",
+    )
+    latest = create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2024, 7, 1),
+        end_date=date(2024, 9, 30),
+        progression_type="logarithmic",
+        registration_date=date(2024, 5, 20),
+        description="Summer acceleration",
+    )
+
+    response = client.get(
+        f"{settings.API_V1_STR}/cost-element-schedules/history",
+        headers=superuser_token_headers,
+        params={"cost_element_id": str(cost_element.cost_element_id)},
+    )
+    assert response.status_code == 200
+    content = response.json()
+    registration_dates = [entry["registration_date"] for entry in content]
+    assert registration_dates == [
+        latest.registration_date.isoformat(),
+        second.registration_date.isoformat(),
+        "2024-01-10",
+    ]
+    descriptions = [entry["description"] for entry in content]
+    assert descriptions == ["Summer acceleration", "Spring replan", "Initial"]
+
+
+def test_history_excludes_baseline_snapshots(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Baseline-linked schedules should not appear in the operational history."""
+    cost_element = create_random_cost_element(db)
+    create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 3, 31),
+        progression_type="linear",
+        registration_date=date(2024, 1, 10),
+        description="Operational",
+    )
+    baseline_schedule = create_schedule_for_cost_element(
+        db,
+        cost_element.cost_element_id,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 3, 31),
+        progression_type="linear",
+        registration_date=date(2024, 1, 10),
+        description="Baseline copy",
+    )
+    baseline_schedule.baseline_id = uuid.uuid4()
+    db.add(baseline_schedule)
+    db.commit()
+
+    response = client.get(
+        f"{settings.API_V1_STR}/cost-element-schedules/history",
+        headers=superuser_token_headers,
+        params={"cost_element_id": str(cost_element.cost_element_id)},
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert len(content) == 1
+    assert content[0]["description"] == "Operational"
