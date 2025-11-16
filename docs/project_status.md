@@ -1,6 +1,6 @@
 # Project Status: EVM Project Budget Management System
 
-**Last Updated:** 2025-01-27
+**Last Updated:** 2025-11-16
 **Current Phase:** Sprint 3 In Progress
 **Overall Progress:** 43% Complete - Sprint 1 Complete, Sprint 2 Complete, Sprint 3 In Progress (2/7 tasks complete)
 
@@ -79,7 +79,7 @@
 |---------|-----------|-------------|--------|-------|
 | E4-001 | Planned Value Calculation Engine | Compute PV = BAC × planned completion % from schedule baseline | ✅ Done | Backend PV service + FastAPI endpoints delivered, baseline snapshots persist planned_value, and `python -m pytest backend/tests/services/test_planned_value.py backend/tests/api/routes/test_planned_value.py` passes against local Postgres (`postgres/changethis@localhost:5432/app`). |
 | E4-002 | Earned Value Calculation Engine | Compute EV = BAC × physical completion % from earned value entries | ✅ Done | Complete! Backend EV service + FastAPI endpoints (cost element, WBE, project levels). Frontend EarnedValueSummary component integrated into all detail pages. Entry selection logic: most recent entry where completion_date ≤ control_date. Aggregation with weighted percent complete. 35 tests passing (21 service + 14 API). Follows E4-001 PV pattern. Client regenerated. All tests passing. |
-| E4-003 | EVM Performance Indices | Implement CPI, SPI, and TCPI calculation algorithms | ⏳ Todo | Sprint 4 deliverable. Standard EVM metrics. |
+| E4-003 | EVM Performance Indices | Implement CPI, SPI, and TCPI calculation algorithms | ⏳ Todo | Sprint 4 deliverable. Standard EVM metrics. High-level analysis complete (2025-11-16). Detailed TDD plan ready. Business rules: CPI undefined when AC=0 and EV>0; SPI null when PV=0; TCPI='overrun' when BAC≤AC; indices required at project and WBE levels. |
 | E4-004 | Variance Calculations | Implement cost variance and schedule variance logic | ⏳ Todo | Sprint 4 deliverable. CV = EV - AC, SV = EV - PV. |
 | E4-005 | EVM Aggregation Logic | Roll up EVM metrics from cost elements to WBEs to project level | ⏳ Todo | Required for hierarchical reporting. |
 | E4-006 | EVM Summary Displays | Show current performance indices and variances | ⏳ Todo | Sprint 4 deliverable. Basic EVM status display. |
@@ -310,6 +310,7 @@ The MVP development is structured across six two-week sprints, each building on 
 
 ### Recent Updates
 
+- **2025-11-16:** 📋 **E4-003 EVM Performance Indices – Detailed Plan Complete.** High-level analysis and detailed TDD implementation plan completed. Plan document: `docs/plans/e4-003-evm-performance-indices.plan.md`. **Business rules confirmed:** CPI undefined when AC = 0 and EV > 0; SPI null when PV = 0; TCPI returns 'overrun' when BAC ≤ AC; indices required at project and WBE levels. Implementation structured in 5 phases (service layer, models, API routes, registration, integration) with 13 steps total. Estimated 15-24 hours. Ready for implementation starting Phase 1 (TDD: failing tests first).
 - **2025-11-14:** 📋 **PLA-2 Detailed Plan Approved.** Documented global time machine requirement covering header control, backend session persistence, and filtering. See `docs/plans/PLA_2_detailed_planning.md`. Implementation scheduled across Sprint 4 (backend) and Sprint 5 (UI/client propagation).
 - **2025-11-15:** ✅ **PLA-1 Control-Date Filtering Complete.** Added shared `time_machine` helper module, enforced schedule cutoffs by both `registration_date` and `created_at` across budget timeline, planned value, cost element schedules, and baseline logs, and backfilled regression tests to cover late-created registrations. Documentation and plan checklist updated.
 - **2025-11-13:** ✅ **PLA-1 Schedule Tab Migration Complete!** Cost element schedule CRUD operations moved from EditCostElement form to dedicated "Schedule" tab following CostRegistrationsTable pattern. Created CostElementSchedulesTable component with full history view, Add/Edit/Delete schedule components, and E2E test coverage. Schedule section completely removed from EditCostElement form. Timeline query invalidation added to all schedule, earned value, and cost registration CRUD operations ensuring timeline visualizations refresh automatically. Earned value color updated to green (#48bb78) in timeline charts per EVM standards. All tests passing (4/4 BudgetTimeline tests). Completion report: `docs/completions/pla_1_cost-element-schedule-tab-migration-completion.md`.

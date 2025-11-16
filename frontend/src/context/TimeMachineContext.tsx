@@ -59,10 +59,7 @@ export function TimeMachineProvider({ children }: PropsWithChildren) {
       })
     },
     onError: () => {
-      toast({
-        title: "Unable to update control date",
-        status: "error",
-      })
+      toast.showErrorToast("Unable to update control date")
     },
   })
 

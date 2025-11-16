@@ -54,7 +54,6 @@ export default function BudgetSummary({
       if (level === "project" && projectId) {
         return BudgetSummaryService.getProjectBudgetSummary({
           projectId: projectId,
-          controlDate: controlDate,
         })
       }
       if (level === "wbe" && wbeId) {

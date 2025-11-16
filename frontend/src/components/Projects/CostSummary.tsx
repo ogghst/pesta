@@ -53,21 +53,18 @@ export default function CostSummary({
         return CostSummaryService.getCostElementCostSummary({
           costElementId: costElementId,
           isQualityCost: isQualityCost,
-          controlDate,
         })
       }
       if (level === "wbe" && wbeId) {
         return CostSummaryService.getWbeCostSummary({
           wbeId: wbeId,
           isQualityCost: isQualityCost,
-          controlDate,
         })
       }
       if (level === "project" && projectId) {
         return CostSummaryService.getProjectCostSummary({
           projectId: projectId,
           isQualityCost: isQualityCost,
-          controlDate,
         })
       }
       throw new Error("Invalid props: missing required ID")

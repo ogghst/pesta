@@ -102,7 +102,6 @@ function CostElementDetail() {
   const navigate = useNavigate({ from: Route.fullPath })
   const { view } = Route.useSearch()
   const { controlDate } = useTimeMachine()
-  const mappedView = view === "cost-summary" ? "metrics" : view
 
   const { data: project, isLoading: isLoadingProject } = useQuery({
     ...getProjectQueryOptions({ id: projectId, controlDate }),
@@ -199,7 +198,7 @@ function CostElementDetail() {
       </Text>
 
       <Tabs.Root
-        value={mappedView}
+        value={view}
         onValueChange={({ value }) => handleTabChange(value as CostElementView)}
         variant="subtle"
         mt={4}
