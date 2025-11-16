@@ -1727,6 +1727,186 @@ export const CostTimelinePublicSchema = {
     description: 'Public schema for cost timeline response.'
 } as const;
 
+export const EVMIndicesProjectPublicSchema = {
+    properties: {
+        level: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Level'
+        },
+        control_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Control Date'
+        },
+        cpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cpi',
+            description: 'Cost Performance Index (CPI) = EV / AC. None when AC = 0.'
+        },
+        spi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Spi',
+            description: 'Schedule Performance Index (SPI) = EV / PV. None when PV = 0.'
+        },
+        tcpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tcpi',
+            description: "To-Complete Performance Index (TCPI) = (BAC - EV) / (BAC - AC). Returns 'overrun' when BAC ≤ AC."
+        },
+        planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Planned Value',
+            default: '0.00'
+        },
+        earned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Earned Value',
+            default: '0.00'
+        },
+        actual_cost: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Actual Cost',
+            default: '0.00'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        project_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Id'
+        }
+    },
+    type: 'object',
+    required: ['level', 'control_date', 'project_id'],
+    title: 'EVMIndicesProjectPublic',
+    description: 'EVM performance indices response for projects.'
+} as const;
+
+export const EVMIndicesWBEPublicSchema = {
+    properties: {
+        level: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Level'
+        },
+        control_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Control Date'
+        },
+        cpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cpi',
+            description: 'Cost Performance Index (CPI) = EV / AC. None when AC = 0.'
+        },
+        spi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Spi',
+            description: 'Schedule Performance Index (SPI) = EV / PV. None when PV = 0.'
+        },
+        tcpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tcpi',
+            description: "To-Complete Performance Index (TCPI) = (BAC - EV) / (BAC - AC). Returns 'overrun' when BAC ≤ AC."
+        },
+        planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Planned Value',
+            default: '0.00'
+        },
+        earned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Earned Value',
+            default: '0.00'
+        },
+        actual_cost: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Actual Cost',
+            default: '0.00'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Wbe Id'
+        }
+    },
+    type: 'object',
+    required: ['level', 'control_date', 'wbe_id'],
+    title: 'EVMIndicesWBEPublic',
+    description: 'EVM performance indices response for WBEs.'
+} as const;
+
 export const EarnedValueCostElementPublicSchema = {
     properties: {
         level: {
@@ -1846,6 +2026,11 @@ export const EarnedValueEntryCreateSchema = {
             ],
             title: 'Description'
         },
+        registration_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Registration Date'
+        },
         cost_element_id: {
             type: 'string',
             format: 'uuid',
@@ -1906,6 +2091,11 @@ export const EarnedValueEntryPublicSchema = {
                 }
             ],
             title: 'Description'
+        },
+        registration_date: {
+            type: 'string',
+            format: 'date',
+            title: 'Registration Date'
         },
         earned_value_id: {
             type: 'string',
@@ -2004,6 +2194,18 @@ export const EarnedValueEntryUpdateSchema = {
                 }
             ],
             title: 'Description'
+        },
+        registration_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Registration Date'
         }
     },
     type: 'object',

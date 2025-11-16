@@ -404,6 +404,7 @@ export type EarnedValueEntryCreate = {
     earned_value?: (number | string | null);
     deliverables?: (string | null);
     description?: (string | null);
+    registration_date?: string;
     cost_element_id: string;
 };
 
@@ -416,6 +417,7 @@ export type EarnedValueEntryPublic = {
     earned_value?: (string | null);
     deliverables?: (string | null);
     description?: (string | null);
+    registration_date?: string;
     earned_value_id: string;
     cost_element_id: string;
     created_by_id: string;
@@ -432,6 +434,7 @@ export type EarnedValueEntryUpdate = {
     earned_value?: (number | string | null);
     deliverables?: (string | null);
     description?: (string | null);
+    registration_date?: (string | null);
 };
 
 /**
@@ -454,6 +457,56 @@ export type EarnedValueWBEPublic = {
     control_date: string;
     earned_value?: string;
     percent_complete?: string;
+    budget_bac?: string;
+    wbe_id: string;
+};
+
+/**
+ * EVM performance indices response for projects.
+ */
+export type EVMIndicesProjectPublic = {
+    level: string;
+    control_date: string;
+    /**
+     * Cost Performance Index (CPI) = EV / AC. None when AC = 0.
+     */
+    cpi?: (string | null);
+    /**
+     * Schedule Performance Index (SPI) = EV / PV. None when PV = 0.
+     */
+    spi?: (string | null);
+    /**
+     * To-Complete Performance Index (TCPI) = (BAC - EV) / (BAC - AC). Returns 'overrun' when BAC ≤ AC.
+     */
+    tcpi?: (string | null);
+    planned_value?: string;
+    earned_value?: string;
+    actual_cost?: string;
+    budget_bac?: string;
+    project_id: string;
+};
+
+/**
+ * EVM performance indices response for WBEs.
+ */
+export type EVMIndicesWBEPublic = {
+    level: string;
+    control_date: string;
+    /**
+     * Cost Performance Index (CPI) = EV / AC. None when AC = 0.
+     */
+    cpi?: (string | null);
+    /**
+     * Schedule Performance Index (SPI) = EV / PV. None when PV = 0.
+     */
+    spi?: (string | null);
+    /**
+     * To-Complete Performance Index (TCPI) = (BAC - EV) / (BAC - AC). Returns 'overrun' when BAC ≤ AC.
+     */
+    tcpi?: (string | null);
+    planned_value?: string;
+    earned_value?: string;
+    actual_cost?: string;
     budget_bac?: string;
     wbe_id: string;
 };
@@ -1099,6 +1152,19 @@ export type EarnedValueEntriesDeleteEarnedValueEntryData = {
 };
 
 export type EarnedValueEntriesDeleteEarnedValueEntryResponse = (Message);
+
+export type EvmIndicesGetWbeEvmIndicesData = {
+    projectId: string;
+    wbeId: string;
+};
+
+export type EvmIndicesGetWbeEvmIndicesResponse = (EVMIndicesWBEPublic);
+
+export type EvmIndicesGetProjectEvmIndicesData = {
+    projectId: string;
+};
+
+export type EvmIndicesGetProjectEvmIndicesResponse = (EVMIndicesProjectPublic);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;

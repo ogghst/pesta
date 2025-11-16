@@ -115,6 +115,11 @@ from app.models.earned_value_entry import (
     EarnedValueEntryPublic,
     EarnedValueEntryUpdate,
 )
+from app.models.evm_indices import (
+    EVMIndicesBase,
+    EVMIndicesProjectPublic,
+    EVMIndicesWBEPublic,
+)
 from app.models.forecast import (
     Forecast,
     ForecastBase,
@@ -256,6 +261,10 @@ __all__ = [
     "EarnedValueCostElementPublic",
     "EarnedValueWBEPublic",
     "EarnedValueProjectPublic",
+    # EVM Indices models
+    "EVMIndicesBase",
+    "EVMIndicesWBEPublic",
+    "EVMIndicesProjectPublic",
     # Project models
     "Project",
     "ProjectBase",
