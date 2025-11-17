@@ -287,6 +287,67 @@ export type CostElementWithSchedulePublic = {
 };
 
 /**
+ * Cost Performance Report response containing all rows and project summary.
+ */
+export type CostPerformanceReportPublic = {
+    project_id: string;
+    project_name: string;
+    control_date: string;
+    rows?: Array<CostPerformanceReportRowPublic>;
+    /**
+     * Aggregated project totals (EVM metrics)
+     */
+    summary: EVMIndicesProjectPublic;
+};
+
+/**
+ * A single row in the cost performance report representing a cost element.
+ */
+export type CostPerformanceReportRowPublic = {
+    cost_element_id: string;
+    wbe_id: string;
+    /**
+     * WBE machine_type
+     */
+    wbe_name: string;
+    /**
+     * WBE serial_number
+     */
+    wbe_serial_number?: (string | null);
+    department_code: string;
+    department_name: string;
+    cost_element_type_id?: (string | null);
+    /**
+     * Cost element type name
+     */
+    cost_element_type_name?: (string | null);
+    planned_value?: string;
+    earned_value?: string;
+    actual_cost?: string;
+    budget_bac?: string;
+    /**
+     * Cost Performance Index (CPI) = EV / AC. None when AC = 0.
+     */
+    cpi?: (string | null);
+    /**
+     * Schedule Performance Index (SPI) = EV / PV. None when PV = 0.
+     */
+    spi?: (string | null);
+    /**
+     * To-Complete Performance Index (TCPI) = (BAC - EV) / (BAC - AC). Returns 'overrun' when BAC ≤ AC.
+     */
+    tcpi?: (string | null);
+    /**
+     * Cost Variance (CV) = EV - AC. Negative = over-budget, positive = under-budget, zero = on-budget.
+     */
+    cost_variance?: string;
+    /**
+     * Schedule Variance (SV) = EV - PV. Negative = behind-schedule, positive = ahead-of-schedule, zero = on-schedule.
+     */
+    schedule_variance?: string;
+};
+
+/**
  * Schema for creating a new cost registration.
  *
  * Note: created_by_id is set automatically by the API from current_user.
@@ -1336,6 +1397,12 @@ export type ProjectsCreateProjectFromTemplateData = {
 };
 
 export type ProjectsCreateProjectFromTemplateResponse = (ProjectPublic);
+
+export type ReportsGetProjectCostPerformanceReportEndpointData = {
+    projectId: string;
+};
+
+export type ReportsGetProjectCostPerformanceReportEndpointResponse = (CostPerformanceReportPublic);
 
 export type UsersReadUsersData = {
     limit?: number;

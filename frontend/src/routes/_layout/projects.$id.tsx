@@ -240,6 +240,7 @@ function ProjectDetail() {
   })
   const isWBERoute = location.includes("/wbes/")
   const isBudgetTimelineRoute = location.includes("/budget-timeline")
+  const isReportsRoute = location.includes("/reports/")
 
   const { tab } = Route.useSearch()
   const { controlDate } = useTimeMachine()
@@ -328,7 +329,7 @@ function ProjectDetail() {
   }
 
   // If we're on a WBE detail route or budget timeline route, render Outlet for child route
-  if (isWBERoute || isBudgetTimelineRoute) {
+  if (isWBERoute || isBudgetTimelineRoute || isReportsRoute) {
     return <Outlet />
   }
 
@@ -384,7 +385,25 @@ function ProjectDetail() {
         </Tabs.Content>
 
         <Tabs.Content value="metrics">
-          <MetricsSummary level="project" projectId={project.project_id} />
+          <Box mt={4}>
+            <Flex alignItems="center" justifyContent="space-between" mb={4}>
+              <Heading size="md">Project Metrics</Heading>
+              <Link
+                to="/projects/$id/reports/cost-performance"
+                params={{ id: project.project_id } as any}
+                search={{} as any}
+              >
+                <Text
+                  fontSize="sm"
+                  color="blue.500"
+                  _hover={{ textDecoration: "underline" }}
+                >
+                  View Cost Performance Report →
+                </Text>
+              </Link>
+            </Flex>
+            <MetricsSummary level="project" projectId={project.project_id} />
+          </Box>
         </Tabs.Content>
 
         <Tabs.Content value="timeline">

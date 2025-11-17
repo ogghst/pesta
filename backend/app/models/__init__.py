@@ -78,6 +78,10 @@ from app.models.cost_element_type import (
     CostElementTypesPublic,
     CostElementTypeUpdate,
 )
+from app.models.cost_performance_report import (
+    CostPerformanceReportPublic,
+    CostPerformanceReportRowPublic,
+)
 from app.models.cost_registration import (
     CostRegistration,
     CostRegistrationBase,
@@ -352,6 +356,9 @@ __all__ = [
     # Cost Timeline models
     "CostTimelinePointPublic",
     "CostTimelinePublic",
+    # Cost Performance Report models
+    "CostPerformanceReportPublic",
+    "CostPerformanceReportRowPublic",
     # Cost Element Schedule models
     "CostElementSchedule",
     "CostElementScheduleBase",
