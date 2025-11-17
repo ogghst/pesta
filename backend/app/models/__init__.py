@@ -78,6 +78,10 @@ from app.models.cost_element_type import (
     CostElementTypesPublic,
     CostElementTypeUpdate,
 )
+from app.models.cost_performance_report import (
+    CostPerformanceReportPublic,
+    CostPerformanceReportRowPublic,
+)
 from app.models.cost_registration import (
     CostRegistration,
     CostRegistrationBase,
@@ -178,6 +182,21 @@ from app.models.user import (
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
+)
+from app.models.variance_analysis_report import (
+    VarianceAnalysisReportPublic,
+    VarianceAnalysisReportRowPublic,
+    VarianceTrendPointPublic,
+    VarianceTrendPublic,
+)
+from app.models.variance_threshold_config import (
+    VarianceThresholdConfig,
+    VarianceThresholdConfigBase,
+    VarianceThresholdConfigCreate,
+    VarianceThresholdConfigPublic,
+    VarianceThresholdConfigsPublic,
+    VarianceThresholdConfigUpdate,
+    VarianceThresholdType,
 )
 from app.models.wbe import (
     WBE,
@@ -352,6 +371,22 @@ __all__ = [
     # Cost Timeline models
     "CostTimelinePointPublic",
     "CostTimelinePublic",
+    # Cost Performance Report models
+    "CostPerformanceReportPublic",
+    "CostPerformanceReportRowPublic",
+    # Variance Threshold Config models
+    "VarianceThresholdConfig",
+    "VarianceThresholdConfigBase",
+    "VarianceThresholdConfigCreate",
+    "VarianceThresholdConfigPublic",
+    "VarianceThresholdConfigsPublic",
+    "VarianceThresholdConfigUpdate",
+    "VarianceThresholdType",
+    # Variance Analysis Report models
+    "VarianceAnalysisReportPublic",
+    "VarianceAnalysisReportRowPublic",
+    "VarianceTrendPointPublic",
+    "VarianceTrendPublic",
     # Cost Element Schedule models
     "CostElementSchedule",
     "CostElementScheduleBase",
