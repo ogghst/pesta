@@ -1,8 +1,8 @@
 # Project Status: EVM Project Budget Management System
 
-**Last Updated:** 2025-11-16
-**Current Phase:** Sprint 3 In Progress
-**Overall Progress:** 43% Complete - Sprint 1 Complete, Sprint 2 Complete, Sprint 3 In Progress (2/7 tasks complete)
+**Last Updated:** 2025-11-19
+**Current Phase:** Sprint 5 In Progress
+**Overall Progress:** 44% Complete - Sprint 1 Complete, Sprint 2 Complete, Sprint 3 Complete, Sprint 4 Complete, Sprint 5 In Progress (3/5 tasks complete)
 
 ---
 
@@ -85,7 +85,7 @@
 | E4-006 | EVM Summary Displays | Show current performance indices and variances | ✅ Done | Complete! Extended EarnedValueSummary component with 5 new EVM metric cards (CPI, SPI, TCPI, CV, SV). Color-coded status indicators with thresholds. CPI/SPI as decimals, TCPI as decimal or 'overrun', CV/SV as currency. Responsive grid layout (8 cards: 1/2/4 columns). Edge cases handled (null values, 'overrun' string, zero values). Theme tests updated. All 14 implementation steps completed. Completion report: `docs/completions/e4-006-evm-summary-displays-completion.md`. |
 | E4-007 | Cost Performance Report | Generate report showing cumulative performance with all key metrics | ✅ Complete | Sprint 5 deliverable. Tabular format with all EVM metrics. Implemented with status indicators, summary row, filtering, navigation, route integration, and Playwright coverage. Completion report: `docs/completions/e4-007-cost-performance-report-completion.md`. |
 | E4-008 | Variance Analysis Report | Highlight areas where performance deviates from plan | ✅ Complete | Variance analysis with configurable thresholds, trend charts, and drill-down navigation. |
-| E4-009 | Project Performance Dashboard | Visual dashboard with EV curves, trend charts, variance indicators | ⏳ Todo | Sprint 5 deliverable. Visual representation of performance. |
+| E4-009 | Project Performance Dashboard | Visual dashboard with EV curves, trend charts, variance indicators | ✅ Done | Delivered a control-date-aware dashboard route combining PV/EV/AC overlay, KPI spark cards (CPI/SPI/TCPI/CV/SV), and a WBE focus heatmap with deep links to detail pages. Shares data contracts with the EVM aggregation service but introduces no duplicated chart logic—composes `BudgetTimeline`, `EarnedValueSummary`, and a new DrilldownDeck component with reusable status helpers. Enhanced 2025-11-19: Added Cost Element Type column to drilldown table and fixed timeline filtering to ensure all series (PV/EV/AC) are consistently filtered by WBE and cost element type selections. |
 | E4-010 | Report Export Functionality | Enable data export to CSV and Excel formats | ⏳ Todo | Sprint 5 deliverable. Supports additional analysis. |
 | E4-011 | Global Time Machine Control | Implement header date picker, user-level persistence, and backend filtering so every metric reflects the selected control date. | ✅ Done | Planned across Sprint 4 (backend storage, dependency, filtering) and Sprint 5 (UI control, React context, client query propagation). Detailed plan documented in `docs/plans/e4-011-time-machine-detailed_planning.md`. |
 | E4-012 | AI Assisted Project comments | Implement an AI generated project assessment, based on the project metrics. The configuration of the OpenAI base url and key shall be performed at user level in administration interface. | ⏳ Todo | Sprint 5 deliverable. AI-generated project assessment based on metrics. |
@@ -223,13 +223,13 @@ The MVP development is structured across six two-week sprints, each building on 
 
 - ✅ E4-007: Cost Performance Report
 - ✅ E4-008: Variance Analysis Report
-- E4-009: Project Performance Dashboard
+- ✅ E4-009: Project Performance Dashboard (with enhancements: cost element type filtering and drilldown column)
 - E4-010: Report Export Functionality (CSV, Excel)
 - E4-011: Report Filtering and Date Range Selection
 
 **Deliverables:** Detailed reports for analysis and visual dashboards for quick status assessment, making performance information easily accessible and understandable.
 
-**Status:** 🔄 In Progress (E4-007 & E4-008 complete)
+**Status:** 🔄 In Progress (E4-007, E4-008, E4-009 complete)
 
 ---
 
