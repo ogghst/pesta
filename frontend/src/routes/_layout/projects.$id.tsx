@@ -25,6 +25,7 @@ import { DataTable } from "@/components/DataTable/DataTable"
 import type { ColumnDefExtended } from "@/components/DataTable/types"
 import PendingItems from "@/components/Pending/PendingItems"
 import AddWBE from "@/components/Projects/AddWBE"
+import AIChat from "@/components/Projects/AIChat"
 import BaselineLogsTable from "@/components/Projects/BaselineLogsTable"
 import BudgetTimeline from "@/components/Projects/BudgetTimeline"
 import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
@@ -44,6 +45,7 @@ const projectDetailSearchSchema = z.object({
       "metrics",
       "timeline",
       "baselines",
+      "ai-assessment",
     ])
     .catch("wbes"),
 })
@@ -303,7 +305,13 @@ function ProjectDetail() {
     navigate({
       search: (prev) => ({
         ...prev,
-        tab: value as "info" | "wbes" | "metrics" | "timeline" | "baselines",
+        tab: value as
+          | "info"
+          | "wbes"
+          | "metrics"
+          | "timeline"
+          | "baselines"
+          | "ai-assessment",
       }),
     })
   }
@@ -364,6 +372,7 @@ function ProjectDetail() {
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
           <Tabs.Trigger value="timeline">Budget Timeline</Tabs.Trigger>
           <Tabs.Trigger value="baselines">Baselines</Tabs.Trigger>
+          <Tabs.Trigger value="ai-assessment">AI Assessment</Tabs.Trigger>
         </Tabs.List>
 
         <Tabs.Content value="info">
@@ -496,6 +505,12 @@ function ProjectDetail() {
         <Tabs.Content value="baselines">
           <Box mt={4}>
             <BaselineLogsTable projectId={project.project_id} />
+          </Box>
+        </Tabs.Content>
+
+        <Tabs.Content value="ai-assessment">
+          <Box mt={4} h="calc(100vh - 300px)">
+            <AIChat contextType="project" contextId={project.project_id} />
           </Box>
         </Tabs.Content>
       </Tabs.Root>
