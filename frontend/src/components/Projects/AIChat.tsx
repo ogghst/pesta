@@ -4,6 +4,7 @@ import Markdown from "react-markdown"
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket"
 import remarkGfm from "remark-gfm"
 import { OpenAPI } from "@/client"
+import { useColorModeValue } from "@/components/ui/color-mode"
 
 export type ContextType = "project" | "wbe" | "cost-element" | "baseline"
 
@@ -21,6 +22,11 @@ export default function AIChat({ contextType, contextId }: AIChatProps) {
   const [inputValue, setInputValue] = useState("")
   const [isAnalysisStarted, setIsAnalysisStarted] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Theme-aware colors
+  const userMessageBg = useColorModeValue("blue.50", "blue.950")
+  const assistantMessageBg = useColorModeValue("bg.subtle", "bg.subtle")
+  const mutedTextColor = useColorModeValue("fg.muted", "fg.muted")
 
   // Get JWT token from localStorage
   const token = useMemo(() => {
@@ -44,7 +50,6 @@ export default function AIChat({ contextType, contextId }: AIChatProps) {
     sendMessage: sendWebSocketMessage,
     lastMessage,
     readyState,
-    getWebSocket,
   } = useWebSocket(
     wsUrl || undefined,
     wsUrl
@@ -135,6 +140,13 @@ export default function AIChat({ contextType, contextId }: AIChatProps) {
     }
   }, [lastMessage])
 
+  // Reset conversation when context changes
+  useEffect(() => {
+    setMessages([])
+    setIsAnalysisStarted(false)
+    setInputValue("")
+  }, [])
+
   // Auto-scroll to latest message when messages change
   useEffect(() => {
     if (
@@ -143,13 +155,6 @@ export default function AIChat({ contextType, contextId }: AIChatProps) {
     ) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
-  }, [])
-
-  // Reset conversation when context changes
-  useEffect(() => {
-    setMessages([])
-    setIsAnalysisStarted(false)
-    setInputValue("")
   }, [])
 
   const handleStartAnalysis = () => {
@@ -226,7 +231,7 @@ export default function AIChat({ contextType, contextId }: AIChatProps) {
             }
             data-testid="connection-status-indicator"
           />
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color={mutedTextColor}>
             {connectionStatus === "connected"
               ? "Connected"
               : connectionStatus === "connecting"
@@ -254,13 +259,15 @@ export default function AIChat({ contextType, contextId }: AIChatProps) {
           overflowY="auto"
           p={4}
           borderWidth="1px"
+          borderColor="border"
+          bg="bg.surface"
           borderRadius="md"
           role="log"
           aria-label="Chat messages"
           data-testid="ai-chat-messages"
         >
           {messages.length === 0 && (
-            <Box textAlign="center" color="gray.500" py={8}>
+            <Box textAlign="center" color={mutedTextColor} py={8}>
               No messages yet. Start an analysis to begin.
             </Box>
           )}
@@ -269,17 +276,18 @@ export default function AIChat({ contextType, contextId }: AIChatProps) {
               key={idx}
               mb={2}
               p={2}
-              bg={msg.role === "user" ? "blue.50" : "gray.50"}
+              bg={msg.role === "user" ? userMessageBg : assistantMessageBg}
+              borderRadius="md"
             >
-              <Box fontWeight="bold" mb={1}>
+              <Box fontWeight="bold" mb={1} color="fg">
                 {msg.role === "user" ? "You" : "Assistant"}
               </Box>
               {msg.role === "assistant" ? (
-                <Box>
+                <Box color="fg">
                   <Markdown remarkPlugins={[remarkGfm]}>{msg.content}</Markdown>
                 </Box>
               ) : (
-                <Box>{msg.content}</Box>
+                <Box color="fg">{msg.content}</Box>
               )}
             </Box>
           ))}

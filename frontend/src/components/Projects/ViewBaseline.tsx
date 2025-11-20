@@ -9,6 +9,7 @@ import {
   DialogRoot,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import AIChat from "./AIChat"
 import BaselineCostElementsByWBETable from "./BaselineCostElementsByWBETable"
 import BaselineCostElementsTable from "./BaselineCostElementsTable"
 import BaselineEarnedValueEntriesTable from "./BaselineEarnedValueEntriesTable"
@@ -69,6 +70,7 @@ export default function ViewBaseline({
                 All Cost Elements
               </Tabs.Trigger>
               <Tabs.Trigger value="earned-value">Earned Value</Tabs.Trigger>
+              <Tabs.Trigger value="ai-assessment">AI Assessment</Tabs.Trigger>
             </Tabs.List>
 
             <Tabs.Content value="summary">
@@ -104,6 +106,12 @@ export default function ViewBaseline({
                   projectId={projectId}
                   baselineId={baselineId}
                 />
+              </Box>
+            </Tabs.Content>
+
+            <Tabs.Content value="ai-assessment">
+              <Box mt={4} h="calc(100vh - 400px)" minH="400px">
+                <AIChat contextType="baseline" contextId={baselineId} />
               </Box>
             </Tabs.Content>
           </Tabs.Root>
