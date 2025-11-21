@@ -243,6 +243,7 @@ function ProjectDetail() {
   const isWBERoute = location.includes("/wbes/")
   const isBudgetTimelineRoute = location.includes("/budget-timeline")
   const isReportsRoute = location.includes("/reports/")
+  const isBaselineRoute = location.includes("/baselines/")
 
   const { tab } = Route.useSearch()
   const { controlDate } = useTimeMachine()
@@ -336,8 +337,13 @@ function ProjectDetail() {
     )
   }
 
-  // If we're on a WBE detail route or budget timeline route, render Outlet for child route
-  if (isWBERoute || isBudgetTimelineRoute || isReportsRoute) {
+  // If we're on a WBE detail route, budget timeline route, reports route, or baseline route, render Outlet for child route
+  if (
+    isWBERoute ||
+    isBudgetTimelineRoute ||
+    isReportsRoute ||
+    isBaselineRoute
+  ) {
     return <Outlet />
   }
 

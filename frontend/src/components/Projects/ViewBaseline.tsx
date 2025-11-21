@@ -1,6 +1,12 @@
+/**
+ * @deprecated This component has been replaced by the route-based baseline detail page.
+ * Use navigation to `/projects/$id/baselines/$baselineId` instead.
+ * This component is kept for backward compatibility but should not be used in new code.
+ */
 import { Box, DialogTitle, Tabs } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import type { BaselineLogPublic } from "@/client"
+import { useColorModeValue } from "@/components/ui/color-mode"
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -28,6 +34,8 @@ export default function ViewBaseline({
 }: ViewBaselineProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("by-wbe")
+  // Theme-aware colors
+  const mutedText = useColorModeValue("fg.muted", "fg.muted")
 
   const baselineId = baseline.baseline_id
 
@@ -51,7 +59,7 @@ export default function ViewBaseline({
           <DialogTitle>View Baseline</DialogTitle>
           {baseline.description && (
             <Box mt={2}>
-              <Box as="span" fontSize="sm" color="gray.600">
+              <Box as="span" fontSize="sm" color={mutedText}>
                 {baseline.description}
               </Box>
             </Box>
