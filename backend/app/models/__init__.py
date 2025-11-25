@@ -42,6 +42,7 @@ from app.models.baseline_log import (
     BaselineSnapshotSummaryPublic,
     BaselineSummaryPublic,
 )
+from app.models.branch_version_mixin import BranchVersionMixin
 from app.models.budget_allocation import (
     BudgetAllocation,
     BudgetAllocationBase,
@@ -207,6 +208,7 @@ from app.models.variance_threshold_config import (
     VarianceThresholdConfigUpdate,
     VarianceThresholdType,
 )
+from app.models.version_status_mixin import VersionStatusMixin
 from app.models.wbe import (
     WBE,
     WBEBase,
@@ -430,4 +432,7 @@ __all__ = [
     "NewPassword",
     # SQLModel base
     "SQLModel",
+    # Mixins
+    "VersionStatusMixin",
+    "BranchVersionMixin",
 ]

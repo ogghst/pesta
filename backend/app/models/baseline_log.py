@@ -10,6 +10,7 @@ from sqlmodel import Field, Relationship, SQLModel
 # Import for forward references
 from app.models.project import Project
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class BaselineLogBase(SQLModel):
@@ -47,7 +48,7 @@ class BaselineLogUpdate(SQLModel):
     is_pmb: bool | None = None
 
 
-class BaselineLog(BaselineLogBase, table=True):
+class BaselineLog(BaselineLogBase, VersionStatusMixin, table=True):
     """Baseline Log database model."""
 
     baseline_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -71,6 +72,9 @@ class BaselineLogPublic(BaselineLogBase):
     project_id: uuid.UUID
     created_by_id: uuid.UUID
     created_at: datetime
+    entity_id: uuid.UUID
+    status: str
+    version: int
 
 
 class BaselineSummaryPublic(SQLModel):

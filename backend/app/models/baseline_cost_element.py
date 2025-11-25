@@ -9,6 +9,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.baseline_log import BaselineLog
 from app.models.cost_element import CostElement
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class BaselineCostElementBase(SQLModel):
@@ -70,7 +71,7 @@ class BaselineCostElementUpdate(SQLModel):
     )
 
 
-class BaselineCostElement(BaselineCostElementBase, table=True):
+class BaselineCostElement(BaselineCostElementBase, VersionStatusMixin, table=True):
     """Baseline Cost Element database model."""
 
     baseline_cost_element_id: uuid.UUID = Field(
@@ -100,6 +101,9 @@ class BaselineCostElementPublic(BaselineCostElementBase):
     baseline_id: uuid.UUID
     cost_element_id: uuid.UUID
     created_at: datetime
+    entity_id: uuid.UUID
+    status: str
+    version: int
 
 
 class BaselineCostElementWithCostElementPublic(BaselineCostElementPublic):

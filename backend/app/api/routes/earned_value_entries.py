@@ -20,6 +20,12 @@ from app.models import (
     EarnedValueEntryUpdate,
     Message,
 )
+from app.services.branch_filtering import apply_status_filters
+from app.services.entity_versioning import (
+    create_entity_with_version,
+    soft_delete_entity,
+    update_entity_with_version,
+)
 from app.services.time_machine import TimeMachineEventType, apply_time_machine_filters
 
 router = APIRouter(prefix="/earned-value-entries", tags=["earned-value-entries"])
@@ -77,6 +83,7 @@ def ensure_unique_completion_date(
     )
     if exclude_id:
         statement = statement.where(EarnedValueEntry.earned_value_id != exclude_id)
+    statement = apply_status_filters(statement, EarnedValueEntry)
 
     existing_entry = session.exec(statement).first()
     if existing_entry:
@@ -168,6 +175,9 @@ def read_earned_value_entries(
             EarnedValueEntry.cost_element_id == cost_element_id
         )
 
+    statement = apply_status_filters(statement, EarnedValueEntry)
+    count_statement = apply_status_filters(count_statement, EarnedValueEntry)
+
     statement = apply_time_machine_filters(
         statement, TimeMachineEventType.EARNED_VALUE, control_date
     )
@@ -194,7 +204,11 @@ def read_earned_value_entry(
     Retrieve a single earned value entry by ID.
     """
 
-    entry = session.get(EarnedValueEntry, earned_value_id)
+    statement = select(EarnedValueEntry).where(
+        EarnedValueEntry.earned_value_id == earned_value_id
+    )
+    statement = apply_status_filters(statement, EarnedValueEntry)
+    entry = session.exec(statement).first()
     if not entry:
         raise HTTPException(status_code=404, detail="Earned value entry not found")
     return entry
@@ -240,7 +254,12 @@ def create_earned_value_entry(
     ev_data["created_by_id"] = current_user.id
 
     earned_value_entry = EarnedValueEntry.model_validate(ev_data)
-    session.add(earned_value_entry)
+    earned_value_entry = create_entity_with_version(
+        session=session,
+        entity=earned_value_entry,
+        entity_type="earned_value_entry",
+        entity_id=earned_value_entry.earned_value_id,
+    )
     session.commit()
     session.refresh(earned_value_entry)
 
@@ -265,7 +284,11 @@ def update_earned_value_entry(
     Update an existing earned value entry.
     """
 
-    earned_value_entry = session.get(EarnedValueEntry, earned_value_id)
+    statement = select(EarnedValueEntry).where(
+        EarnedValueEntry.earned_value_id == earned_value_id
+    )
+    statement = apply_status_filters(statement, EarnedValueEntry)
+    earned_value_entry = session.exec(statement).first()
     if not earned_value_entry:
         raise HTTPException(status_code=404, detail="Earned value entry not found")
 
@@ -303,17 +326,22 @@ def update_earned_value_entry(
         session, earned_value_entry.cost_element_id
     )
 
-    earned_value_entry.sqlmodel_update(update_data)
-    earned_value_entry.completion_date = completion_date
-    earned_value_entry.percent_complete = percent_complete
-    earned_value_entry.registration_date = registration_date
-    earned_value_entry.earned_value = calculate_earned_value(
+    update_data["completion_date"] = completion_date
+    update_data["percent_complete"] = percent_complete
+    update_data["registration_date"] = registration_date
+    update_data["earned_value"] = calculate_earned_value(
         Decimal(str(cost_element.budget_bac or 0)),
         percent_complete,
     )
-    earned_value_entry.last_modified_at = datetime.now(timezone.utc)
+    update_data["last_modified_at"] = datetime.now(timezone.utc)
 
-    session.add(earned_value_entry)
+    earned_value_entry = update_entity_with_version(
+        session=session,
+        entity_class=EarnedValueEntry,
+        entity_id=earned_value_entry.earned_value_id,
+        update_data=update_data,
+        entity_type="earned_value_entry",
+    )
     session.commit()
     session.refresh(earned_value_entry)
 
@@ -336,11 +364,20 @@ def delete_earned_value_entry(
     Delete an earned value entry.
     """
 
-    earned_value_entry = session.get(EarnedValueEntry, earned_value_id)
+    statement = select(EarnedValueEntry).where(
+        EarnedValueEntry.earned_value_id == earned_value_id
+    )
+    statement = apply_status_filters(statement, EarnedValueEntry)
+    earned_value_entry = session.exec(statement).first()
     if not earned_value_entry:
         raise HTTPException(status_code=404, detail="Earned value entry not found")
 
-    session.delete(earned_value_entry)
+    soft_delete_entity(
+        session=session,
+        entity_class=EarnedValueEntry,
+        entity_id=earned_value_id,
+        entity_type="earned_value_entry",
+    )
     session.commit()
 
     return Message(message="Earned value entry deleted successfully")

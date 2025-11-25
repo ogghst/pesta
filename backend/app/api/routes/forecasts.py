@@ -19,6 +19,12 @@ from app.models import (
     ForecastUpdate,
     Message,
 )
+from app.services.branch_filtering import apply_status_filters
+from app.services.entity_versioning import (
+    create_entity_with_version,
+    soft_delete_entity,
+    update_entity_with_version,
+)
 
 router = APIRouter(prefix="/forecasts", tags=["forecasts"])
 
@@ -118,6 +124,7 @@ def validate_max_forecast_dates(
         .where(Forecast.cost_element_id == cost_element_id)
         .distinct()
     )
+    statement = apply_status_filters(statement, Forecast)
     existing_dates = session.exec(statement).all()
 
     # Check if new date already exists
@@ -149,7 +156,7 @@ def ensure_single_current_forecast(
     statement = select(Forecast).where(Forecast.cost_element_id == cost_element_id)
     if exclude_id:
         statement = statement.where(Forecast.forecast_id != exclude_id)
-
+    statement = apply_status_filters(statement, Forecast)
     forecasts = session.exec(statement).all()
 
     # Set all other forecasts to is_current=False
@@ -164,6 +171,7 @@ def get_previous_forecast_for_promotion(
 ) -> Forecast | None:
     """
     Get the previous forecast (by forecast_date DESC) for auto-promotion.
+    Returns the most recent forecast (excluding the deleted one).
     Returns None if no previous forecast exists.
 
     Args:
@@ -180,7 +188,7 @@ def get_previous_forecast_for_promotion(
         .where(Forecast.forecast_id != exclude_id)
         .order_by(Forecast.forecast_date.desc())  # type: ignore[attr-defined]
     )
-
+    statement = apply_status_filters(statement, Forecast)
     return session.exec(statement).first()
 
 
@@ -206,9 +214,10 @@ def read_forecasts(
     # Filter by control_date (forecast_date <= control_date)
     statement = statement.where(Forecast.forecast_date <= control_date)
 
-    # Order by forecast_date descending (newest first)
-    statement = statement.order_by(Forecast.forecast_date.desc())
-
+    # Filter active forecasts and order by forecast_date descending
+    statement = apply_status_filters(
+        statement.order_by(Forecast.forecast_date.desc()), Forecast
+    )
     forecasts = session.exec(statement).all()
 
     return [ForecastPublic.model_validate(forecast) for forecast in forecasts]
@@ -223,7 +232,9 @@ def read_forecast(
     """
     Retrieve a single forecast by ID.
     """
-    forecast = session.get(Forecast, forecast_id)
+    statement = select(Forecast).where(Forecast.forecast_id == forecast_id)
+    statement = apply_status_filters(statement, Forecast)
+    forecast = session.exec(statement).first()
     if not forecast:
         raise HTTPException(status_code=404, detail="Forecast not found")
     return forecast
@@ -262,10 +273,16 @@ def create_forecast(
             session, forecast_in.cost_element_id, exclude_id=None
         )
 
-    # Create forecast
+    # Create forecast with version tracking
     forecast_data = forecast_in.model_dump()
     forecast = Forecast.model_validate(forecast_data)
-    session.add(forecast)
+    forecast.last_modified_at = datetime.now(timezone.utc)
+    forecast = create_entity_with_version(
+        session=session,
+        entity=forecast,
+        entity_type="forecast",
+        entity_id=str(forecast.forecast_id),
+    )
     session.commit()
     session.refresh(forecast)
 
@@ -293,7 +310,9 @@ def update_forecast(
     Update an existing forecast.
     Only current forecast (is_current=True) can be updated.
     """
-    forecast = session.get(Forecast, forecast_id)
+    statement = select(Forecast).where(Forecast.forecast_id == forecast_id)
+    statement = apply_status_filters(statement, Forecast)
+    forecast = session.exec(statement).first()
     if not forecast:
         raise HTTPException(status_code=404, detail="Forecast not found")
 
@@ -330,10 +349,15 @@ def update_forecast(
             session, forecast.cost_element_id, exclude_id=forecast_id
         )
 
-    # Update forecast
-    forecast.sqlmodel_update(update_data)
-    forecast.last_modified_at = datetime.now(timezone.utc)
-    session.add(forecast)
+    # Update forecast with version tracking
+    update_data["last_modified_at"] = datetime.now(timezone.utc)
+    forecast = update_entity_with_version(
+        session=session,
+        entity_class=Forecast,
+        entity_id=forecast_id,
+        update_data=update_data,
+        entity_type="forecast",
+    )
     session.commit()
     session.refresh(forecast)
 
@@ -360,7 +384,9 @@ def delete_forecast(
     Delete a forecast.
     If the deleted forecast was current, automatically promotes the previous forecast.
     """
-    forecast = session.get(Forecast, forecast_id)
+    statement = select(Forecast).where(Forecast.forecast_id == forecast_id)
+    statement = apply_status_filters(statement, Forecast)
+    forecast = session.exec(statement).first()
     if not forecast:
         raise HTTPException(status_code=404, detail="Forecast not found")
 
@@ -368,8 +394,13 @@ def delete_forecast(
     was_current = forecast.is_current
     cost_element_id = forecast.cost_element_id
 
-    # Delete the forecast
-    session.delete(forecast)
+    # Soft delete the forecast (versioned)
+    soft_delete_entity(
+        session=session,
+        entity_class=Forecast,
+        entity_id=forecast_id,
+        entity_type="forecast",
+    )
     session.commit()
 
     # If deleted forecast was current, auto-promote previous forecast
@@ -379,6 +410,7 @@ def delete_forecast(
         )
         if previous_forecast:
             previous_forecast.is_current = True
+            previous_forecast.last_modified_at = datetime.now(timezone.utc)
             session.add(previous_forecast)
             session.commit()
 

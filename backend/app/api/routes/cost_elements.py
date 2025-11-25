@@ -23,6 +23,9 @@ from app.models import (
     CostElementUpdate,
     Message,
 )
+from app.services.branch_filtering import apply_branch_filters, get_branch_context
+from app.services.entity_versioning import create_entity_with_version
+from app.services.version_service import VersionService
 
 router = APIRouter(prefix="/cost-elements", tags=["cost-elements"])
 
@@ -60,7 +63,12 @@ def create_budget_allocation_for_cost_element(
         created_by_id=created_by_id,
     )
     budget_allocation = BudgetAllocation.model_validate(budget_allocation_in)
-    session.add(budget_allocation)
+    budget_allocation = create_entity_with_version(
+        session=session,
+        entity=budget_allocation,
+        entity_type="budget_allocation",
+        entity_id=budget_allocation.budget_allocation_id,
+    )
     return budget_allocation
 
 
@@ -86,7 +94,11 @@ def validate_revenue_plan_against_wbe_limit(
         raise HTTPException(status_code=400, detail="WBE not found")
 
     # Query all cost elements for this WBE (excluding the one being updated if specified)
+    # Note: This validation should consider only active cost elements in the same branch as the WBE
     statement = select(CostElement).where(CostElement.wbe_id == wbe_id)
+    statement = apply_branch_filters(
+        statement, CostElement, branch=get_branch_context()
+    )
     if exclude_cost_element_id:
         statement = statement.where(
             CostElement.cost_element_id != exclude_cost_element_id
@@ -119,11 +131,17 @@ def read_cost_elements(
     skip: int = 0,
     limit: int = 100,
     wbe_id: uuid.UUID | None = Query(default=None, description="Filter by WBE ID"),
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """
     Retrieve cost elements.
     """
     cutoff = _end_of_day(control_date)
+
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
 
     if wbe_id:
         # Filter by WBE
@@ -133,15 +151,21 @@ def read_cost_elements(
             .where(CostElement.wbe_id == wbe_id)
             .where(CostElement.created_at <= cutoff)
         )
+        count_statement = apply_branch_filters(
+            count_statement, CostElement, branch=branch_name
+        )
         count = session.exec(count_statement).one()
+
         statement = (
             select(CostElement)
             .where(CostElement.wbe_id == wbe_id)
             .where(CostElement.created_at <= cutoff)
-            .order_by(CostElement.created_at.asc(), CostElement.cost_element_id.asc())
-            .offset(skip)
-            .limit(limit)
         )
+        statement = apply_branch_filters(statement, CostElement, branch=branch_name)
+        statement = statement.order_by(
+            CostElement.created_at.asc(), CostElement.cost_element_id.asc()
+        )
+        statement = statement.offset(skip).limit(limit)
     else:
         # Get all
         count_statement = (
@@ -149,14 +173,17 @@ def read_cost_elements(
             .select_from(CostElement)
             .where(CostElement.created_at <= cutoff)
         )
-        count = session.exec(count_statement).one()
-        statement = (
-            select(CostElement)
-            .where(CostElement.created_at <= cutoff)
-            .order_by(CostElement.created_at.asc(), CostElement.cost_element_id.asc())
-            .offset(skip)
-            .limit(limit)
+        count_statement = apply_branch_filters(
+            count_statement, CostElement, branch=branch_name
         )
+        count = session.exec(count_statement).one()
+
+        statement = select(CostElement).where(CostElement.created_at <= cutoff)
+        statement = apply_branch_filters(statement, CostElement, branch=branch_name)
+        statement = statement.order_by(
+            CostElement.created_at.asc(), CostElement.cost_element_id.asc()
+        )
+        statement = statement.offset(skip).limit(limit)
 
     cost_elements = session.exec(statement).all()
     return CostElementsPublic(data=cost_elements, count=count)
@@ -168,11 +195,21 @@ def read_cost_element(
     _current_user: CurrentUser,
     control_date: Annotated[date, Depends(get_time_machine_control_date)],
     id: uuid.UUID,
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """
     Get cost element by ID.
     """
-    cost_element = session.get(CostElement, id)
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
+
+    # Query with branch and status filters
+    statement = select(CostElement).where(CostElement.cost_element_id == id)
+    statement = apply_branch_filters(statement, CostElement, branch=branch_name)
+    cost_element = session.exec(statement).first()
+
     if not cost_element or cost_element.created_at > _end_of_day(control_date):
         raise HTTPException(status_code=404, detail="Cost element not found")
     return cost_element
@@ -184,12 +221,20 @@ def create_cost_element(
     session: SessionDep,
     _current_user: CurrentUser,
     cost_element_in: CostElementCreate,
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """
     Create new cost element.
     """
-    # Validate that WBE exists
-    wbe = session.get(WBE, cost_element_in.wbe_id)
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
+
+    # Validate that WBE exists (in the same branch)
+    statement = select(WBE).where(WBE.wbe_id == cost_element_in.wbe_id)
+    statement = apply_branch_filters(statement, WBE, branch=branch_name)
+    wbe = session.exec(statement).first()
     if not wbe:
         raise HTTPException(status_code=400, detail="WBE not found")
 
@@ -207,7 +252,17 @@ def create_cost_element(
         new_revenue_plan=cost_element_in.revenue_plan,
     )
 
+    # Create cost element with version, status, and branch
     cost_element = CostElement.model_validate(cost_element_in)
+    next_version = VersionService.get_next_version(
+        session=session,
+        entity_type="costelement",
+        entity_id=cost_element.entity_id,
+        branch=branch_name,
+    )
+    cost_element.version = next_version
+    cost_element.status = "active"
+    cost_element.branch = branch_name
     session.add(cost_element)
     session.flush()  # Flush to get cost_element_id without committing
 
@@ -231,11 +286,21 @@ def update_cost_element(
     _current_user: CurrentUser,
     id: uuid.UUID,
     cost_element_in: CostElementUpdate,
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """
-    Update a cost element.
+    Update a cost element. Creates a new version in the specified branch.
     """
-    cost_element = session.get(CostElement, id)
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
+
+    # Get current active cost element in the specified branch
+    statement = select(CostElement).where(CostElement.cost_element_id == id)
+    statement = apply_branch_filters(statement, CostElement, branch=branch_name)
+    cost_element = session.exec(statement).first()
+
     if not cost_element:
         raise HTTPException(status_code=404, detail="Cost element not found")
 
@@ -259,38 +324,103 @@ def update_cost_element(
     old_budget_bac = cost_element.budget_bac
     old_revenue_plan = cost_element.revenue_plan
 
-    cost_element.sqlmodel_update(update_dict)
-    session.add(cost_element)
+    # Get next version number for this entity in this branch
+    next_version = VersionService.get_next_version(
+        session=session,
+        entity_type="costelement",
+        entity_id=cost_element.entity_id,
+        branch=branch_name,
+    )
+
+    # Create new version: copy existing cost element and update with new values
+    new_cost_element = CostElement(
+        entity_id=cost_element.entity_id,
+        wbe_id=cost_element.wbe_id,
+        cost_element_type_id=cost_element.cost_element_type_id,
+        department_code=update_dict.get(
+            "department_code", cost_element.department_code
+        ),
+        department_name=update_dict.get(
+            "department_name", cost_element.department_name
+        ),
+        budget_bac=update_dict.get("budget_bac", cost_element.budget_bac),
+        revenue_plan=update_dict.get("revenue_plan", cost_element.revenue_plan),
+        business_status=update_dict.get(
+            "business_status", cost_element.business_status
+        ),
+        notes=update_dict.get("notes", cost_element.notes),
+        version=next_version,
+        status="active",
+        branch=branch_name,
+    )
+
+    session.add(new_cost_element)
     session.flush()  # Flush to get updated values without committing
 
     # Create new BudgetAllocation if budget_bac or revenue_plan changed
     if budget_changed or revenue_changed:
         # Check if values actually changed (to handle cases where same value is set)
-        if (budget_changed and cost_element.budget_bac != old_budget_bac) or (
-            revenue_changed and cost_element.revenue_plan != old_revenue_plan
+        if (budget_changed and new_cost_element.budget_bac != old_budget_bac) or (
+            revenue_changed and new_cost_element.revenue_plan != old_revenue_plan
         ):
             create_budget_allocation_for_cost_element(
                 session=session,
-                cost_element=cost_element,
+                cost_element=new_cost_element,
                 allocation_type="update",
                 created_by_id=_current_user.id,
             )
 
     session.commit()
-    session.refresh(cost_element)
-    return cost_element
+    session.refresh(new_cost_element)
+    return new_cost_element
 
 
 @router.delete("/{id}")
 def delete_cost_element(
-    session: SessionDep, _current_user: CurrentUser, id: uuid.UUID
+    session: SessionDep,
+    _current_user: CurrentUser,
+    id: uuid.UUID,
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Message:
     """
-    Delete a cost element.
+    Delete a cost element (soft delete: sets status='deleted').
     """
-    cost_element = session.get(CostElement, id)
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
+
+    # Get current active cost element in the specified branch
+    statement = select(CostElement).where(CostElement.cost_element_id == id)
+    statement = apply_branch_filters(statement, CostElement, branch=branch_name)
+    cost_element = session.exec(statement).first()
+
     if not cost_element:
         raise HTTPException(status_code=404, detail="Cost element not found")
-    session.delete(cost_element)
+
+    # Soft delete: create new version with status='deleted'
+    next_version = VersionService.get_next_version(
+        session=session,
+        entity_type="costelement",
+        entity_id=cost_element.entity_id,
+        branch=branch_name,
+    )
+
+    deleted_cost_element = CostElement(
+        entity_id=cost_element.entity_id,
+        wbe_id=cost_element.wbe_id,
+        cost_element_type_id=cost_element.cost_element_type_id,
+        department_code=cost_element.department_code,
+        department_name=cost_element.department_name,
+        budget_bac=cost_element.budget_bac,
+        revenue_plan=cost_element.revenue_plan,
+        business_status=cost_element.business_status,
+        notes=cost_element.notes,
+        version=next_version,
+        status="deleted",
+        branch=branch_name,
+    )
+
+    session.add(deleted_cost_element)
     session.commit()
     return Message(message="Cost element deleted successfully")

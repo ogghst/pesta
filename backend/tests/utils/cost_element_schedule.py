@@ -47,6 +47,14 @@ def create_schedule_for_cost_element(
         created_by_id=created_by_id,
     )
     schedule = CostElementSchedule.model_validate(schedule_in)
+    # Ensure status, version, and entity_id are set (defaults from VersionStatusMixin should apply,
+    # but explicitly setting for test reliability)
+    if not hasattr(schedule, "status") or schedule.status is None:
+        schedule.status = "active"
+    if not hasattr(schedule, "version") or schedule.version is None:
+        schedule.version = 1
+    if not hasattr(schedule, "entity_id") or schedule.entity_id is None:
+        schedule.entity_id = uuid.uuid4()
     db.add(schedule)
     db.commit()
     db.refresh(schedule)

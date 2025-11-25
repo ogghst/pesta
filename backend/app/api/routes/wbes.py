@@ -21,6 +21,11 @@ from app.models import (
     WBEsPublic,
     WBEUpdate,
 )
+from app.services.branch_filtering import (
+    apply_branch_filters,
+    get_branch_context,
+)
+from app.services.version_service import VersionService
 
 router = APIRouter(prefix="/wbes", tags=["wbes"])
 
@@ -85,11 +90,17 @@ def read_wbes(
     project_id: uuid.UUID | None = Query(
         default=None, description="Filter by project ID"
     ),
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """
     Retrieve WBEs.
     """
     cutoff = _end_of_day(control_date)
+
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
 
     if project_id:
         # Filter by project
@@ -99,28 +110,29 @@ def read_wbes(
             .where(WBE.project_id == project_id)
             .where(WBE.created_at <= cutoff)
         )
+        count_statement = apply_branch_filters(count_statement, WBE, branch=branch_name)
         count = session.exec(count_statement).one()
+
         statement = (
             select(WBE)
             .where(WBE.project_id == project_id)
             .where(WBE.created_at <= cutoff)
-            .order_by(WBE.created_at.asc(), WBE.wbe_id.asc())  # type: ignore[attr-defined]
-            .offset(skip)
-            .limit(limit)
         )
+        statement = apply_branch_filters(statement, WBE, branch=branch_name)
+        statement = statement.order_by(WBE.created_at.asc(), WBE.wbe_id.asc())  # type: ignore[attr-defined]
+        statement = statement.offset(skip).limit(limit)
     else:
         # Get all
         count_statement = (
             select(func.count()).select_from(WBE).where(WBE.created_at <= cutoff)
         )
+        count_statement = apply_branch_filters(count_statement, WBE, branch=branch_name)
         count = session.exec(count_statement).one()
-        statement = (
-            select(WBE)
-            .where(WBE.created_at <= cutoff)
-            .order_by(WBE.created_at.asc(), WBE.wbe_id.asc())  # type: ignore[attr-defined]
-            .offset(skip)
-            .limit(limit)
-        )
+
+        statement = select(WBE).where(WBE.created_at <= cutoff)
+        statement = apply_branch_filters(statement, WBE, branch=branch_name)
+        statement = statement.order_by(WBE.created_at.asc(), WBE.wbe_id.asc())  # type: ignore[attr-defined]
+        statement = statement.offset(skip).limit(limit)
 
     wbes = session.exec(statement).all()
     return WBEsPublic(data=wbes, count=count)
@@ -132,11 +144,21 @@ def read_wbe(
     _current_user: CurrentUser,
     control_date: Annotated[date, Depends(get_time_machine_control_date)],
     id: uuid.UUID,
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """
     Get WBE by ID.
     """
-    wbe = session.get(WBE, id)
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
+
+    # Query with branch and status filters
+    statement = select(WBE).where(WBE.wbe_id == id)
+    statement = apply_branch_filters(statement, WBE, branch=branch_name)
+    wbe = session.exec(statement).first()
+
     if not wbe or wbe.created_at > _end_of_day(control_date):
         raise HTTPException(status_code=404, detail="WBE not found")
     return wbe
@@ -144,7 +166,13 @@ def read_wbe(
 
 @router.post("/", response_model=WBEPublic)
 def create_wbe(
-    *, session: SessionDep, _current_user: CurrentUser, wbe_in: WBECreate
+    *,
+    session: SessionDep,
+    _current_user: CurrentUser,
+    wbe_in: WBECreate,
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """
     Create new WBE.
@@ -155,13 +183,27 @@ def create_wbe(
         raise HTTPException(status_code=400, detail="Project not found")
 
     # Validate revenue_allocation does not exceed project contract_value
+    # Note: This validation should consider only active WBEs in the same branch
     validate_revenue_allocation_against_project_limit(
         session=session,
         project_id=wbe_in.project_id,
         new_revenue_allocation=wbe_in.revenue_allocation,
     )
 
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
+
+    # Create WBE with version, status, and branch
     wbe = WBE.model_validate(wbe_in)
+    next_version = VersionService.get_next_version(
+        session=session,
+        entity_type="wbe",
+        entity_id=wbe.entity_id,
+        branch=branch_name,
+    )
+    wbe.version = next_version
+    wbe.status = "active"
+    wbe.branch = branch_name
     session.add(wbe)
     session.commit()
     session.refresh(wbe)
@@ -175,11 +217,21 @@ def update_wbe(
     _current_user: CurrentUser,
     id: uuid.UUID,
     wbe_in: WBEUpdate,
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """
-    Update a WBE.
+    Update a WBE. Creates a new version in the specified branch.
     """
-    wbe = session.get(WBE, id)
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
+
+    # Get current active WBE in the specified branch
+    statement = select(WBE).where(WBE.wbe_id == id)
+    statement = apply_branch_filters(statement, WBE, branch=branch_name)
+    wbe = session.exec(statement).first()
+
     if not wbe:
         raise HTTPException(status_code=404, detail="WBE not found")
 
@@ -195,34 +247,98 @@ def update_wbe(
             exclude_wbe_id=wbe.wbe_id,
         )
 
-    wbe.sqlmodel_update(update_dict)
-    session.add(wbe)
+    # Get next version number for this entity in this branch
+    next_version = VersionService.get_next_version(
+        session=session,
+        entity_type="wbe",
+        entity_id=wbe.entity_id,
+        branch=branch_name,
+    )
+
+    # Create new version: copy existing WBE and update with new values
+    # Note: This preserves the old version (it remains in the database)
+    new_wbe = WBE(
+        entity_id=wbe.entity_id,
+        project_id=wbe.project_id,
+        machine_type=update_dict.get("machine_type", wbe.machine_type),
+        serial_number=update_dict.get("serial_number", wbe.serial_number),
+        contracted_delivery_date=update_dict.get(
+            "contracted_delivery_date", wbe.contracted_delivery_date
+        ),
+        revenue_allocation=update_dict.get(
+            "revenue_allocation", wbe.revenue_allocation
+        ),
+        business_status=update_dict.get("business_status", wbe.business_status),
+        notes=update_dict.get("notes", wbe.notes),
+        version=next_version,
+        status="active",
+        branch=branch_name,
+    )
+
+    session.add(new_wbe)
     session.commit()
-    session.refresh(wbe)
-    return wbe
+    session.refresh(new_wbe)
+    return new_wbe
 
 
 @router.delete("/{id}")
 def delete_wbe(
-    session: SessionDep, _current_user: CurrentUser, id: uuid.UUID
+    session: SessionDep,
+    _current_user: CurrentUser,
+    id: uuid.UUID,
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Message:
     """
-    Delete a WBE.
+    Delete a WBE (soft delete: sets status='deleted').
     """
-    wbe = session.get(WBE, id)
+    # Use provided branch or default to current context or 'main'
+    branch_name = branch or get_branch_context()
+
+    # Get current active WBE in the specified branch
+    statement = select(WBE).where(WBE.wbe_id == id)
+    statement = apply_branch_filters(statement, WBE, branch=branch_name)
+    wbe = session.exec(statement).first()
+
     if not wbe:
         raise HTTPException(status_code=404, detail="WBE not found")
 
-    # Check if WBE has cost elements
-    ce_count = session.exec(
+    # Check if WBE has cost elements (in the same branch)
+    ce_statement = (
         select(func.count()).select_from(CostElement).where(CostElement.wbe_id == id)
-    ).one()
+    )
+    ce_statement = apply_branch_filters(ce_statement, CostElement, branch=branch_name)
+    ce_count = session.exec(ce_statement).one()
+
     if ce_count > 0:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot delete WBE with {ce_count} existing cost element(s). Delete cost elements first.",
         )
 
-    session.delete(wbe)
+    # Soft delete: create new version with status='deleted'
+    next_version = VersionService.get_next_version(
+        session=session,
+        entity_type="wbe",
+        entity_id=wbe.entity_id,
+        branch=branch_name,
+    )
+
+    deleted_wbe = WBE(
+        entity_id=wbe.entity_id,
+        project_id=wbe.project_id,
+        machine_type=wbe.machine_type,
+        serial_number=wbe.serial_number,
+        contracted_delivery_date=wbe.contracted_delivery_date,
+        revenue_allocation=wbe.revenue_allocation,
+        business_status=wbe.business_status,
+        notes=wbe.notes,
+        version=next_version,
+        status="deleted",
+        branch=branch_name,
+    )
+
+    session.add(deleted_wbe)
     session.commit()
     return Message(message="WBE deleted successfully")

@@ -19,8 +19,8 @@ from app.models import (
 )
 
 
-def test_create_cost_element(db: Session) -> None:
-    """Test creating a cost element."""
+def test_cost_element_has_version_status_branch_fields(db: Session) -> None:
+    """Test that CostElement model has version, status (versioning), and branch fields from BranchVersionMixin."""
     # Create hierarchy: User -> Project -> WBE -> CostElementType -> CostElement
     email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
     password = "testpassword123"
@@ -34,7 +34,7 @@ def test_create_cost_element(db: Session) -> None:
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -45,7 +45,7 @@ def test_create_cost_element(db: Session) -> None:
         project_id=project.project_id,
         machine_type="Test Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -54,7 +54,7 @@ def test_create_cost_element(db: Session) -> None:
 
     # Create cost element type
     cet_in = CostElementTypeCreate(
-        type_code="test_eng",
+        type_code=f"test_eng_{uuid.uuid4().hex[:6]}",
         type_name="Test Engineering",
         category_type="engineering_mechanical",
         display_order=1,
@@ -73,7 +73,77 @@ def test_create_cost_element(db: Session) -> None:
         department_name="Engineering Department",
         budget_bac=10000.00,
         revenue_plan=12000.00,
-        status="active",
+        business_status="active",
+        notes="Primary cost element",
+    )
+
+    ce = CostElement.model_validate(ce_in)
+
+    # Check that version, status (versioning), and branch fields exist with defaults
+    assert hasattr(ce, "version")
+    assert ce.version == 1
+    assert hasattr(
+        ce, "status"
+    )  # Note: CostElement has both business status and versioning status
+    assert hasattr(ce, "branch")
+    assert ce.branch == "main"
+
+
+def test_create_cost_element(db: Session) -> None:
+    """Test creating a cost element."""
+    # Create hierarchy: User -> Project -> WBE -> CostElementType -> CostElement
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Cost Element Test Project",
+        customer_name="Test Customer",
+        contract_value=100000.00,
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=pm_user.id,
+        business_status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Test Machine",
+        revenue_allocation=50000.00,
+        business_status="designing",
+    )
+    wbe = WBE.model_validate(wbe_in)
+    db.add(wbe)
+    db.commit()
+    db.refresh(wbe)
+
+    # Create cost element type
+    cet_in = CostElementTypeCreate(
+        type_code=f"test_eng_{uuid.uuid4().hex[:6]}",
+        type_name="Test Engineering",
+        category_type="engineering_mechanical",
+        display_order=1,
+        is_active=True,
+    )
+    cet = CostElementType.model_validate(cet_in)
+    db.add(cet)
+    db.commit()
+    db.refresh(cet)
+
+    # Create cost element
+    ce_in = CostElementCreate(
+        wbe_id=wbe.wbe_id,
+        cost_element_type_id=cet.cost_element_type_id,
+        department_code="ENG",
+        department_name="Engineering Department",
+        budget_bac=10000.00,
+        revenue_plan=12000.00,
+        business_status="active",
         notes="Primary cost element",
     )
 
@@ -88,7 +158,7 @@ def test_create_cost_element(db: Session) -> None:
     assert ce.department_name == "Engineering Department"
     assert ce.budget_bac == 10000.00
     assert ce.revenue_plan == 12000.00
-    assert ce.status == "active"
+    assert ce.business_status == "active"
     assert ce.wbe_id == wbe.wbe_id
     assert ce.cost_element_type_id == cet.cost_element_type_id
     assert hasattr(ce, "wbe")  # Relationship should exist
@@ -110,7 +180,7 @@ def test_cost_element_hierarchy(db: Session) -> None:
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -121,7 +191,7 @@ def test_cost_element_hierarchy(db: Session) -> None:
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -129,7 +199,7 @@ def test_cost_element_hierarchy(db: Session) -> None:
     db.refresh(wbe)
 
     cet_in = CostElementTypeCreate(
-        type_code="test_dept",
+        type_code=f"test_dept_{uuid.uuid4().hex[:6]}",
         type_name="Test Department",
         category_type="other",
         display_order=1,
@@ -147,7 +217,7 @@ def test_cost_element_hierarchy(db: Session) -> None:
         department_name="Test Department",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -175,7 +245,7 @@ def test_cost_element_validation(db: Session) -> None:
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -186,7 +256,7 @@ def test_cost_element_validation(db: Session) -> None:
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -194,7 +264,7 @@ def test_cost_element_validation(db: Session) -> None:
     db.refresh(wbe)
 
     cet_in = CostElementTypeCreate(
-        type_code="test_val",
+        type_code=f"test_val_{uuid.uuid4().hex[:6]}",
         type_name="Test Validation",
         category_type="other",
         display_order=1,
@@ -213,7 +283,7 @@ def test_cost_element_validation(db: Session) -> None:
         department_name="Test Dept",
         budget_bac=0.00,  # Zero budget should be allowed
         revenue_plan=0.00,
-        status="planned",
+        business_status="planned",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -237,7 +307,7 @@ def test_cost_element_type_relationship(db: Session) -> None:
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -248,7 +318,7 @@ def test_cost_element_type_relationship(db: Session) -> None:
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -256,7 +326,7 @@ def test_cost_element_type_relationship(db: Session) -> None:
     db.refresh(wbe)
 
     cet_in = CostElementTypeCreate(
-        type_code="test_rel",
+        type_code=f"test_rel_{uuid.uuid4().hex[:6]}",
         type_name="Test Relationship",
         category_type="engineering_electrical",
         tracks_hours=True,
@@ -275,7 +345,7 @@ def test_cost_element_type_relationship(db: Session) -> None:
         department_name="Electrical",
         budget_bac=15000.00,
         revenue_plan=18000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -300,7 +370,7 @@ def test_cost_element_public_schema() -> None:
         department_name="Sales Department",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
 
     assert ce_public.cost_element_id == ce_id

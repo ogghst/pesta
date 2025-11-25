@@ -11,6 +11,7 @@ from app.models.project import Project
 
 # Import for forward references
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 from app.models.wbe import WBE
 
 
@@ -29,7 +30,9 @@ class ChangeOrderBase(SQLModel):
     revenue_impact: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
     )
-    status: str = Field(max_length=50)  # Will be validated as enum in application logic
+    workflow_status: str = Field(
+        max_length=50
+    )  # Will be validated as enum in application logic (renamed from 'status' to avoid conflict with versioning status)
 
 
 class ChangeOrderCreate(ChangeOrderBase):
@@ -54,10 +57,10 @@ class ChangeOrderUpdate(SQLModel):
     revenue_impact: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
     )
-    status: str | None = Field(default=None, max_length=50)
+    workflow_status: str | None = Field(default=None, max_length=50)
 
 
-class ChangeOrder(ChangeOrderBase, table=True):
+class ChangeOrder(ChangeOrderBase, VersionStatusMixin, table=True):
     """Change Order database model."""
 
     change_order_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -106,3 +109,6 @@ class ChangeOrderPublic(ChangeOrderBase):
     wbe_id: uuid.UUID | None = Field(default=None)
     created_by_id: uuid.UUID
     created_at: datetime
+    entity_id: uuid.UUID
+    status: str
+    version: int

@@ -4,16 +4,17 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
+from pydantic import ConfigDict
 from sqlalchemy import DECIMAL, Column, DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
+from app.models.branch_version_mixin import BranchVersionMixin
 from app.models.cost_element_type import CostElementType
-
-# Import for forward reference
 from app.models.wbe import WBE
 
 
 class CostElementBase(SQLModel):
+    model_config = ConfigDict(populate_by_name=True)
     """Base cost element schema with common fields."""
 
     department_code: str = Field(max_length=50)
@@ -24,9 +25,10 @@ class CostElementBase(SQLModel):
     revenue_plan: Decimal = Field(
         default=Decimal("0.00"), sa_column=Column(DECIMAL(15, 2), nullable=False)
     )
-    status: str = Field(
-        max_length=50, default="planned"
-    )  # Will be validated as enum in application logic
+    business_status: str = Field(
+        max_length=50,
+        default="planned",
+    )
     notes: str | None = Field(default=None)
 
 
@@ -48,11 +50,11 @@ class CostElementUpdate(SQLModel):
     revenue_plan: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
     )
-    status: str | None = Field(default=None, max_length=50)
+    business_status: str | None = Field(default=None, max_length=50)
     notes: str | None = None
 
 
-class CostElement(CostElementBase, table=True):
+class CostElement(CostElementBase, BranchVersionMixin, table=True):
     """Cost Element database model."""
 
     cost_element_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -78,6 +80,7 @@ class CostElement(CostElementBase, table=True):
 class CostElementPublic(CostElementBase):
     """Public cost element schema for API responses."""
 
+    entity_id: uuid.UUID
     cost_element_id: uuid.UUID
     wbe_id: uuid.UUID
     cost_element_type_id: uuid.UUID

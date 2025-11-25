@@ -9,6 +9,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 # Import User for forward reference
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class ProjectBase(SQLModel):
@@ -26,9 +27,9 @@ class ProjectBase(SQLModel):
     actual_completion_date: date | None = Field(
         default=None, sa_column=Column(Date, nullable=True)
     )
-    status: str = Field(
+    business_status: str = Field(
         max_length=50, default="active"
-    )  # Will be validated as enum in application logic
+    )  # Will be validated as enum in application logic (renamed from 'status' to avoid conflict with versioning status)
     notes: str | None = Field(default=None)
 
 
@@ -52,11 +53,11 @@ class ProjectUpdate(SQLModel):
     planned_completion_date: date | None = None
     actual_completion_date: date | None = None
     project_manager_id: uuid.UUID | None = None
-    status: str | None = Field(default=None, max_length=50)
+    business_status: str | None = Field(default=None, max_length=50)
     notes: str | None = None
 
 
-class Project(ProjectBase, table=True):
+class Project(ProjectBase, VersionStatusMixin, table=True):
     """Project database model."""
 
     project_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -76,8 +77,11 @@ class Project(ProjectBase, table=True):
 class ProjectPublic(ProjectBase):
     """Public project schema for API responses."""
 
+    entity_id: uuid.UUID
     project_id: uuid.UUID
     project_manager_id: uuid.UUID
+    status: str
+    version: int
 
 
 class ProjectsPublic(SQLModel):

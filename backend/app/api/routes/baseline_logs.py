@@ -32,6 +32,11 @@ from app.models import (
     Project,
     WBEWithBaselineCostElementsPublic,
 )
+from app.services.branch_filtering import apply_status_filters
+from app.services.entity_versioning import (
+    create_entity_with_version,
+    update_entity_with_version,
+)
 from app.services.planned_value import calculate_cost_element_planned_value
 from app.services.time_machine import (
     TimeMachineEventType,
@@ -49,6 +54,7 @@ def _select_schedule_for_baseline(
         .where(CostElementSchedule.cost_element_id == cost_element_id)
         .where(CostElementSchedule.baseline_id.is_(None))
     )
+    base_statement = apply_status_filters(base_statement, CostElementSchedule)
 
     prioritized = apply_time_machine_filters(
         base_statement, TimeMachineEventType.SCHEDULE, reference_date
@@ -97,9 +103,11 @@ def create_baseline_cost_elements_for_baseline_log(
     session.flush()  # Flush to ensure BaselineLog changes are saved
 
     # Get all cost elements for the project via WBEs
-    wbes = session.exec(
-        select(WBE).where(WBE.project_id == baseline_log.project_id)
-    ).all()
+    wbe_statement = select(WBE).where(WBE.project_id == baseline_log.project_id)
+    from app.services.branch_filtering import apply_branch_filters
+
+    wbe_statement = apply_branch_filters(wbe_statement, WBE, branch="main")
+    wbes = session.exec(wbe_statement).all()
 
     existing_baseline_schedules = session.exec(
         select(CostElementSchedule).where(
@@ -113,9 +121,13 @@ def create_baseline_cost_elements_for_baseline_log(
     cost_elements: list[CostElement] = []
     if wbes:
         wbe_ids = [wbe.wbe_id for wbe in wbes]
-        cost_elements = session.exec(
-            select(CostElement).where(CostElement.wbe_id.in_(wbe_ids))
-        ).all()
+        cost_element_statement = select(CostElement).where(
+            CostElement.wbe_id.in_(wbe_ids)
+        )
+        cost_element_statement = apply_branch_filters(
+            cost_element_statement, CostElement, branch="main"
+        )
+        cost_elements = session.exec(cost_element_statement).all()
 
     # For each cost element, create BaselineCostElement record
     for cost_element in cost_elements:
@@ -124,11 +136,11 @@ def create_baseline_cost_elements_for_baseline_log(
         revenue_plan = cost_element.revenue_plan
 
         # Aggregate actual_ac from CostRegistration records
-        cost_registrations = session.exec(
-            select(CostRegistration).where(
-                CostRegistration.cost_element_id == cost_element.cost_element_id
-            )
-        ).all()
+        cr_statement = select(CostRegistration).where(
+            CostRegistration.cost_element_id == cost_element.cost_element_id
+        )
+        cr_statement = apply_status_filters(cr_statement, CostRegistration)
+        cost_registrations = session.exec(cr_statement).all()
         actual_ac = (
             sum(cr.amount for cr in cost_registrations)
             if cost_registrations
@@ -136,20 +148,24 @@ def create_baseline_cost_elements_for_baseline_log(
         )
 
         # Get forecast_eac from Forecast (is_current=True) if exists
-        forecast = session.exec(
+        forecast_statement = (
             select(Forecast)
             .where(Forecast.cost_element_id == cost_element.cost_element_id)
             .where(Forecast.is_current.is_(True))
             .order_by(Forecast.forecast_date.desc())
-        ).first()
+        )
+        forecast_statement = apply_status_filters(forecast_statement, Forecast)
+        forecast = session.exec(forecast_statement).first()
         forecast_eac = forecast.estimate_at_completion if forecast else None
 
         # Get earned_ev from EarnedValueEntry (latest by completion_date) if exists
-        earned_value_entry = session.exec(
+        ev_statement = (
             select(EarnedValueEntry)
             .where(EarnedValueEntry.cost_element_id == cost_element.cost_element_id)
             .order_by(EarnedValueEntry.completion_date.desc())
-        ).first()
+        )
+        ev_statement = apply_status_filters(ev_statement, EarnedValueEntry)
+        earned_value_entry = session.exec(ev_statement).first()
         earned_ev = earned_value_entry.earned_value if earned_value_entry else None
         percent_complete = (
             earned_value_entry.percent_complete if earned_value_entry else None
@@ -176,7 +192,14 @@ def create_baseline_cost_elements_for_baseline_log(
                 description=schedule.description,
                 notes=schedule.notes,
                 created_by_id=schedule.created_by_id,
+                status="active",  # Explicitly set status for baseline snapshots
+                version=1,  # Baseline snapshots start at version 1
             )
+            # Baseline schedules are snapshots, so we create them directly without versioning
+            # but we still need to set entity_id for consistency
+            import uuid
+
+            baseline_schedule.entity_id = uuid.uuid4()
             session.add(baseline_schedule)
 
         # Create BaselineCostElement record
@@ -194,7 +217,12 @@ def create_baseline_cost_elements_for_baseline_log(
         baseline_cost_element = BaselineCostElement.model_validate(
             baseline_cost_element_in
         )
-        session.add(baseline_cost_element)
+        baseline_cost_element = create_entity_with_version(
+            session=session,
+            entity=baseline_cost_element,
+            entity_type="baseline_cost_element",
+            entity_id=baseline_cost_element.baseline_cost_element_id,
+        )
 
     session.commit()
 
@@ -225,6 +253,9 @@ def list_baseline_logs(
 
     # Build query
     statement = select(BaselineLog).where(BaselineLog.project_id == project_id)
+
+    # Apply status filter
+    statement = apply_status_filters(statement, BaselineLog)
 
     # Apply cancelled filter if requested
     if exclude_cancelled:
@@ -262,7 +293,9 @@ def read_baseline_log(
         raise HTTPException(status_code=404, detail="Project not found")
 
     # Get baseline and verify it belongs to the project
-    baseline = session.get(BaselineLog, baseline_id)
+    statement = select(BaselineLog).where(BaselineLog.baseline_id == baseline_id)
+    statement = apply_status_filters(statement, BaselineLog)
+    baseline = session.exec(statement).first()
     if not baseline:
         raise HTTPException(status_code=404, detail="Baseline log not found")
 
@@ -351,7 +384,12 @@ def create_baseline_log(
     baseline_data["project_id"] = project_id
     baseline_data["created_by_id"] = current_user.id
     baseline = BaselineLog.model_validate(baseline_data)
-    session.add(baseline)
+    baseline = create_entity_with_version(
+        session=session,
+        entity=baseline,
+        entity_type="baseline_log",
+        entity_id=baseline.baseline_id,
+    )
     session.flush()  # Flush to get baseline_id before snapshotting
 
     # Automatically create baseline cost elements (NO BaselineSnapshot)
@@ -396,7 +434,9 @@ def update_baseline_log(
         raise HTTPException(status_code=404, detail="Project not found")
 
     # Get baseline and verify it belongs to the project
-    baseline = session.get(BaselineLog, baseline_id)
+    statement = select(BaselineLog).where(BaselineLog.baseline_id == baseline_id)
+    statement = apply_status_filters(statement, BaselineLog)
+    baseline = session.exec(statement).first()
     if not baseline:
         raise HTTPException(status_code=404, detail="Baseline log not found")
 
@@ -415,8 +455,13 @@ def update_baseline_log(
         validate_milestone_type(update_dict["milestone_type"])
 
     # Update baseline
-    baseline.sqlmodel_update(update_dict)
-    session.add(baseline)
+    baseline = update_entity_with_version(
+        session=session,
+        entity_class=BaselineLog,
+        entity_id=baseline.baseline_id,
+        update_data=update_dict,
+        entity_type="baseline_log",
+    )
     session.commit()
     session.refresh(baseline)
     return baseline
@@ -508,11 +553,11 @@ def get_baseline_snapshot_summary(
         raise HTTPException(status_code=404, detail="Baseline log not found")
 
     # Get all BaselineCostElement records for this baseline
-    baseline_cost_elements = session.exec(
-        select(BaselineCostElement).where(
-            BaselineCostElement.baseline_id == baseline_id
-        )
-    ).all()
+    bce_statement = select(BaselineCostElement).where(
+        BaselineCostElement.baseline_id == baseline_id
+    )
+    bce_statement = apply_status_filters(bce_statement, BaselineCostElement)
+    baseline_cost_elements = session.exec(bce_statement).all()
 
     # Aggregate values
     total_budget_bac = sum(bce.budget_bac for bce in baseline_cost_elements) or Decimal(
@@ -618,7 +663,7 @@ def get_baseline_cost_elements_by_wbe(
     wbes_with_cost_elements = []
     for wbe in wbes:
         # Get all BaselineCostElement records for this baseline + WBE (via CostElement join)
-        baseline_cost_elements = session.exec(
+        bce_query = (
             select(BaselineCostElement, CostElement)
             .join(
                 CostElement,
@@ -628,7 +673,10 @@ def get_baseline_cost_elements_by_wbe(
                 BaselineCostElement.baseline_id == baseline_id,
                 CostElement.wbe_id == wbe.wbe_id,
             )
-        ).all()
+        )
+        # Note: apply_status_filters works on the first model in the select
+        bce_query = apply_status_filters(bce_query, BaselineCostElement)
+        baseline_cost_elements = session.exec(bce_query).all()
 
         # Build list of cost elements with CostElement and WBE fields
         cost_elements_list = []
@@ -795,6 +843,7 @@ def get_baseline_cost_elements(
         .select_from(BaselineCostElement)
         .where(BaselineCostElement.baseline_id == baseline_id)
     )
+    count_statement = apply_status_filters(count_statement, BaselineCostElement)
     count = session.exec(count_statement).one()
 
     baseline_schedule_map = {
@@ -818,6 +867,8 @@ def get_baseline_cost_elements(
         .offset(skip)
         .limit(limit)
     )
+    # Note: apply_status_filters works on the first model in the select
+    statement = apply_status_filters(statement, BaselineCostElement)
     results = session.exec(statement).all()
 
     # Build response list with all required fields

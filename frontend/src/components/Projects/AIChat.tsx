@@ -367,7 +367,10 @@ export default function AIChat({ contextType, contextId }: AIChatProps) {
 
     // Convert HTTP URL to WS/WSS
     const apiBase =
-      OpenAPI.BASE || import.meta.env.VITE_API_URL || "http://localhost:8000"
+      OpenAPI.BASE ||
+      window.env?.VITE_API_URL ||
+      import.meta.env.VITE_API_URL ||
+      "http://localhost:8000"
     const wsBase = apiBase.replace(/^http/, "ws")
     const wsPath = `/api/v1/ai-chat/${contextType}/${contextId}/ws`
     return `${wsBase}${wsPath}?token=${encodeURIComponent(token)}`

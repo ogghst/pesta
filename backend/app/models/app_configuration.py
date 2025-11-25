@@ -6,6 +6,8 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, Index, UniqueConstraint
 from sqlmodel import Field, SQLModel
 
+from app.models.version_status_mixin import VersionStatusMixin
+
 
 # Shared properties
 class AppConfigurationBase(SQLModel):
@@ -47,7 +49,7 @@ class AppConfigurationUpdate(SQLModel):
     is_active: bool | None = None
 
 
-class AppConfiguration(AppConfigurationBase, table=True):
+class AppConfiguration(AppConfigurationBase, VersionStatusMixin, table=True):
     """App configuration database model."""
 
     __tablename__ = "app_configuration"
@@ -72,9 +74,12 @@ class AppConfiguration(AppConfigurationBase, table=True):
 class AppConfigurationPublic(AppConfigurationBase):
     """Public app configuration schema for API responses."""
 
+    entity_id: uuid.UUID
     config_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    status: str
+    version: int
 
 
 class AppConfigurationsPublic(SQLModel):

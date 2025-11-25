@@ -12,6 +12,7 @@ from app.models.project import Project
 
 # Import for forward references
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 from app.models.wbe import WBE
 
 
@@ -33,9 +34,9 @@ class QualityEventBase(SQLModel):
     )
     corrective_actions: str | None = Field(default=None)
     preventive_measures: str | None = Field(default=None)
-    status: str = Field(
+    quality_status: str = Field(
         max_length=100
-    )  # Will be validated as enum in application logic
+    )  # Will be validated as enum in application logic (renamed from 'status' to avoid conflict with versioning status)
     resolved_date: date | None = Field(
         default=None, sa_column=Column(Date, nullable=True)
     )
@@ -64,11 +65,11 @@ class QualityEventUpdate(SQLModel):
     )
     corrective_actions: str | None = None
     preventive_measures: str | None = None
-    status: str | None = Field(default=None, max_length=100)
+    quality_status: str | None = Field(default=None, max_length=100)
     resolved_date: date | None = None
 
 
-class QualityEvent(QualityEventBase, table=True):
+class QualityEvent(QualityEventBase, VersionStatusMixin, table=True):
     """Quality Event database model."""
 
     quality_event_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -102,3 +103,6 @@ class QualityEventPublic(QualityEventBase):
     cost_element_id: uuid.UUID | None = Field(default=None)
     created_by_id: uuid.UUID
     created_at: datetime
+    entity_id: uuid.UUID
+    status: str
+    version: int

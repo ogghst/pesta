@@ -11,6 +11,7 @@ from app.models.cost_element import CostElement
 
 # Import for forward references
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class CostElementScheduleBase(SQLModel):
@@ -46,7 +47,7 @@ class CostElementScheduleUpdate(SQLModel):
     notes: str | None = None
 
 
-class CostElementSchedule(CostElementScheduleBase, table=True):
+class CostElementSchedule(CostElementScheduleBase, VersionStatusMixin, table=True):
     """Cost Element Schedule database model."""
 
     schedule_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -82,3 +83,6 @@ class CostElementSchedulePublic(CostElementScheduleBase):
     created_by_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    entity_id: uuid.UUID
+    status: str
+    version: int

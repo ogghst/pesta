@@ -17,6 +17,12 @@ from app.models import (
     ProjectUpdate,
     WBECreate,
 )
+from app.services.branch_filtering import apply_status_filters
+from app.services.entity_versioning import (
+    create_entity_with_version,
+    soft_delete_entity,
+    update_entity_with_version,
+)
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -41,11 +47,15 @@ def read_projects(
     session: SessionDep, _current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     """
-    Retrieve projects.
+    Retrieve projects (active only).
     """
     count_statement = select(func.count()).select_from(Project)
+    count_statement = apply_status_filters(count_statement, Project, status="active")
     count = session.exec(count_statement).one()
-    statement = select(Project).offset(skip).limit(limit)
+
+    statement = select(Project)
+    statement = apply_status_filters(statement, Project, status="active")
+    statement = statement.offset(skip).limit(limit)
     projects = session.exec(statement).all()
 
     return ProjectsPublic(data=projects, count=count)
@@ -54,9 +64,11 @@ def read_projects(
 @router.get("/{id}", response_model=ProjectPublic)
 def read_project(session: SessionDep, _current_user: CurrentUser, id: uuid.UUID) -> Any:
     """
-    Get project by ID.
+    Get project by ID (active only).
     """
-    project = session.get(Project, id)
+    statement = select(Project).where(Project.project_id == id)
+    statement = apply_status_filters(statement, Project, status="active")
+    project = session.exec(statement).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
@@ -70,7 +82,13 @@ def create_project(
     Create new project.
     """
     project = Project.model_validate(project_in)
-    session.add(project)
+    # Set version=1 and status='active'
+    project = create_entity_with_version(
+        session=session,
+        entity=project,
+        entity_type="project",
+        entity_id=str(project.project_id),
+    )
     session.commit()
     session.refresh(project)
     return project
@@ -85,14 +103,19 @@ def update_project(
     project_in: ProjectUpdate,
 ) -> Any:
     """
-    Update a project.
+    Update a project. Creates a new version.
     """
-    project = session.get(Project, id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
     update_dict = project_in.model_dump(exclude_unset=True)
-    project.sqlmodel_update(update_dict)
-    session.add(project)
+    try:
+        project = update_entity_with_version(
+            session=session,
+            entity_class=Project,
+            entity_id=id,
+            update_data=update_dict,
+            entity_type="project",
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Project not found") from exc
     session.commit()
     session.refresh(project)
     return project
@@ -103,23 +126,30 @@ def delete_project(
     session: SessionDep, _current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
     """
-    Delete a project.
+    Delete a project (soft delete: sets status='deleted').
     """
-    project = session.get(Project, id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    # Check if project has active WBEs
+    wbe_statement = select(func.count()).select_from(WBE).where(WBE.project_id == id)
+    from app.services.branch_filtering import apply_branch_filters
 
-    # Check if project has WBEs
-    wbes_count = session.exec(
-        select(func.count()).select_from(WBE).where(WBE.project_id == id)
-    ).one()
+    wbe_statement = apply_branch_filters(wbe_statement, WBE, branch="main")
+    wbes_count = session.exec(wbe_statement).one()
     if wbes_count > 0:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot delete project with {wbes_count} existing WBE(s). Delete WBEs first.",
         )
 
-    session.delete(project)
+    # Soft delete: create new version with status='deleted'
+    try:
+        soft_delete_entity(
+            session=session,
+            entity_class=Project,
+            entity_id=id,
+            entity_type="project",
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Project not found") from exc
     session.commit()
     return Message(message="Project deleted successfully")
 

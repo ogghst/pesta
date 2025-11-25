@@ -13,7 +13,6 @@ from app.api.deps import (
     get_time_machine_control_date,
 )
 from app.core.config import settings
-from app.core.encryption import encrypt_api_key
 from app.core.security import get_password_hash, verify_password
 from app.models import (
     Message,
@@ -29,6 +28,7 @@ from app.models import (
     UserUpdate,
     UserUpdateMe,
 )
+from app.services.entity_versioning import soft_delete_entity
 from app.utils import generate_new_account_email, send_email
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -44,10 +44,12 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     Retrieve users.
     """
 
-    count_statement = select(func.count()).select_from(User)
+    count_statement = (
+        select(func.count()).select_from(User).where(User.status == "active")
+    )
     count = session.exec(count_statement).one()
 
-    statement = select(User).offset(skip).limit(limit)
+    statement = select(User).where(User.status == "active").offset(skip).limit(limit)
     users = session.exec(statement).all()
 
     # Convert User objects to UserPublic, excluding openai_api_key_encrypted
@@ -104,29 +106,13 @@ def update_user_me(
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
             )
-    user_data = user_in.model_dump(exclude_unset=True)
-
-    # Handle OpenAI API key encryption
-    plain_key = user_data.pop("openai_api_key", None)
-    if plain_key is not None:  # Explicitly check if key was provided
-        if plain_key:
-            # Encrypt API key before storage
-            user_data["openai_api_key_encrypted"] = encrypt_api_key(plain_key)
-        else:
-            # Empty string means clear the API key
-            user_data["openai_api_key_encrypted"] = None
-
-    # Update user with all fields (explicitly set each field)
-    for key, value in user_data.items():
-        if hasattr(current_user, key):
-            setattr(current_user, key, value)
-    session.add(current_user)
-    session.commit()
-    session.refresh(current_user)
+    updated_user = crud.update_user(
+        session=session, db_user=current_user, user_in=user_in
+    )
 
     # Return user (FastAPI will serialize according to response_model=UserPublic)
     # Exclude encrypted API key from response
-    user_dict = current_user.model_dump()
+    user_dict = updated_user.model_dump()
     user_dict.pop("openai_api_key_encrypted", None)
     return UserPublic.model_validate(user_dict)
 
@@ -207,7 +193,12 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
         raise HTTPException(
             status_code=403, detail="Admin users are not allowed to delete themselves"
         )
-    session.delete(current_user)
+    soft_delete_entity(
+        session=session,
+        entity_class=User,
+        entity_id=current_user.id,
+        entity_type="user",
+    )
     session.commit()
     return Message(message="User deleted successfully")
 
@@ -238,17 +229,19 @@ def read_user_by_id(
     """
     Get a specific user by id.
     """
+    if current_user.role != UserRole.admin and user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="The user doesn't have enough privileges",
+        )
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(
             status_code=404,
             detail="The user with this id does not exist in the system",
         )
-    if user != current_user and current_user.role != UserRole.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="The user doesn't have enough privileges",
-        )
+    if user.status != "active":
+        raise HTTPException(status_code=404, detail="User not found")
     # Exclude encrypted API key from response
     user_dict = user.model_dump()
     user_dict.pop("openai_api_key_encrypted", None)
@@ -277,6 +270,8 @@ def update_user(
             status_code=404,
             detail="The user with this id does not exist in the system",
         )
+    if db_user.status != "active":
+        raise HTTPException(status_code=404, detail="User not found")
     if user_in.email:
         existing_user = crud.get_user_by_email(session=session, email=user_in.email)
         if existing_user and existing_user.id != user_id:
@@ -308,6 +303,11 @@ def delete_user(
         raise HTTPException(
             status_code=403, detail="Admin users are not allowed to delete themselves"
         )
-    session.delete(user)
+    soft_delete_entity(
+        session=session,
+        entity_class=User,
+        entity_id=user.id,
+        entity_type="user",
+    )
     session.commit()
     return Message(message="User deleted successfully")

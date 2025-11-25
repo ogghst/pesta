@@ -13,7 +13,7 @@ from app.models import (
 
 
 def test_create_variance_threshold_config(
-    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     """Test creating a variance threshold configuration (admin only)."""
     # Use is_active=False to avoid conflict with seeded active config
@@ -37,10 +37,13 @@ def test_create_variance_threshold_config(
     assert data["description"] == "Critical cost variance threshold"
     assert data["is_active"] is False  # Matches what we sent
     assert "variance_threshold_config_id" in data
+    assert "entity_id" in data
+    assert data["status"] == "active"
+    assert data["version"] == 1
 
 
 def test_create_variance_threshold_config_non_admin_forbidden(
-    client: TestClient, normal_user_token_headers: dict[str, str], _db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     """Test that non-admin users cannot create variance threshold configurations."""
     config_in = {
@@ -59,7 +62,7 @@ def test_create_variance_threshold_config_non_admin_forbidden(
 
 
 def test_list_variance_threshold_configs(
-    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     """Test listing all variance threshold configurations (admin only)."""
     # Note: Configs may already exist from seed data, so we just verify the list endpoint works
@@ -77,6 +80,9 @@ def test_list_variance_threshold_configs(
     # Verify we can find seeded configurations (they should exist from init_db)
     types = [c["threshold_type"] for c in data["data"]]
     assert "critical_cv" in types or "warning_cv" in types
+    for item in data["data"]:
+        assert "entity_id" in item
+        assert item["status"] == "active"
 
 
 def test_get_variance_threshold_config(
@@ -159,6 +165,8 @@ def test_update_variance_threshold_config(
     assert data["threshold_percentage"] == "-7.00"
     assert data["description"] == "Updated warning schedule variance threshold"
     assert data["threshold_type"] == "warning_sv"  # Unchanged
+    assert "entity_id" in data
+    assert data["status"] == "active"
 
 
 def test_delete_variance_threshold_config(
@@ -188,11 +196,46 @@ def test_delete_variance_threshold_config(
     # Verify it's deleted - need to refresh session to see the deletion
     db.expire_all()  # Expire all objects to force refresh from DB
     deleted_config = db.get(VarianceThresholdConfig, config_id)
-    assert deleted_config is None
+    assert deleted_config is not None
+    db.refresh(deleted_config)
+    assert deleted_config.status == "deleted"
+    assert deleted_config.version == 2
+
+
+def test_deleted_variance_threshold_config_not_listed(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Deleted configs should be excluded from list results."""
+    config_in = VarianceThresholdConfigCreate(
+        threshold_type=VarianceThresholdType.critical_sv,
+        threshold_percentage=Decimal("-12.00"),
+        is_active=False,
+    )
+    config = VarianceThresholdConfig.model_validate(config_in)
+    db.add(config)
+    db.commit()
+    db.refresh(config)
+
+    response = client.delete(
+        f"/api/v1/variance-threshold-configs/{config.variance_threshold_config_id}",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+
+    list_response = client.get(
+        "/api/v1/variance-threshold-configs",
+        headers=superuser_token_headers,
+    )
+    assert list_response.status_code == 200
+    data = list_response.json()
+    assert all(
+        item["variance_threshold_config_id"] != str(config.variance_threshold_config_id)
+        for item in data["data"]
+    )
 
 
 def test_create_variance_threshold_config_validation_positive_percentage(
-    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     """Test that positive percentage is rejected."""
     config_in = {
@@ -211,7 +254,7 @@ def test_create_variance_threshold_config_validation_positive_percentage(
 
 
 def test_create_variance_threshold_config_validation_below_minus_100(
-    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     """Test that percentage below -100 is rejected."""
     config_in = {

@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
 from app.core.config import settings
-from app.models import BudgetAllocation
+from app.models import BudgetAllocation, CostElement
 from tests.utils.cost_element import create_random_cost_element
 from tests.utils.cost_element_type import create_random_cost_element_type
 from tests.utils.user import set_time_machine_date
@@ -47,7 +47,7 @@ def test_create_cost_element(
         "department_name": "Engineering Department",
         "budget_bac": 10000.00,
         "revenue_plan": 12000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -76,7 +76,7 @@ def test_create_cost_element_invalid_wbe(
         "department_name": "Engineering",
         "budget_bac": 10000.00,
         "revenue_plan": 12000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -101,7 +101,7 @@ def test_create_cost_element_invalid_type(
         "department_name": "Engineering",
         "budget_bac": 10000.00,
         "revenue_plan": 12000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -231,7 +231,10 @@ def test_update_cost_element(
 ) -> None:
     """Test updating a cost element."""
     cost_element = create_random_cost_element(db)
-    data = {"department_name": "Updated Department Name", "status": "completed"}
+    data = {
+        "department_name": "Updated Department Name",
+        "business_status": "completed",
+    }
     response = client.put(
         f"{settings.API_V1_STR}/cost-elements/{cost_element.cost_element_id}",
         headers=superuser_token_headers,
@@ -240,8 +243,8 @@ def test_update_cost_element(
     assert response.status_code == 200
     content = response.json()
     assert content["department_name"] == data["department_name"]
-    assert content["status"] == data["status"]
-    assert content["cost_element_id"] == str(cost_element.cost_element_id)
+    assert content["business_status"] == data["business_status"]
+    assert content["entity_id"] == str(cost_element.entity_id)
 
 
 def test_update_cost_element_not_found(
@@ -317,7 +320,7 @@ def test_create_cost_element_exceeds_wbe_revenue_allocation(
         "department_name": "Engineering Department",
         "budget_bac": 10000.00,
         "revenue_plan": 15000.00,  # Exceeds WBE revenue_allocation of 10000.00
-        "status": "active",
+        "business_status": "active",
     }
     response = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -361,7 +364,7 @@ def test_create_cost_element_exceeds_wbe_revenue_allocation_with_existing(
         "department_name": "Engineering 1",
         "budget_bac": 10000.00,
         "revenue_plan": 15000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response1 = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -378,7 +381,7 @@ def test_create_cost_element_exceeds_wbe_revenue_allocation_with_existing(
         "department_name": "Engineering 2",
         "budget_bac": 5000.00,
         "revenue_plan": 6000.00,  # Total would be 21000.00, exceeding 20000.00
-        "status": "active",
+        "business_status": "active",
     }
     response2 = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -422,7 +425,7 @@ def test_update_cost_element_exceeds_wbe_revenue_allocation(
         "department_name": "Engineering 1",
         "budget_bac": 10000.00,
         "revenue_plan": 10000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response1 = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -438,7 +441,7 @@ def test_update_cost_element_exceeds_wbe_revenue_allocation(
         "department_name": "Engineering 2",
         "budget_bac": 10000.00,
         "revenue_plan": 10000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response2 = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -494,7 +497,7 @@ def test_update_cost_element_within_wbe_revenue_allocation(
         "department_name": "Engineering",
         "budget_bac": 10000.00,
         "revenue_plan": 15000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response1 = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -550,7 +553,7 @@ def test_create_cost_element_at_wbe_revenue_allocation_limit(
         "department_name": "Engineering",
         "budget_bac": 10000.00,
         "revenue_plan": 10000.00,  # Exactly at limit
-        "status": "active",
+        "business_status": "active",
     }
     response = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -596,7 +599,7 @@ def test_create_cost_element_creates_initial_budget_allocation(
         "department_name": "Engineering",
         "budget_bac": 15000.00,
         "revenue_plan": 18000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -659,7 +662,7 @@ def test_update_cost_element_budget_creates_new_budget_allocation(
         "department_name": "Engineering",
         "budget_bac": 10000.00,
         "revenue_plan": 12000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response1 = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -667,7 +670,9 @@ def test_update_cost_element_budget_creates_new_budget_allocation(
         json=ce_data,
     )
     assert response1.status_code == 200
-    cost_element_id = response1.json()["cost_element_id"]
+    created_payload = response1.json()
+    cost_element_id = created_payload["cost_element_id"]
+    cost_entity_id = uuid.UUID(created_payload["entity_id"])
 
     # Verify initial BudgetAllocation exists
     statement = select(BudgetAllocation).where(
@@ -688,7 +693,15 @@ def test_update_cost_element_budget_creates_new_budget_allocation(
     assert response2.status_code == 200
 
     # Verify new BudgetAllocation record was created
-    updated_budgets = db.exec(statement).all()
+    ce_ids = [
+        ce.cost_element_id
+        for ce in db.exec(
+            select(CostElement).where(CostElement.entity_id == cost_entity_id)
+        ).all()
+    ]
+    updated_budgets = db.exec(
+        select(BudgetAllocation).where(BudgetAllocation.cost_element_id.in_(ce_ids))
+    ).all()
     assert (
         len(updated_budgets) == 2
     ), "Expected two BudgetAllocation records (initial + update)"
@@ -736,7 +749,7 @@ def test_update_cost_element_revenue_creates_new_budget_allocation(
         "department_name": "Engineering",
         "budget_bac": 10000.00,
         "revenue_plan": 12000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response1 = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -744,7 +757,9 @@ def test_update_cost_element_revenue_creates_new_budget_allocation(
         json=ce_data,
     )
     assert response1.status_code == 200
-    cost_element_id = response1.json()["cost_element_id"]
+    created_payload = response1.json()
+    cost_element_id = created_payload["cost_element_id"]
+    cost_entity_id = uuid.UUID(created_payload["entity_id"])
 
     # Update revenue_plan
     update_data = {
@@ -758,10 +773,15 @@ def test_update_cost_element_revenue_creates_new_budget_allocation(
     assert response2.status_code == 200
 
     # Verify new BudgetAllocation record was created
-    statement = select(BudgetAllocation).where(
-        BudgetAllocation.cost_element_id == uuid.UUID(cost_element_id)
-    )
-    budgets = db.exec(statement).all()
+    ce_ids = [
+        ce.cost_element_id
+        for ce in db.exec(
+            select(CostElement).where(CostElement.entity_id == cost_entity_id)
+        ).all()
+    ]
+    budgets = db.exec(
+        select(BudgetAllocation).where(BudgetAllocation.cost_element_id.in_(ce_ids))
+    ).all()
     assert len(budgets) == 2, "Expected two BudgetAllocation records (initial + update)"
 
     # Find the new record (should have revenue_amount = 15000.00)
@@ -806,7 +826,7 @@ def test_update_cost_element_both_budget_and_revenue_creates_one_budget_allocati
         "department_name": "Engineering",
         "budget_bac": 10000.00,
         "revenue_plan": 12000.00,
-        "status": "active",
+        "business_status": "active",
     }
     response1 = client.post(
         f"{settings.API_V1_STR}/cost-elements/",
@@ -814,7 +834,9 @@ def test_update_cost_element_both_budget_and_revenue_creates_one_budget_allocati
         json=ce_data,
     )
     assert response1.status_code == 200
-    cost_element_id = response1.json()["cost_element_id"]
+    created_payload = response1.json()
+    cost_element_id = created_payload["cost_element_id"]
+    cost_entity_id = uuid.UUID(created_payload["entity_id"])
 
     # Update both budget_bac and revenue_plan
     update_data = {
@@ -829,10 +851,15 @@ def test_update_cost_element_both_budget_and_revenue_creates_one_budget_allocati
     assert response2.status_code == 200
 
     # Verify exactly one new BudgetAllocation record was created (total = 2: initial + update)
-    statement = select(BudgetAllocation).where(
-        BudgetAllocation.cost_element_id == uuid.UUID(cost_element_id)
-    )
-    budgets = db.exec(statement).all()
+    ce_ids = [
+        ce.cost_element_id
+        for ce in db.exec(
+            select(CostElement).where(CostElement.entity_id == cost_entity_id)
+        ).all()
+    ]
+    budgets = db.exec(
+        select(BudgetAllocation).where(BudgetAllocation.cost_element_id.in_(ce_ids))
+    ).all()
     assert (
         len(budgets) == 2
     ), "Expected exactly two BudgetAllocation records (initial + one update)"
