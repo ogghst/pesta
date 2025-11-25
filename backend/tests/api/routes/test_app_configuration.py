@@ -14,7 +14,7 @@ from app.models import AppConfiguration, UserCreate
 
 
 def test_create_app_configuration(
-    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     """Test creating app configuration (admin only)."""
     # Generate a test Fernet key
@@ -40,6 +40,9 @@ def test_create_app_configuration(
         assert data["config_value"] == config_data["config_value"]
         assert data["description"] == config_data["description"]
         assert data["is_active"] is True
+        assert "entity_id" in data
+        assert data["status"] == "active"
+        assert data["version"] == 1
 
 
 def test_create_app_configuration_requires_admin(
@@ -110,6 +113,8 @@ def test_get_app_configurations(
         # Find our test configuration
         configs = [c for c in data["data"] if c["config_key"] == config_key]
         assert len(configs) == 1
+        assert "entity_id" in configs[0]
+        assert configs[0]["status"] == "active"
 
 
 def test_update_app_configuration(
@@ -149,6 +154,47 @@ def test_update_app_configuration(
         data = response.json()
         assert data["config_value"] == update_data["config_value"]
         assert data["description"] == update_data["description"]
+        assert "entity_id" in data
+        assert data["status"] == "active"
+
+
+def test_delete_app_configuration_soft_delete(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Deleting config should mark status deleted and exclude from list."""
+    test_key = Fernet.generate_key()
+
+    with patch.object(settings, "FERNET_KEY", test_key.decode()):
+        config_key = f"ai_default_openai_base_url_{uuid.uuid4().hex[:8]}"
+        config = AppConfiguration(
+            config_key=config_key,
+            config_value="https://api.openai.com/v1",
+            description="Default OpenAI base URL",
+            is_active=True,
+        )
+        db.add(config)
+        db.commit()
+        db.refresh(config)
+
+        response = client.delete(
+            f"/api/v1/app-configuration/{config.config_id}",
+            headers=superuser_token_headers,
+        )
+        assert response.status_code == 200
+        deleted = response.json()
+        assert deleted["message"] == "App configuration deleted successfully"
+
+        db.refresh(config)
+        assert config.status == "deleted"
+        assert config.version == 2
+
+        list_response = client.get(
+            "/api/v1/app-configuration/",
+            headers=superuser_token_headers,
+        )
+        assert list_response.status_code == 200
+        payload = list_response.json()
+        assert all(item["config_key"] != config_key for item in payload["data"])
 
 
 def test_app_configuration_endpoint_exists():

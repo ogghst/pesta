@@ -93,7 +93,10 @@ def test_update_project(
 ) -> None:
     """Test updating a project."""
     project = create_random_project(db)
-    data = {"project_name": "Updated Project Name", "status": "completed"}
+    data = {
+        "project_name": "Updated Project Name",
+        "business_status": "completed",
+    }
     response = client.put(
         f"{settings.API_V1_STR}/projects/{project.project_id}",
         headers=superuser_token_headers,
@@ -102,7 +105,8 @@ def test_update_project(
     assert response.status_code == 200
     content = response.json()
     assert content["project_name"] == data["project_name"]
-    assert content["status"] == data["status"]
+    assert content["business_status"] == data["business_status"]
+    assert "entity_id" in content
     assert content["project_id"] == str(project.project_id)
 
 

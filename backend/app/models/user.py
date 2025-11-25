@@ -8,6 +8,8 @@ from pydantic import EmailStr
 from sqlalchemy import Column, Date, DateTime
 from sqlmodel import Field, SQLModel
 
+from app.models.version_status_mixin import VersionStatusMixin
+
 
 class UserRole(str, Enum):
     """User role enumeration."""
@@ -88,7 +90,7 @@ class UpdatePassword(SQLModel):
 
 
 # Database model, database table inferred from class name
-class User(UserBase, table=True):
+class User(UserBase, VersionStatusMixin, table=True):
     """User database model."""
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -111,7 +113,10 @@ class User(UserBase, table=True):
 class UserPublic(UserBase):
     """Public user schema for API responses."""
 
+    entity_id: uuid.UUID
     id: uuid.UUID
+    status: str = Field(default="active", max_length=20)
+    version: int = 1
     # Override to exclude from response
     openai_api_key_encrypted: None = Field(default=None, exclude=True)
 

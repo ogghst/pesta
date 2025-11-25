@@ -33,6 +33,8 @@ def test_read_cost_element_types(
     # Verify all returned types are active
     for ce_type in content["data"]:
         assert ce_type["is_active"] is True
+        assert ce_type["status"] == "active"
+        assert "entity_id" in ce_type
 
 
 def test_read_cost_element_types_only_active(
@@ -68,6 +70,9 @@ def test_read_cost_element_types_only_active(
     type_ids = [ce["cost_element_type_id"] for ce in content["data"]]
     assert str(active_type.cost_element_type_id) in type_ids
     assert str(inactive_type.cost_element_type_id) not in type_ids
+    for ce_type in content["data"]:
+        assert "entity_id" in ce_type
+        assert ce_type["status"] == "active"
 
 
 def test_read_cost_element_types_with_department(
@@ -122,3 +127,5 @@ def test_read_cost_element_types_with_department(
     assert found_type["department_id"] == str(dept.department_id)
     assert found_type["department_code"] == "TEST_API"
     assert found_type["department_name"] == "Test API Department"
+    assert "entity_id" in found_type
+    assert found_type["status"] == "active"

@@ -158,6 +158,7 @@ def test_baseline_log_public_schema() -> None:
     user_id = uuid.uuid4()
     now = datetime.datetime.now(datetime.timezone.utc)
 
+    entity_id = uuid.uuid4()
     baseline_public = BaselineLogPublic(
         baseline_id=baseline_id,
         baseline_type="earned_value",
@@ -168,6 +169,9 @@ def test_baseline_log_public_schema() -> None:
         project_id=project_id,
         created_by_id=user_id,
         created_at=now,
+        entity_id=entity_id,
+        status="active",
+        version=1,
     )
 
     assert baseline_public.baseline_id == baseline_id
@@ -490,6 +494,7 @@ def test_baseline_log_public_schema_includes_department_and_is_pmb() -> None:
     user_id = uuid.uuid4()
     now = datetime.datetime.now(datetime.timezone.utc)
 
+    entity_id = uuid.uuid4()
     baseline_public = BaselineLogPublic(
         baseline_id=baseline_id,
         baseline_type="earned_value",
@@ -502,6 +507,9 @@ def test_baseline_log_public_schema_includes_department_and_is_pmb() -> None:
         project_id=project_id,
         created_by_id=user_id,
         created_at=now,
+        entity_id=entity_id,
+        status="active",
+        version=1,
     )
 
     # Verify new fields are included in public schema

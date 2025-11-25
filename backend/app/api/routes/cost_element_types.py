@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import CostElementType, CostElementTypePublic, CostElementTypesPublic
+from app.services.branch_filtering import apply_status_filters
 
 router = APIRouter(prefix="/cost-element-types", tags=["cost-element-types"])
 
@@ -27,6 +28,9 @@ def read_cost_element_types(
         .select_from(CostElementType)
         .where(CostElementType.is_active.is_(True))
     )
+    count_statement = apply_status_filters(
+        count_statement, CostElementType, status="active"
+    )
     count = session.exec(count_statement).one()
 
     statement = (
@@ -35,12 +39,14 @@ def read_cost_element_types(
         .where(CostElementType.is_active.is_(True))
         .order_by(CostElementType.display_order)
     )
+    statement = apply_status_filters(statement, CostElementType, status="active")
     cost_element_types = session.exec(statement).all()
 
     # Build response with department info
     public_types = []
     for cet in cost_element_types:
         public_type = CostElementTypePublic(
+            entity_id=cet.entity_id,
             cost_element_type_id=cet.cost_element_type_id,
             type_code=cet.type_code,
             type_name=cet.type_name,
@@ -54,6 +60,8 @@ def read_cost_element_types(
             department_name=cet.department.department_name if cet.department else None,
             created_at=cet.created_at,
             updated_at=cet.updated_at,
+            status=cet.status,
+            version=cet.version,
         )
         public_types.append(public_type)
 

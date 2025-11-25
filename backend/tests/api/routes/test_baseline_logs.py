@@ -343,14 +343,23 @@ def test_create_baseline_cost_elements_calculates_planned_value(db: Session) -> 
     db.commit()
     db.refresh(cost_element)
 
-    create_schedule_for_cost_element(
+    # Create schedule with registration_date before baseline_date to ensure time machine finds it
+    schedule = create_schedule_for_cost_element(
         db,
         cost_element.cost_element_id,
         start_date=date(2024, 1, 1),
         end_date=date(2024, 1, 31),
         progression_type="linear",
+        registration_date=date(2024, 1, 1),  # Explicitly set before baseline_date
         created_by_id=user.id,
     )
+    # Ensure created_at is before baseline_date for time machine filter
+    from datetime import datetime, timezone
+
+    schedule.created_at = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+    db.add(schedule)
+    db.commit()
+    db.refresh(schedule)
 
     baseline_in = BaselineLogCreate(
         baseline_type="schedule",
@@ -631,7 +640,7 @@ def test_create_baseline_cost_elements_includes_forecast_eac_if_exists(
         cost_element_id=cost_element.cost_element_id,
         forecast_date=date(2024, 1, 10),
         estimate_at_completion=Decimal("52000.00"),
-        forecast_type="revised",
+        forecast_type="management_judgment",
         is_current=True,
         estimator_id=user.id,
     )

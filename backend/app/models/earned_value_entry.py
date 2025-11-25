@@ -11,6 +11,7 @@ from app.models.cost_element import CostElement
 
 # Import for forward references
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class EarnedValueEntryBase(SQLModel):
@@ -54,7 +55,7 @@ class EarnedValueEntryUpdate(SQLModel):
     registration_date: date | None = None
 
 
-class EarnedValueEntry(EarnedValueEntryBase, table=True):
+class EarnedValueEntry(EarnedValueEntryBase, VersionStatusMixin, table=True):
     """Earned Value Entry database model."""
 
     earned_value_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -85,6 +86,9 @@ class EarnedValueEntryPublic(EarnedValueEntryBase):
     created_by_id: uuid.UUID
     created_at: datetime
     last_modified_at: datetime
+    entity_id: uuid.UUID
+    status: str
+    version: int
 
 
 class EarnedValueEntriesPublic(SQLModel):

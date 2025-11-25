@@ -15,6 +15,50 @@ from app.models import (
 )
 
 
+def test_wbe_has_version_status_branch_fields(db: Session) -> None:
+    """Test that WBE model has version, status (versioning), and branch fields from BranchVersionMixin."""
+    # Create a project first
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Test Project",
+        customer_name="Test Customer",
+        contract_value=100000.00,
+        start_date=date(2024, 1, 1),
+        planned_completion_date=date(2024, 12, 31),
+        project_manager_id=pm_user.id,
+        business_status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    # Create a WBE
+    wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Robotic Assembly Unit",
+        serial_number="RB-001",
+        contracted_delivery_date=date(2024, 6, 30),
+        revenue_allocation=50000.00,
+        business_status="designing",
+        notes="Primary WBE for test project",
+    )
+    wbe = WBE.model_validate(wbe_in)
+
+    # Check that version, status (versioning), and branch fields exist with defaults
+    assert hasattr(wbe, "version")
+    assert wbe.version == 1
+    assert hasattr(
+        wbe, "status"
+    )  # Note: WBE has both business status and versioning status
+    assert hasattr(wbe, "branch")
+    assert wbe.branch == "main"
+
+
 def test_create_wbe(db: Session) -> None:
     """Test creating a WBE."""
     # Create a project first
@@ -30,7 +74,7 @@ def test_create_wbe(db: Session) -> None:
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -44,7 +88,7 @@ def test_create_wbe(db: Session) -> None:
         serial_number="RB-001",
         contracted_delivery_date=date(2024, 6, 30),
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
         notes="Primary WBE for test project",
     )
 
@@ -58,7 +102,7 @@ def test_create_wbe(db: Session) -> None:
     assert wbe.machine_type == "Robotic Assembly Unit"
     assert wbe.serial_number == "RB-001"
     assert wbe.revenue_allocation == 50000.00
-    assert wbe.status == "designing"
+    assert wbe.business_status == "designing"
     assert wbe.project_id == project.project_id
     assert hasattr(wbe, "project")  # Relationship should exist
 
@@ -78,7 +122,7 @@ def test_wbe_project_relationship(db: Session) -> None:
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -90,7 +134,7 @@ def test_wbe_project_relationship(db: Session) -> None:
         project_id=project.project_id,
         machine_type="Machine A",
         revenue_allocation=30000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe1 = WBE.model_validate(wbe1_in)
     db.add(wbe1)
@@ -99,7 +143,7 @@ def test_wbe_project_relationship(db: Session) -> None:
         project_id=project.project_id,
         machine_type="Machine B",
         revenue_allocation=20000.00,
-        status="in-production",
+        business_status="in-production",
     )
     wbe2 = WBE.model_validate(wbe2_in)
     db.add(wbe2)
@@ -127,7 +171,7 @@ def test_wbe_status_enum(db: Session) -> None:
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -147,13 +191,13 @@ def test_wbe_status_enum(db: Session) -> None:
             project_id=project.project_id,
             machine_type=f"Machine {status}",
             revenue_allocation=10000.00,
-            status=status,
+            business_status=status,
         )
         wbe = WBE.model_validate(wbe_in)
         db.add(wbe)
         db.commit()
         db.refresh(wbe)
-        assert wbe.status == status
+        assert wbe.business_status == status
 
 
 def test_wbe_public_schema() -> None:
@@ -168,7 +212,7 @@ def test_wbe_public_schema() -> None:
         serial_number="PUB-001",
         contracted_delivery_date=date(2024, 6, 30),
         revenue_allocation=25000.00,
-        status="designing",
+        business_status="designing",
         notes="Public test WBE",
     )
 

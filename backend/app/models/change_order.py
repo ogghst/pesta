@@ -11,6 +11,7 @@ from app.models.project import Project
 
 # Import for forward references
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 from app.models.wbe import WBE
 
 
@@ -29,7 +30,9 @@ class ChangeOrderBase(SQLModel):
     revenue_impact: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
     )
-    status: str = Field(max_length=50)  # Will be validated as enum in application logic
+    workflow_status: str = Field(
+        max_length=50
+    )  # Will be validated as enum in application logic (renamed from 'status' to avoid conflict with versioning status)
 
 
 class ChangeOrderCreate(ChangeOrderBase):
@@ -37,6 +40,9 @@ class ChangeOrderCreate(ChangeOrderBase):
 
     project_id: uuid.UUID
     created_by_id: uuid.UUID
+    change_order_number: str | None = Field(
+        default=None, max_length=50
+    )  # Optional - will be auto-generated if not provided
 
 
 class ChangeOrderUpdate(SQLModel):
@@ -54,10 +60,10 @@ class ChangeOrderUpdate(SQLModel):
     revenue_impact: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
     )
-    status: str | None = Field(default=None, max_length=50)
+    workflow_status: str | None = Field(default=None, max_length=50)
 
 
-class ChangeOrder(ChangeOrderBase, table=True):
+class ChangeOrder(ChangeOrderBase, VersionStatusMixin, table=True):
     """Change Order database model."""
 
     change_order_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -65,6 +71,9 @@ class ChangeOrder(ChangeOrderBase, table=True):
     wbe_id: uuid.UUID | None = Field(
         default=None, foreign_key="wbe.wbe_id", nullable=True
     )
+    branch: str | None = Field(
+        default=None, max_length=50, nullable=True
+    )  # Branch name associated with this change order (e.g., 'co-001')
     created_by_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     approved_by_id: uuid.UUID | None = Field(
         default=None, foreign_key="user.id", nullable=True
@@ -104,5 +113,13 @@ class ChangeOrderPublic(ChangeOrderBase):
     change_order_id: uuid.UUID
     project_id: uuid.UUID
     wbe_id: uuid.UUID | None = Field(default=None)
+    branch: str | None = Field(default=None)
     created_by_id: uuid.UUID
+    approved_by_id: uuid.UUID | None = Field(default=None)
+    approved_at: datetime | None = Field(default=None)
+    implemented_by_id: uuid.UUID | None = Field(default=None)
+    implemented_at: datetime | None = Field(default=None)
     created_at: datetime
+    entity_id: uuid.UUID
+    status: str  # Versioning status (from VersionStatusMixin)
+    version: int

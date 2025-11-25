@@ -23,6 +23,8 @@ def test_get_users_superuser_me(
     assert current_user["email"] == settings.FIRST_SUPERUSER
     assert "time_machine_date" in current_user
     assert current_user["time_machine_date"] is None
+    assert "entity_id" in current_user
+    assert current_user["status"] == "active"
 
 
 def test_get_users_normal_user_me(
@@ -36,6 +38,8 @@ def test_get_users_normal_user_me(
     assert current_user["email"] == settings.EMAIL_TEST_USER
     assert "time_machine_date" in current_user
     assert current_user["time_machine_date"] is None
+    assert "entity_id" in current_user
+    assert current_user["status"] == "active"
 
 
 def test_time_machine_me_defaults_to_today(
@@ -96,6 +100,8 @@ def test_create_user_new_email(
         user = crud.get_user_by_email(session=db, email=username)
         assert user
         assert user.email == created_user["email"]
+        assert "entity_id" in created_user
+        assert created_user["status"] == "active"
 
 
 def test_get_existing_user(
@@ -115,6 +121,7 @@ def test_get_existing_user(
     existing_user = crud.get_user_by_email(session=db, email=username)
     assert existing_user
     assert existing_user.email == api_user["email"]
+    assert api_user["entity_id"] == str(existing_user.entity_id)
 
 
 def test_get_existing_user_current_user(client: TestClient, db: Session) -> None:
@@ -142,6 +149,7 @@ def test_get_existing_user_current_user(client: TestClient, db: Session) -> None
     existing_user = crud.get_user_by_email(session=db, email=username)
     assert existing_user
     assert existing_user.email == api_user["email"]
+    assert api_user["entity_id"] == str(existing_user.entity_id)
 
 
 def test_get_existing_user_permissions_error(
@@ -208,6 +216,39 @@ def test_retrieve_users(
     assert "count" in all_users
     for item in all_users["data"]:
         assert "email" in item
+        assert "entity_id" in item
+        assert item["status"] == "active"
+
+
+def test_retrieve_users_excludes_deleted(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Ensure deleted users are filtered out from listing."""
+    username = random_email()
+    password = random_lower_string()
+    user = crud.create_user(
+        session=db, user_create=UserCreate(email=username, password=password)
+    )
+
+    # Delete the user
+    response = client.delete(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+
+    # Verify status changed to deleted in DB
+    deleted_user = db.get(User, user.id)
+    assert deleted_user
+    db.refresh(deleted_user)
+    assert deleted_user.status == "deleted"
+    assert deleted_user.version == 2
+
+    # Ensure list endpoint no longer returns the deleted user
+    r = client.get(f"{settings.API_V1_STR}/users/", headers=superuser_token_headers)
+    assert r.status_code == 200
+    data = r.json()["data"]
+    assert all(item["email"] != username for item in data)
 
 
 def test_update_user_me(
@@ -225,6 +266,8 @@ def test_update_user_me(
     updated_user = r.json()
     assert updated_user["email"] == email
     assert updated_user["full_name"] == full_name
+    assert "entity_id" in updated_user
+    assert updated_user["status"] == "active"
 
     user_query = select(User).where(User.email == email)
     user_db = db.exec(user_query).first()
@@ -337,6 +380,8 @@ def test_register_user(client: TestClient, db: Session) -> None:
     created_user = r.json()
     assert created_user["email"] == username
     assert created_user["full_name"] == full_name
+    assert "entity_id" in created_user
+    assert created_user["status"] == "active"
 
     user_query = select(User).where(User.email == username)
     user_db = db.exec(user_query).first()
@@ -380,6 +425,7 @@ def test_update_user(
     updated_user = r.json()
 
     assert updated_user["full_name"] == "Updated_full_name"
+    assert "entity_id" in updated_user
 
     user_query = select(User).where(User.email == username)
     user_db = db.exec(user_query).first()
@@ -448,11 +494,16 @@ def test_delete_user_me(client: TestClient, db: Session) -> None:
     deleted_user = r.json()
     assert deleted_user["message"] == "User deleted successfully"
     result = db.exec(select(User).where(User.id == user_id)).first()
-    assert result is None
+    assert result is not None
+    db.refresh(result)
+    assert result.status == "deleted"
+    assert result.version == 2
 
     user_query = select(User).where(User.id == user_id)
-    user_db = db.execute(user_query).first()
-    assert user_db is None
+    user_db = db.exec(user_query).first()
+    assert user_db is not None
+    db.refresh(user_db)
+    assert user_db.status == "deleted"
 
 
 def test_delete_user_me_as_superuser(
@@ -483,7 +534,10 @@ def test_delete_user_super_user(
     deleted_user = r.json()
     assert deleted_user["message"] == "User deleted successfully"
     result = db.exec(select(User).where(User.id == user_id)).first()
-    assert result is None
+    assert result is not None
+    db.refresh(result)
+    assert result.status == "deleted"
+    assert result.version == 2
 
 
 def test_delete_user_not_found(

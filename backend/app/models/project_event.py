@@ -10,6 +10,7 @@ from app.models.project import Project
 
 # Import for forward references
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class ProjectEventBase(SQLModel):
@@ -43,7 +44,7 @@ class ProjectEventUpdate(SQLModel):
     is_deleted: bool | None = None
 
 
-class ProjectEvent(ProjectEventBase, table=True):
+class ProjectEvent(ProjectEventBase, VersionStatusMixin, table=True):
     """Project Event database model."""
 
     event_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -72,3 +73,6 @@ class ProjectEventPublic(ProjectEventBase):
     created_by_id: uuid.UUID
     created_at: datetime
     last_modified_at: datetime
+    entity_id: uuid.UUID
+    status: str
+    version: int

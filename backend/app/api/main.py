@@ -4,8 +4,11 @@ from app.api.routes import (
     ai_chat,
     app_configuration,
     baseline_logs,
+    branch_comparison,
     budget_summary,
     budget_timeline,
+    change_order_line_items,
+    change_orders,
     cost_categories,
     cost_element_schedules,
     cost_element_types,
@@ -19,14 +22,17 @@ from app.api.routes import (
     evm_aggregation,
     evm_indices,
     forecasts,
+    hard_delete,
     login,
     planned_value,
     private,
     projects,
+    restore,
     users,
     utils,
     variance_analysis_report,
     variance_threshold_config,
+    version_history,
     wbes,
 )
 from app.core.config import settings
@@ -38,6 +44,8 @@ api_router.include_router(ai_chat.router)
 api_router.include_router(app_configuration.router)
 api_router.include_router(utils.router)
 api_router.include_router(projects.router)
+api_router.include_router(change_orders.router)
+api_router.include_router(change_order_line_items.router)
 api_router.include_router(wbes.router)
 api_router.include_router(cost_elements.router)
 api_router.include_router(cost_element_schedules.router)
@@ -55,9 +63,13 @@ api_router.include_router(earned_value.router)
 api_router.include_router(evm_indices.router)
 api_router.include_router(evm_aggregation.router)
 api_router.include_router(baseline_logs.router)
+api_router.include_router(branch_comparison.router)
 api_router.include_router(cost_performance_report.router)
 api_router.include_router(variance_analysis_report.router)
 api_router.include_router(variance_threshold_config.router)
+api_router.include_router(restore.router)
+api_router.include_router(hard_delete.router)
+api_router.include_router(version_history.router)
 
 
 if settings.ENVIRONMENT == "local":

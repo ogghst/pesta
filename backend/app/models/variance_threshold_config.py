@@ -9,6 +9,8 @@ from pydantic import field_validator
 from sqlalchemy import DECIMAL, CheckConstraint, Column, DateTime, Index, text
 from sqlmodel import Field, SQLModel
 
+from app.models.version_status_mixin import VersionStatusMixin
+
 
 class VarianceThresholdType(str, Enum):
     """Variance threshold type enumeration."""
@@ -63,7 +65,9 @@ class VarianceThresholdConfigUpdate(SQLModel):
     is_active: bool | None = None
 
 
-class VarianceThresholdConfig(VarianceThresholdConfigBase, table=True):
+class VarianceThresholdConfig(
+    VarianceThresholdConfigBase, VersionStatusMixin, table=True
+):
     """Variance threshold configuration database model."""
 
     __tablename__ = "variance_threshold_config"
@@ -98,9 +102,12 @@ class VarianceThresholdConfig(VarianceThresholdConfigBase, table=True):
 class VarianceThresholdConfigPublic(VarianceThresholdConfigBase):
     """Public variance threshold configuration schema for API responses."""
 
+    entity_id: uuid.UUID
     variance_threshold_config_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    status: str
+    version: int
 
 
 class VarianceThresholdConfigsPublic(SQLModel):

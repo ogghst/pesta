@@ -7,6 +7,7 @@ from sqlalchemy import Column, DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.department import Department
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class CostElementTypeBase(SQLModel):
@@ -41,7 +42,7 @@ class CostElementTypeUpdate(SQLModel):
     is_active: bool | None = None
 
 
-class CostElementType(CostElementTypeBase, table=True):
+class CostElementType(CostElementTypeBase, VersionStatusMixin, table=True):
     """Cost element type database model."""
 
     cost_element_type_id: uuid.UUID = Field(
@@ -66,12 +67,15 @@ class CostElementType(CostElementTypeBase, table=True):
 class CostElementTypePublic(CostElementTypeBase):
     """Public cost element type schema for API responses."""
 
+    entity_id: uuid.UUID
     cost_element_type_id: uuid.UUID
     department_id: uuid.UUID | None = None
     department_code: str | None = None
     department_name: str | None = None
     created_at: datetime
     updated_at: datetime
+    status: str
+    version: int
 
 
 class CostElementTypesPublic(SQLModel):

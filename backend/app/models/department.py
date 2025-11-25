@@ -4,6 +4,8 @@ import uuid
 
 from sqlmodel import Field, SQLModel
 
+from app.models.version_status_mixin import VersionStatusMixin
+
 
 class DepartmentBase(SQLModel):
     """Base department schema with common fields."""
@@ -29,7 +31,7 @@ class DepartmentUpdate(SQLModel):
     is_active: bool | None = None
 
 
-class Department(DepartmentBase, table=True):
+class Department(DepartmentBase, VersionStatusMixin, table=True):
     """Department database model."""
 
     department_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -39,3 +41,6 @@ class DepartmentPublic(DepartmentBase):
     """Public department schema for API responses."""
 
     department_id: uuid.UUID
+    entity_id: uuid.UUID
+    status: str
+    version: int

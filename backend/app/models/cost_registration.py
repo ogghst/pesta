@@ -11,6 +11,7 @@ from app.models.cost_element import CostElement
 
 # Import for forward references
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class CostRegistrationBase(SQLModel):
@@ -50,7 +51,7 @@ class CostRegistrationUpdate(SQLModel):
     is_quality_cost: bool | None = None
 
 
-class CostRegistration(CostRegistrationBase, table=True):
+class CostRegistration(CostRegistrationBase, VersionStatusMixin, table=True):
     """Cost Registration database model."""
 
     cost_registration_id: uuid.UUID = Field(
@@ -89,6 +90,9 @@ class CostRegistrationPublic(CostRegistrationBase):
     created_by_id: uuid.UUID
     created_at: datetime
     last_modified_at: datetime
+    entity_id: uuid.UUID
+    status: str
+    version: int
 
 
 class CostRegistrationsPublic(SQLModel):

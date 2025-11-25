@@ -12,7 +12,7 @@ import { CustomProvider } from "./components/ui/provider"
 import { TimeMachineProvider } from "./context/TimeMachineContext"
 import { routeTree } from "./routeTree.gen"
 
-OpenAPI.BASE = import.meta.env.VITE_API_URL
+OpenAPI.BASE = window.env?.VITE_API_URL || import.meta.env.VITE_API_URL
 OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }

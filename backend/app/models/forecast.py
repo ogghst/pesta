@@ -12,6 +12,7 @@ from app.models.cost_element import CostElement
 
 # Import for forward references
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class ForecastType(str, Enum):
@@ -53,7 +54,7 @@ class ForecastUpdate(SQLModel):
     is_current: bool | None = None
 
 
-class Forecast(ForecastBase, table=True):
+class Forecast(ForecastBase, VersionStatusMixin, table=True):
     """Forecast database model."""
 
     forecast_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -79,8 +80,11 @@ class Forecast(ForecastBase, table=True):
 class ForecastPublic(ForecastBase):
     """Public forecast schema for API responses."""
 
+    entity_id: uuid.UUID
     forecast_id: uuid.UUID
     cost_element_id: uuid.UUID
     estimator_id: uuid.UUID
     created_at: datetime
     last_modified_at: datetime
+    status: str
+    version: int

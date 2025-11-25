@@ -11,6 +11,7 @@ from app.models.cost_element import CostElement
 
 # Import for forward references
 from app.models.user import User
+from app.models.version_status_mixin import VersionStatusMixin
 
 
 class BudgetAllocationBase(SQLModel):
@@ -50,7 +51,7 @@ class BudgetAllocationUpdate(SQLModel):
     description: str | None = None
 
 
-class BudgetAllocation(BudgetAllocationBase, table=True):
+class BudgetAllocation(BudgetAllocationBase, VersionStatusMixin, table=True):
     """Budget Allocation database model."""
 
     budget_allocation_id: uuid.UUID = Field(
@@ -84,3 +85,6 @@ class BudgetAllocationPublic(BudgetAllocationBase):
     cost_element_id: uuid.UUID
     created_by_id: uuid.UUID
     created_at: datetime
+    entity_id: uuid.UUID
+    status: str
+    version: int

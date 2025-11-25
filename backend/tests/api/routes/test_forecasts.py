@@ -46,7 +46,7 @@ def test_read_forecasts_empty_list(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -57,7 +57,7 @@ def test_read_forecasts_empty_list(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -83,7 +83,7 @@ def test_read_forecasts_empty_list(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -121,7 +121,7 @@ def test_read_forecasts_list(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -132,7 +132,7 @@ def test_read_forecasts_list(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -158,7 +158,7 @@ def test_read_forecasts_list(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -241,7 +241,7 @@ def test_read_forecast_by_id(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -252,7 +252,7 @@ def test_read_forecast_by_id(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -278,7 +278,7 @@ def test_read_forecast_by_id(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -344,7 +344,7 @@ def test_create_forecast_success(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -355,7 +355,7 @@ def test_create_forecast_success(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -381,7 +381,7 @@ def test_create_forecast_success(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -435,7 +435,7 @@ def test_create_forecast_future_date_warning(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -446,7 +446,7 @@ def test_create_forecast_future_date_warning(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -472,7 +472,7 @@ def test_create_forecast_future_date_warning(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -523,7 +523,7 @@ def test_create_forecast_max_dates_exceeded(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -534,7 +534,7 @@ def test_create_forecast_max_dates_exceeded(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -560,7 +560,7 @@ def test_create_forecast_max_dates_exceeded(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -570,11 +570,12 @@ def test_create_forecast_max_dates_exceeded(
     response_user = client.get("/api/v1/users/me", headers=superuser_token_headers)
     current_user_id = response_user.json()["id"]
 
-    # Create 3 forecasts with different dates
-    for i in range(3):
+    # Create 3 forecasts with different valid dates
+    forecast_dates = ["2024-06-28", "2024-06-29", "2024-06-30"]
+    for forecast_date in forecast_dates:
         payload = {
             "cost_element_id": str(ce.cost_element_id),
-            "forecast_date": f"2024-06-{30 + i}",
+            "forecast_date": forecast_date,
             "estimate_at_completion": "10000.00",
             "forecast_type": "bottom_up",
             "estimator_id": current_user_id,
@@ -623,7 +624,7 @@ def test_create_forecast_sets_other_to_not_current(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -634,7 +635,7 @@ def test_create_forecast_sets_other_to_not_current(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -660,7 +661,7 @@ def test_create_forecast_sets_other_to_not_current(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -738,7 +739,7 @@ def test_update_forecast_only_current_allowed(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -749,7 +750,7 @@ def test_update_forecast_only_current_allowed(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -775,7 +776,7 @@ def test_update_forecast_only_current_allowed(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -826,7 +827,7 @@ def test_update_forecast_success(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -837,7 +838,7 @@ def test_update_forecast_success(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -863,7 +864,7 @@ def test_update_forecast_success(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -918,7 +919,7 @@ def test_delete_forecast_success(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -929,7 +930,7 @@ def test_delete_forecast_success(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -955,7 +956,7 @@ def test_delete_forecast_success(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -1009,7 +1010,7 @@ def test_delete_current_forecast_auto_promotes_previous(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -1020,7 +1021,7 @@ def test_delete_current_forecast_auto_promotes_previous(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -1046,7 +1047,7 @@ def test_delete_current_forecast_auto_promotes_previous(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -1100,17 +1101,17 @@ def test_delete_current_forecast_auto_promotes_previous(
     )
     assert response.status_code == 200
 
-    # Verify forecast1 (previous by date) is now is_current=True
+    # Verify forecast3 (most recent by date) is now is_current=True
     response = client.get(
-        f"/api/v1/forecasts/{forecast1.forecast_id}",
+        f"/api/v1/forecasts/{forecast3.forecast_id}",
         headers=superuser_token_headers,
     )
     assert response.status_code == 200
     assert response.json()["is_current"] is True
 
-    # Verify forecast3 is still is_current=False
+    # Verify forecast1 is still is_current=False
     response = client.get(
-        f"/api/v1/forecasts/{forecast3.forecast_id}",
+        f"/api/v1/forecasts/{forecast1.forecast_id}",
         headers=superuser_token_headers,
     )
     assert response.status_code == 200
@@ -1159,7 +1160,7 @@ def test_create_forecast_invalid_forecast_type(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -1170,7 +1171,7 @@ def test_create_forecast_invalid_forecast_type(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -1196,7 +1197,7 @@ def test_create_forecast_invalid_forecast_type(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -1219,8 +1220,10 @@ def test_create_forecast_invalid_forecast_type(
         headers=superuser_token_headers,
         json=payload,
     )
-    assert response.status_code == 400
-    assert "forecast_type" in response.json()["detail"].lower()
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert isinstance(detail, list)
+    assert any("forecast_type" in err.get("loc", []) for err in detail)
 
 
 def test_create_forecast_zero_eac(
@@ -1240,7 +1243,7 @@ def test_create_forecast_zero_eac(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -1251,7 +1254,7 @@ def test_create_forecast_zero_eac(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -1277,7 +1280,7 @@ def test_create_forecast_zero_eac(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)
@@ -1349,7 +1352,7 @@ def test_create_forecast_same_date_allowed(
         start_date=date(2024, 1, 1),
         planned_completion_date=date(2024, 12, 31),
         project_manager_id=pm_user.id,
-        status="active",
+        business_status="active",
     )
     project = Project.model_validate(project_in)
     db.add(project)
@@ -1360,7 +1363,7 @@ def test_create_forecast_same_date_allowed(
         project_id=project.project_id,
         machine_type="Machine",
         revenue_allocation=50000.00,
-        status="designing",
+        business_status="designing",
     )
     wbe = WBE.model_validate(wbe_in)
     db.add(wbe)
@@ -1386,7 +1389,7 @@ def test_create_forecast_same_date_allowed(
         department_name="Test Dept",
         budget_bac=5000.00,
         revenue_plan=6000.00,
-        status="active",
+        business_status="active",
     )
     ce = CostElement.model_validate(ce_in)
     db.add(ce)

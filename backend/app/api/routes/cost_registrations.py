@@ -1,7 +1,7 @@
 """Cost Registrations API routes."""
 
 import uuid
-from datetime import date
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Annotated, Any
 
@@ -23,6 +23,12 @@ from app.models import (
     CostRegistrationsPublic,
     CostRegistrationUpdate,
     Message,
+)
+from app.services.branch_filtering import apply_status_filters
+from app.services.entity_versioning import (
+    create_entity_with_version,
+    soft_delete_entity,
+    update_entity_with_version,
 )
 from app.services.time_machine import TimeMachineEventType, apply_time_machine_filters
 
@@ -178,6 +184,9 @@ def read_cost_registrations(
             CostRegistration.cost_element_id == cost_element_id
         )
 
+    statement = apply_status_filters(statement, CostRegistration)
+    count_statement = apply_status_filters(count_statement, CostRegistration)
+
     statement = apply_time_machine_filters(
         statement, TimeMachineEventType.COST_REGISTRATION, control_date
     )
@@ -205,7 +214,11 @@ def read_cost_registration(
     """
     Get a single cost registration by ID.
     """
-    cost_registration = session.get(CostRegistration, id)
+    statement = select(CostRegistration).where(
+        CostRegistration.cost_registration_id == id
+    )
+    statement = apply_status_filters(statement, CostRegistration)
+    cost_registration = session.exec(statement).first()
     if not cost_registration:
         raise HTTPException(status_code=404, detail="Cost registration not found")
     return cost_registration
@@ -241,7 +254,12 @@ def create_cost_registration(
     cost_registration_data = cost_registration_in.model_dump()
     cost_registration_data["created_by_id"] = current_user.id
     cost_registration = CostRegistration.model_validate(cost_registration_data)
-    session.add(cost_registration)
+    cost_registration = create_entity_with_version(
+        session=session,
+        entity=cost_registration,
+        entity_type="cost_registration",
+        entity_id=cost_registration.cost_registration_id,
+    )
     session.commit()
     session.refresh(cost_registration)
 
@@ -269,7 +287,11 @@ def update_cost_registration(
     """
     Update a cost registration.
     """
-    cost_registration = session.get(CostRegistration, id)
+    statement = select(CostRegistration).where(
+        CostRegistration.cost_registration_id == id
+    )
+    statement = apply_status_filters(statement, CostRegistration)
+    cost_registration = session.exec(statement).first()
     if not cost_registration:
         raise HTTPException(status_code=404, detail="Cost registration not found")
 
@@ -303,8 +325,14 @@ def update_cost_registration(
         registration_date,
     )
 
-    cost_registration.sqlmodel_update(update_dict)
-    session.add(cost_registration)
+    update_dict["last_modified_at"] = datetime.now(timezone.utc)
+    cost_registration = update_entity_with_version(
+        session=session,
+        entity_class=CostRegistration,
+        entity_id=cost_registration.cost_registration_id,
+        update_data=update_dict,
+        entity_type="cost_registration",
+    )
     session.commit()
     session.refresh(cost_registration)
 
@@ -328,9 +356,18 @@ def delete_cost_registration(
     """
     Delete a cost registration.
     """
-    cost_registration = session.get(CostRegistration, id)
+    statement = select(CostRegistration).where(
+        CostRegistration.cost_registration_id == id
+    )
+    statement = apply_status_filters(statement, CostRegistration)
+    cost_registration = session.exec(statement).first()
     if not cost_registration:
         raise HTTPException(status_code=404, detail="Cost registration not found")
-    session.delete(cost_registration)
+    soft_delete_entity(
+        session=session,
+        entity_class=CostRegistration,
+        entity_id=id,
+        entity_type="cost_registration",
+    )
     session.commit()
     return Message(message="Cost registration deleted successfully")

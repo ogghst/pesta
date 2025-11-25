@@ -4,14 +4,18 @@ import uuid
 from datetime import date, datetime
 from decimal import Decimal
 
+from pydantic import ConfigDict
 from sqlalchemy import DECIMAL, Column, Date, DateTime
 from sqlmodel import Field, Relationship, SQLModel
+
+from app.models.branch_version_mixin import BranchVersionMixin
 
 # Import Project for forward reference
 from app.models.project import Project
 
 
 class WBEBase(SQLModel):
+    model_config = ConfigDict(populate_by_name=True)
     """Base WBE schema with common fields."""
 
     machine_type: str = Field(max_length=100)
@@ -22,9 +26,10 @@ class WBEBase(SQLModel):
     revenue_allocation: Decimal = Field(
         default=Decimal("0.00"), sa_column=Column(DECIMAL(15, 2), nullable=False)
     )
-    status: str = Field(
-        max_length=50, default="designing"
-    )  # Will be validated as enum in application logic
+    business_status: str = Field(
+        default="designing",
+        max_length=50,
+    )
     notes: str | None = Field(default=None)
 
 
@@ -43,11 +48,11 @@ class WBEUpdate(SQLModel):
     revenue_allocation: Decimal | None = Field(
         default=None, sa_column=Column(DECIMAL(15, 2), nullable=True)
     )
-    status: str | None = Field(default=None, max_length=50)
+    business_status: str | None = Field(default=None, max_length=50)
     notes: str | None = None
 
 
-class WBE(WBEBase, table=True):
+class WBE(WBEBase, BranchVersionMixin, table=True):
     """WBE database model."""
 
     wbe_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -67,8 +72,12 @@ class WBE(WBEBase, table=True):
 class WBEPublic(WBEBase):
     """Public WBE schema for API responses."""
 
+    entity_id: uuid.UUID
     wbe_id: uuid.UUID
     project_id: uuid.UUID
+    status: str  # Versioning status (from BranchVersionMixin)
+    version: int
+    branch: str
 
 
 class WBEsPublic(SQLModel):

@@ -44,7 +44,7 @@ def test_create_wbe(
         "serial_number": "RB-001",
         "contracted_delivery_date": str(date.today() + timedelta(days=180)),
         "revenue_allocation": 50000.00,
-        "status": "designing",
+        "business_status": "designing",
         "project_id": str(project.project_id),
     }
     response = client.post(
@@ -68,7 +68,7 @@ def test_create_wbe_invalid_project(
     data = {
         "machine_type": "Test Machine",
         "revenue_allocation": 50000.00,
-        "status": "designing",
+        "business_status": "designing",
         "project_id": str(uuid.uuid4()),
     }
     response = client.post(
@@ -200,7 +200,10 @@ def test_update_wbe(
 ) -> None:
     """Test updating a WBE."""
     wbe = create_random_wbe(db)
-    data = {"machine_type": "Updated Machine Type", "status": "completed"}
+    data = {
+        "machine_type": "Updated Machine Type",
+        "business_status": "completed",
+    }
     response = client.put(
         f"{settings.API_V1_STR}/wbes/{wbe.wbe_id}",
         headers=superuser_token_headers,
@@ -209,8 +212,8 @@ def test_update_wbe(
     assert response.status_code == 200
     content = response.json()
     assert content["machine_type"] == data["machine_type"]
-    assert content["status"] == data["status"]
-    assert content["wbe_id"] == str(wbe.wbe_id)
+    assert content["business_status"] == data["business_status"]
+    assert content["entity_id"] == str(wbe.entity_id)
 
 
 def test_update_wbe_not_found(
@@ -312,7 +315,7 @@ def test_create_wbe_exceeds_project_contract_value(
     wbe_data = {
         "machine_type": "Test Machine",
         "revenue_allocation": 150000.00,  # Exceeds project contract_value of 100000.00
-        "status": "designing",
+        "business_status": "designing",
         "project_id": str(project.project_id),
     }
     response = client.post(

@@ -1,5 +1,5 @@
 import uuid
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Query
@@ -14,6 +14,12 @@ from app.models import (
     CostElementSchedulePublic,
     CostElementScheduleUpdate,
     Message,
+)
+from app.services.branch_filtering import apply_status_filters
+from app.services.entity_versioning import (
+    create_entity_with_version,
+    soft_delete_entity,
+    update_entity_with_version,
 )
 from app.services.time_machine import (
     TimeMachineEventType,
@@ -37,6 +43,7 @@ def _select_latest_operational_schedule(
             CostElementSchedule.created_at.desc(),
         )
     )
+    statement = apply_status_filters(statement, CostElementSchedule)
     if control_date:
         statement = apply_time_machine_filters(
             statement, TimeMachineEventType.SCHEDULE, control_date
@@ -56,6 +63,7 @@ def _select_operational_schedule_history(
             CostElementSchedule.created_at.desc(),
         )
     )
+    statement = apply_status_filters(statement, CostElementSchedule)
     if control_date:
         statement = apply_time_machine_filters(
             statement, TimeMachineEventType.SCHEDULE, control_date
@@ -131,7 +139,12 @@ def create_schedule(
         created_by_id=current_user.id,
     )
     schedule = CostElementSchedule.model_validate(schedule_create)
-    session.add(schedule)
+    schedule = create_entity_with_version(
+        session=session,
+        entity=schedule,
+        entity_type="cost_element_schedule",
+        entity_id=schedule.schedule_id,
+    )
     session.commit()
     session.refresh(schedule)
     return schedule
@@ -148,7 +161,9 @@ def update_schedule(
     """
     Update a schedule registration.
     """
-    schedule = session.get(CostElementSchedule, id)
+    statement = select(CostElementSchedule).where(CostElementSchedule.schedule_id == id)
+    statement = apply_status_filters(statement, CostElementSchedule)
+    schedule = session.exec(statement).first()
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
     if schedule.baseline_id is not None:
@@ -168,8 +183,14 @@ def update_schedule(
             detail="end_date must be greater than or equal to start_date",
         )
 
-    schedule.sqlmodel_update(update_dict)
-    session.add(schedule)
+    update_dict["updated_at"] = datetime.now(timezone.utc)
+    schedule = update_entity_with_version(
+        session=session,
+        entity_class=CostElementSchedule,
+        entity_id=schedule.schedule_id,
+        update_data=update_dict,
+        entity_type="cost_element_schedule",
+    )
     session.commit()
     session.refresh(schedule)
     return schedule
@@ -182,13 +203,20 @@ def delete_schedule(
     """
     Delete a schedule registration.
     """
-    schedule = session.get(CostElementSchedule, id)
+    statement = select(CostElementSchedule).where(CostElementSchedule.schedule_id == id)
+    statement = apply_status_filters(statement, CostElementSchedule)
+    schedule = session.exec(statement).first()
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
     if schedule.baseline_id is not None:
         raise HTTPException(
             status_code=400, detail="Baseline schedule snapshots cannot be deleted"
         )
-    session.delete(schedule)
+    soft_delete_entity(
+        session=session,
+        entity_class=CostElementSchedule,
+        entity_id=id,
+        entity_type="cost_element_schedule",
+    )
     session.commit()
     return Message(message="Schedule deleted successfully")

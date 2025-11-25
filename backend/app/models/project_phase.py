@@ -4,6 +4,8 @@ import uuid
 
 from sqlmodel import Field, SQLModel
 
+from app.models.version_status_mixin import VersionStatusMixin
+
 
 class ProjectPhaseBase(SQLModel):
     """Base project phase schema with common fields."""
@@ -29,7 +31,7 @@ class ProjectPhaseUpdate(SQLModel):
     display_order: int | None = None
 
 
-class ProjectPhase(ProjectPhaseBase, table=True):
+class ProjectPhase(ProjectPhaseBase, VersionStatusMixin, table=True):
     """Project phase database model."""
 
     phase_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -39,3 +41,6 @@ class ProjectPhasePublic(ProjectPhaseBase):
     """Public project phase schema for API responses."""
 
     phase_id: uuid.UUID
+    entity_id: uuid.UUID
+    status: str
+    version: int
