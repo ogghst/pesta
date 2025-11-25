@@ -204,3 +204,35 @@ class BranchService:
             )
             cost_element.status = "merged"
             session.add(cost_element)
+
+    @staticmethod
+    def delete_branch(session: Session, branch: str) -> None:
+        """Soft delete a branch by setting status='deleted' for all branch entities.
+
+        This performs a soft delete, preserving all versions of WBE and CostElement
+        entities in the branch. The entities will not appear in normal queries
+        (which filter by status='active'), but can be queried with include_deleted=True.
+
+        Args:
+            session: Database session
+            branch: Branch name to delete (e.g., 'co-001')
+
+        Raises:
+            ValueError: If attempting to delete the main branch
+        """
+        if branch == BranchService.MAIN_BRANCH:
+            raise ValueError("Cannot delete the main branch.")
+
+        # Get all WBEs in the branch (all versions, all statuses)
+        branch_wbes = session.exec(select(WBE).where(WBE.branch == branch)).all()
+        for wbe in branch_wbes:
+            wbe.status = "deleted"
+            session.add(wbe)
+
+        # Get all CostElements in the branch (all versions, all statuses)
+        branch_cost_elements = session.exec(
+            select(CostElement).where(CostElement.branch == branch)
+        ).all()
+        for cost_element in branch_cost_elements:
+            cost_element.status = "deleted"
+            session.add(cost_element)
