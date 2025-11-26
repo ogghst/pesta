@@ -77,7 +77,8 @@ describe("VersionHistoryViewer", () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText(/version 1|version 2/i)).toBeInTheDocument()
+      const versions = screen.getAllByText(/Version \d/i)
+      expect(versions.length).toBeGreaterThanOrEqual(2)
     })
   })
 

@@ -88,10 +88,6 @@ describe("ChangeOrdersTable", () => {
     renderWithProviders(<ChangeOrdersTable projectId="test-project-id" />)
 
     await waitFor(() => {
-      // Pagination component should be present
-      const _pagination = screen.queryByRole("navigation", {
-        name: /pagination/i,
-      })
       // Pagination might not be visible if only one page, but component should exist
       expect(screen.getByText("Change Orders")).toBeInTheDocument()
     })

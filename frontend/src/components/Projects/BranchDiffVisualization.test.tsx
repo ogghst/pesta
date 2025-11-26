@@ -39,13 +39,19 @@ describe("BranchDiffVisualization", () => {
     vi.clearAllMocks()
     vi.mocked(client.BranchComparisonService.compareBranches).mockResolvedValue(
       {
+        project_id: "test-project-id",
+        branch: "co-001",
+        base_branch: "main",
+        summary: {
+          creates_count: 0,
+          updates_count: 0,
+          deletes_count: 0,
+          total_revenue_change: 0,
+          total_budget_change: 0,
+        },
         creates: [],
         updates: [],
         deletes: [],
-        financial_impact: {
-          total_revenue_change: "0.00",
-          total_budget_change: "0.00",
-        },
       },
     )
   })

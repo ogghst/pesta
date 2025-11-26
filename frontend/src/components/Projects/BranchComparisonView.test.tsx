@@ -39,27 +39,33 @@ describe("BranchComparisonView", () => {
     vi.clearAllMocks()
     vi.mocked(client.BranchComparisonService.compareBranches).mockResolvedValue(
       {
+        project_id: "test-project-id",
+        branch: "co-001",
+        base_branch: "main",
+        summary: {
+          creates_count: 1,
+          updates_count: 1,
+          deletes_count: 0,
+          total_revenue_change: 5000,
+          total_budget_change: 3000,
+        },
         creates: [
           {
-            entity_type: "wbe",
+            type: "wbe",
             entity_id: "wbe-1",
-            machine_type: "New Machine",
-            revenue_allocation: "10000.00",
+            description: "Create WBE: New Machine",
+            revenue_change: 10000,
           },
         ],
         updates: [
           {
-            entity_type: "wbe",
+            type: "wbe",
             entity_id: "wbe-2",
-            machine_type: "Updated Machine",
-            revenue_allocation: "20000.00",
+            description: "Update WBE: Existing Machine",
+            revenue_change: 20000,
           },
         ],
         deletes: [],
-        financial_impact: {
-          total_revenue_change: "5000.00",
-          total_budget_change: "3000.00",
-        },
       },
     )
   })
@@ -80,8 +86,12 @@ describe("BranchComparisonView", () => {
     )
 
     await waitFor(() => {
-      // Should show creates, updates, deletes with visual indicators
-      expect(screen.getByText(/creates|updates|deletes/i)).toBeInTheDocument()
+      expect(
+        screen.getByRole("heading", { name: /Creates/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole("heading", { name: /Updates/i }),
+      ).toBeInTheDocument()
     })
   })
 
@@ -91,9 +101,8 @@ describe("BranchComparisonView", () => {
     )
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/financial impact|revenue|budget/i),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Total Revenue Change/i)).toBeInTheDocument()
+      expect(screen.getByText(/Total Budget Change/i)).toBeInTheDocument()
     })
   })
 

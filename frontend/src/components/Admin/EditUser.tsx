@@ -197,7 +197,7 @@ const EditUser = ({ user }: EditUserProps) => {
                 render={({ field }) => (
                   <Field disabled={field.disabled} colorPalette="teal">
                     <Checkbox
-                      checked={field.value}
+                      checked={field.value ?? false}
                       onCheckedChange={({ checked }) => field.onChange(checked)}
                     >
                       Is active?

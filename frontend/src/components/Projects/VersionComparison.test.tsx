@@ -89,7 +89,10 @@ describe("VersionComparison", () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText(/version 1|version 2/i)).toBeInTheDocument()
+      const headings = screen.getAllByRole("heading", {
+        name: /Version \d/i,
+      })
+      expect(headings).toHaveLength(2)
     })
   })
 })

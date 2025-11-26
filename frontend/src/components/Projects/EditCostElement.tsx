@@ -9,7 +9,12 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
-import { Controller, type SubmitHandler, useForm } from "react-hook-form"
+import {
+  Controller,
+  type FieldValues,
+  type SubmitHandler,
+  useForm,
+} from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 import {
   type ApiError,
@@ -17,6 +22,7 @@ import {
   CostElementsService,
   type CostElementUpdate,
 } from "@/client"
+import { useBranch } from "@/context/BranchContext"
 import { useRevenuePlanValidation } from "@/hooks/useRevenuePlanValidation"
 import { handleError } from "@/utils"
 import {
@@ -34,9 +40,12 @@ interface EditCostElementProps {
   costElement: CostElementPublic
 }
 
+type CostElementUpdateFormValues = CostElementUpdate & FieldValues
+
 const EditCostElement = ({ costElement }: EditCostElementProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
+  const { currentBranch } = useBranch()
 
   const {
     control,
@@ -47,7 +56,7 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
     setError,
     clearErrors,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<CostElementUpdate>({
+  } = useForm<CostElementUpdateFormValues>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
@@ -55,7 +64,7 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
       department_name: costElement.department_name,
       budget_bac: costElement.budget_bac,
       revenue_plan: costElement.revenue_plan,
-      status: costElement.status,
+      business_status: costElement.business_status ?? "planned",
       notes: costElement.notes,
     },
   })
@@ -99,6 +108,7 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
       CostElementsService.updateCostElement({
         id: costElement.cost_element_id,
         requestBody: data,
+        branch: currentBranch || costElement.branch || "main",
       }),
     onSuccess: () => {
       // Don't show toast here - will show after both operations complete
@@ -116,7 +126,7 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
     },
   })
 
-  const onSubmit: SubmitHandler<CostElementUpdate> = async (data) => {
+  const onSubmit: SubmitHandler<CostElementUpdateFormValues> = async (data) => {
     await mutation.mutateAsync(data)
   }
 
@@ -235,17 +245,17 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
               </Field>
 
               <Field
-                invalid={!!errors.status}
-                errorText={errors.status?.message}
-                label="Status"
+                invalid={!!errors.business_status}
+                errorText={errors.business_status?.message}
+                label="Business Status"
               >
                 <Controller
                   control={control}
-                  name="status"
+                  name="business_status"
                   render={({ field }) => (
                     <select
                       {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       style={{
                         width: "100%",
                         padding: "8px",

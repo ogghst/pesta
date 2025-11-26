@@ -9,7 +9,8 @@ import uuid
 
 from sqlmodel import Session, select
 
-from app.models import WBE, ChangeOrder, CostElement
+from app.models import WBE, BranchLock, ChangeOrder, CostElement
+from app.services.branch_notifications import BranchNotificationsService
 from app.services.version_service import VersionService
 
 
@@ -205,6 +206,14 @@ class BranchService:
             cost_element.status = "merged"
             session.add(cost_element)
 
+        BranchService._record_branch_notification(
+            session=session,
+            branch=branch,
+            change_order_id=change_order_id,
+            event_type="merge_completed",
+            message=f"Branch '{branch}' merged into main",
+        )
+
     @staticmethod
     def delete_branch(session: Session, branch: str) -> None:
         """Soft delete a branch by setting status='deleted' for all branch entities.
@@ -236,3 +245,171 @@ class BranchService:
         for cost_element in branch_cost_elements:
             cost_element.status = "deleted"
             session.add(cost_element)
+
+    @staticmethod
+    def clone_branch(
+        session: Session, source_branch: str, target_branch: str | None = None
+    ) -> str:
+        """Clone all WBE and CostElement versions from one branch into a new branch.
+
+        Args:
+            session: Database session.
+            source_branch: Name of the branch to clone from.
+            target_branch: Optional explicit name for the new branch.
+
+        Returns:
+            Name of the newly created branch.
+        """
+
+        if source_branch == BranchService.MAIN_BRANCH:
+            raise ValueError("Cannot clone the main branch.")
+
+        new_branch = target_branch or f"{source_branch}-clone-{uuid.uuid4().hex[:4]}"
+        if new_branch == source_branch:
+            raise ValueError("Cloned branch name must differ from source branch.")
+
+        existing = session.exec(select(WBE).where(WBE.branch == new_branch)).first()
+        if existing:
+            raise ValueError(f"Branch '{new_branch}' already exists.")
+
+        source_wbes = session.exec(select(WBE).where(WBE.branch == source_branch)).all()
+        source_cost_elements = session.exec(
+            select(CostElement).where(CostElement.branch == source_branch)
+        ).all()
+
+        wbe_id_map: dict[uuid.UUID, uuid.UUID] = {}
+
+        for wbe in source_wbes:
+            cloned_wbe = WBE(
+                entity_id=wbe.entity_id,
+                project_id=wbe.project_id,
+                machine_type=wbe.machine_type,
+                serial_number=wbe.serial_number,
+                contracted_delivery_date=wbe.contracted_delivery_date,
+                revenue_allocation=wbe.revenue_allocation,
+                business_status=wbe.business_status,
+                notes=wbe.notes,
+                branch=new_branch,
+                version=wbe.version,
+                status=wbe.status,
+            )
+            session.add(cloned_wbe)
+            session.flush()
+            wbe_id_map[wbe.wbe_id] = cloned_wbe.wbe_id
+
+        for cost_element in source_cost_elements:
+            cloned_wbe_id = wbe_id_map.get(cost_element.wbe_id)
+            if cloned_wbe_id is None:
+                continue
+
+            cloned_ce = CostElement(
+                entity_id=cost_element.entity_id,
+                wbe_id=cloned_wbe_id,
+                cost_element_type_id=cost_element.cost_element_type_id,
+                department_code=cost_element.department_code,
+                department_name=cost_element.department_name,
+                budget_bac=cost_element.budget_bac,
+                revenue_plan=cost_element.revenue_plan,
+                business_status=cost_element.business_status,
+                notes=cost_element.notes,
+                branch=new_branch,
+                version=cost_element.version,
+                status=cost_element.status,
+            )
+            session.add(cloned_ce)
+
+        return new_branch
+
+    @staticmethod
+    def get_branch_lock(
+        session: Session, project_id: uuid.UUID, branch: str
+    ) -> BranchLock | None:
+        """Return the lock information for a branch if it exists."""
+        return session.exec(
+            select(BranchLock)
+            .where(BranchLock.project_id == project_id)
+            .where(BranchLock.branch == branch)
+        ).first()
+
+    @staticmethod
+    def lock_branch(
+        session: Session,
+        project_id: uuid.UUID,
+        branch: str,
+        locked_by_id: uuid.UUID,
+        reason: str | None = None,
+    ) -> BranchLock:
+        """Create a lock entry for a branch."""
+        if branch == BranchService.MAIN_BRANCH:
+            raise ValueError("Cannot lock the main branch.")
+
+        existing = BranchService.get_branch_lock(session, project_id, branch)
+        if existing:
+            raise ValueError("Branch is already locked.")
+
+        lock = BranchLock(
+            project_id=project_id,
+            branch=branch,
+            locked_by_id=locked_by_id,
+            reason=reason,
+        )
+        session.add(lock)
+        session.flush()
+        return lock
+
+    @staticmethod
+    def unlock_branch(session: Session, project_id: uuid.UUID, branch: str) -> None:
+        """Release a branch lock if one exists."""
+        lock = BranchService.get_branch_lock(session, project_id, branch)
+        if lock:
+            session.delete(lock)
+            session.flush()
+
+    @staticmethod
+    def _record_branch_notification(
+        session: Session,
+        branch: str,
+        event_type: str,
+        message: str,
+        change_order_id: uuid.UUID | None = None,
+    ) -> None:
+        """Record a notification for a branch event if context is available."""
+        change_order: ChangeOrder | None = None
+        if change_order_id:
+            change_order = session.get(ChangeOrder, change_order_id)
+        if not change_order:
+            change_order = session.exec(
+                select(ChangeOrder).where(ChangeOrder.branch == branch)
+            ).first()
+        if not change_order:
+            return
+
+        recipients = BranchService._collect_change_order_recipients(change_order)
+        BranchNotificationsService.create_notification(
+            session=session,
+            project_id=change_order.project_id,
+            branch=branch,
+            event_type=event_type,
+            message=message,
+            recipients=recipients,
+            context={
+                "change_order_id": str(change_order.change_order_id),
+                "project_id": str(change_order.project_id),
+            },
+        )
+
+    @staticmethod
+    def _collect_change_order_recipients(change_order: ChangeOrder | None) -> list[str]:
+        """Derive recipient email addresses from a change order's stakeholders."""
+        if not change_order:
+            return []
+
+        recipients: list[str] = []
+        for user in (
+            change_order.created_by,
+            change_order.approved_by,
+            change_order.implemented_by,
+        ):
+            if user and user.email and str(user.email) not in recipients:
+                recipients.append(str(user.email))
+        return recipients

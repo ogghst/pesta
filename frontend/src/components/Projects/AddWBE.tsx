@@ -9,7 +9,12 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { Controller, type SubmitHandler, useForm } from "react-hook-form"
+import {
+  Controller,
+  type FieldValues,
+  type SubmitHandler,
+  useForm,
+} from "react-hook-form"
 import { FaPlus } from "react-icons/fa"
 import { type WBECreate, WbesService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
@@ -31,6 +36,8 @@ interface AddWBEProps {
   projectId: string
 }
 
+type WBECreateFormValues = WBECreate & FieldValues
+
 const AddWBE = ({ projectId }: AddWBEProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -42,7 +49,7 @@ const AddWBE = ({ projectId }: AddWBEProps) => {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<WBECreate>({
+  } = useForm<WBECreateFormValues>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
@@ -50,7 +57,7 @@ const AddWBE = ({ projectId }: AddWBEProps) => {
       serial_number: null,
       contracted_delivery_date: null,
       revenue_allocation: 0,
-      status: "designing",
+      business_status: "designing",
       notes: null,
       project_id: projectId,
     },
@@ -58,7 +65,10 @@ const AddWBE = ({ projectId }: AddWBEProps) => {
 
   const mutation = useMutation({
     mutationFn: (data: WBECreate) =>
-      WbesService.createWbe({ requestBody: data }),
+      WbesService.createWbe({
+        requestBody: data,
+        branch: currentBranch || "main",
+      }),
     onSuccess: () => {
       showSuccessToast("WBE created successfully.")
       reset()
@@ -72,11 +82,8 @@ const AddWBE = ({ projectId }: AddWBEProps) => {
     },
   })
 
-  const onSubmit: SubmitHandler<WBECreate> = (data) => {
-    mutation.mutate({
-      ...data,
-      branch: currentBranch || "main",
-    })
+  const onSubmit: SubmitHandler<WBECreateFormValues> = (data) => {
+    mutation.mutate(data)
   }
 
   return (
@@ -154,16 +161,17 @@ const AddWBE = ({ projectId }: AddWBEProps) => {
               </Field>
 
               <Field
-                invalid={!!errors.status}
-                errorText={errors.status?.message}
-                label="Status"
+                invalid={!!errors.business_status}
+                errorText={errors.business_status?.message}
+                label="Business Status"
               >
                 <Controller
                   control={control}
-                  name="status"
+                  name="business_status"
                   render={({ field }) => (
                     <select
                       {...field}
+                      value={field.value ?? ""}
                       style={{
                         width: "100%",
                         padding: "8px",

@@ -1,6 +1,7 @@
 import { Box, Grid, Heading, Text, VStack } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { VersionHistoryService } from "@/client"
+import type { VersionHistoryResponse } from "@/types/versionHistory"
 
 interface VersionComparisonProps {
   entityType: string
@@ -17,14 +18,16 @@ const VersionComparison = ({
   version2,
   branch,
 }: VersionComparisonProps) => {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<VersionHistoryResponse>({
     queryKey: ["version-history", entityType, entityId, branch],
-    queryFn: () =>
-      VersionHistoryService.getEntityVersionHistory({
+    queryFn: async () => {
+      const response = await VersionHistoryService.getEntityVersionHistory({
         entityType,
         entityId,
         branch,
-      }),
+      })
+      return response as unknown as VersionHistoryResponse
+    },
     enabled: !!entityType && !!entityId,
   })
 

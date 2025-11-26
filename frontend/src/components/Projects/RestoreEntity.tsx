@@ -1,6 +1,12 @@
 import { Button } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { RestoreService } from "@/client"
+import {
+  type ChangeOrderPublic,
+  type CostElementPublic,
+  type ProjectPublic,
+  RestoreService,
+  type WBEPublic,
+} from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -19,25 +25,29 @@ const RestoreEntity = ({
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
-  const restoreMutation = useMutation({
-    mutationFn: () => {
+  const restoreMutation = useMutation<
+    WBEPublic | CostElementPublic | ChangeOrderPublic | ProjectPublic,
+    ApiError,
+    void
+  >({
+    mutationFn: async () => {
       switch (entityType) {
         case "wbe":
-          return RestoreService.restoreWbe({
+          return await RestoreService.restoreWbe({
             wbeId: entityId,
             branch,
           })
         case "costelement":
-          return RestoreService.restoreCostElement({
+          return await RestoreService.restoreCostElement({
             costElementId: entityId,
             branch,
           })
         case "changeorder":
-          return RestoreService.restoreChangeOrder({
+          return await RestoreService.restoreChangeOrder({
             changeOrderId: entityId,
           })
         case "project":
-          return RestoreService.restoreProject({
+          return await RestoreService.restoreProject({
             projectId: entityId,
           })
         default:

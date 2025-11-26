@@ -1,6 +1,10 @@
 import { Box, Grid, Heading, Text, VStack } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { BranchComparisonService } from "@/client"
+import type {
+  BranchComparisonChange,
+  BranchComparisonResponse,
+} from "@/types/branchComparison"
 
 interface BranchComparisonViewProps {
   projectId: string
@@ -13,14 +17,16 @@ const BranchComparisonView = ({
   branch,
   baseBranch = "main",
 }: BranchComparisonViewProps) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<BranchComparisonResponse>({
     queryKey: ["branch-comparison", projectId, branch, baseBranch],
-    queryFn: () =>
-      BranchComparisonService.compareBranches({
+    queryFn: async () => {
+      const response = await BranchComparisonService.compareBranches({
         projectId,
         branch,
         baseBranch,
-      }),
+      })
+      return response as unknown as BranchComparisonResponse
+    },
     enabled: !!projectId && !!branch && branch !== baseBranch,
   })
 
@@ -48,7 +54,72 @@ const BranchComparisonView = ({
     )
   }
 
-  const { creates, updates, deletes, financial_impact } = data
+  const summary = data.summary
+  const creates = data.creates ?? []
+  const updates = data.updates ?? []
+  const deletes = data.deletes ?? []
+
+  const legacyFinancialImpact = data.financial_impact
+  const totalRevenueChange =
+    summary?.total_revenue_change ??
+    (legacyFinancialImpact
+      ? Number(legacyFinancialImpact.total_revenue_change)
+      : 0)
+  const totalBudgetChange =
+    summary?.total_budget_change ??
+    (legacyFinancialImpact
+      ? Number(legacyFinancialImpact.total_budget_change)
+      : 0)
+
+  const formatCurrency = (value: number) => {
+    const sign = value > 0 ? "+" : value < 0 ? "-" : ""
+    return `${sign}€${Math.abs(value).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`
+  }
+
+  const renderChangeList = (
+    items: BranchComparisonChange[],
+    accent: "green" | "yellow" | "red",
+  ) => {
+    if (items.length === 0) {
+      return (
+        <Text fontSize="sm" color="fg.muted">
+          No items
+        </Text>
+      )
+    }
+
+    return (
+      <VStack gap={2} align="stretch">
+        {items.map((item) => (
+          <Box
+            key={item.entity_id}
+            p={2}
+            bg="white"
+            borderRadius="md"
+            borderWidth="1px"
+            borderColor={`${accent}.300`}
+          >
+            <Text fontSize="sm" fontWeight="medium">
+              {item.description}
+            </Text>
+            {typeof item.revenue_change === "number" && (
+              <Text fontSize="xs" color="fg.muted">
+                Revenue Δ: {formatCurrency(item.revenue_change)}
+              </Text>
+            )}
+            {typeof item.budget_change === "number" && (
+              <Text fontSize="xs" color="fg.muted">
+                Budget Δ: {formatCurrency(item.budget_change)}
+              </Text>
+            )}
+          </Box>
+        ))}
+      </VStack>
+    )
+  }
 
   return (
     <Box p={4}>
@@ -76,22 +147,9 @@ const BranchComparisonView = ({
               <Text
                 fontSize="lg"
                 fontWeight="bold"
-                color={
-                  parseFloat(financial_impact.total_revenue_change) >= 0
-                    ? "green.500"
-                    : "red.500"
-                }
+                color={totalRevenueChange >= 0 ? "green.500" : "red.500"}
               >
-                {parseFloat(financial_impact.total_revenue_change) >= 0
-                  ? "+"
-                  : ""}
-                €
-                {parseFloat(
-                  financial_impact.total_revenue_change,
-                ).toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {formatCurrency(totalRevenueChange)}
               </Text>
             </Box>
             <Box>
@@ -101,22 +159,9 @@ const BranchComparisonView = ({
               <Text
                 fontSize="lg"
                 fontWeight="bold"
-                color={
-                  parseFloat(financial_impact.total_budget_change) >= 0
-                    ? "green.500"
-                    : "red.500"
-                }
+                color={totalBudgetChange >= 0 ? "green.500" : "red.500"}
               >
-                {parseFloat(financial_impact.total_budget_change) >= 0
-                  ? "+"
-                  : ""}
-                €
-                {parseFloat(
-                  financial_impact.total_budget_change,
-                ).toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {formatCurrency(totalBudgetChange)}
               </Text>
             </Box>
           </Grid>
@@ -135,42 +180,7 @@ const BranchComparisonView = ({
             <Heading size="sm" mb={2} color="green.700">
               Creates ({creates.length})
             </Heading>
-            {creates.length === 0 ? (
-              <Text fontSize="sm" color="fg.muted">
-                No new entities
-              </Text>
-            ) : (
-              <VStack gap={2} align="stretch">
-                {creates.map((item, idx) => (
-                  <Box
-                    key={idx}
-                    p={2}
-                    bg="white"
-                    borderRadius="md"
-                    borderWidth="1px"
-                    borderColor="green.300"
-                  >
-                    <Text fontSize="sm" fontWeight="medium">
-                      {item.entity_type === "wbe"
-                        ? item.machine_type
-                        : item.department_name}
-                    </Text>
-                    {item.revenue_allocation && (
-                      <Text fontSize="xs" color="fg.muted">
-                        Revenue: €
-                        {parseFloat(item.revenue_allocation).toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          },
-                        )}
-                      </Text>
-                    )}
-                  </Box>
-                ))}
-              </VStack>
-            )}
+            {renderChangeList(creates, "green")}
           </Box>
 
           {/* Updates */}
@@ -184,42 +194,7 @@ const BranchComparisonView = ({
             <Heading size="sm" mb={2} color="yellow.700">
               Updates ({updates.length})
             </Heading>
-            {updates.length === 0 ? (
-              <Text fontSize="sm" color="fg.muted">
-                No modified entities
-              </Text>
-            ) : (
-              <VStack gap={2} align="stretch">
-                {updates.map((item, idx) => (
-                  <Box
-                    key={idx}
-                    p={2}
-                    bg="white"
-                    borderRadius="md"
-                    borderWidth="1px"
-                    borderColor="yellow.300"
-                  >
-                    <Text fontSize="sm" fontWeight="medium">
-                      {item.entity_type === "wbe"
-                        ? item.machine_type
-                        : item.department_name}
-                    </Text>
-                    {item.revenue_allocation && (
-                      <Text fontSize="xs" color="fg.muted">
-                        Revenue: €
-                        {parseFloat(item.revenue_allocation).toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          },
-                        )}
-                      </Text>
-                    )}
-                  </Box>
-                ))}
-              </VStack>
-            )}
+            {renderChangeList(updates, "yellow")}
           </Box>
         </Grid>
 
@@ -235,24 +210,7 @@ const BranchComparisonView = ({
             <Heading size="sm" mb={2} color="red.700">
               Deletes ({deletes.length})
             </Heading>
-            <VStack gap={2} align="stretch">
-              {deletes.map((item, idx) => (
-                <Box
-                  key={idx}
-                  p={2}
-                  bg="white"
-                  borderRadius="md"
-                  borderWidth="1px"
-                  borderColor="red.300"
-                >
-                  <Text fontSize="sm" fontWeight="medium">
-                    {item.entity_type === "wbe"
-                      ? item.machine_type
-                      : item.department_name}
-                  </Text>
-                </Box>
-              ))}
-            </VStack>
+            {renderChangeList(deletes, "red")}
           </Box>
         )}
       </VStack>

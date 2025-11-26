@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import type React from "react"
 import { afterEach, describe, expect, it, vi } from "vitest"
+import type * as client from "@/client"
 import { ColorModeProvider } from "@/components/ui/color-mode"
 import { TimeMachineProvider } from "@/context/TimeMachineContext"
 import { system } from "../../../theme"
@@ -65,7 +66,7 @@ describe("ViewBaseline AI Assessment Tab", () => {
     vi.clearAllMocks()
   })
 
-  const mockBaseline = {
+  const mockBaseline: client.BaselineLogPublic = {
     baseline_id: "baseline-123",
     baseline_type: "original",
     baseline_date: "2024-01-15",
@@ -75,7 +76,11 @@ describe("ViewBaseline AI Assessment Tab", () => {
     milestone_type: "milestone",
     project_id: "project-123",
     created_by_id: "user-123",
-  } as const
+    entity_id: "baseline-123-entity",
+    status: "active",
+    version: 1,
+    is_pmb: false,
+  }
 
   it("renders AI Assessment tab in tabs list", async () => {
     renderWithProviders(

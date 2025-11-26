@@ -34,23 +34,31 @@ function renderWithProviders(ui: React.ReactElement) {
   )
 }
 
+const buildChangeOrder = (
+  overrides: Partial<client.ChangeOrderPublic> = {},
+): client.ChangeOrderPublic => ({
+  change_order_id: "co-1",
+  change_order_number: "CO-001",
+  title: "Test Change Order",
+  description: "Test description",
+  requesting_party: "Project Owner",
+  effective_date: "2025-01-01",
+  workflow_status: "design",
+  project_id: "test-project-id",
+  created_by_id: "user-1",
+  created_at: "2025-01-01T00:00:00Z",
+  entity_id: "co-1",
+  status: "active",
+  version: 1,
+  branch: "co-001",
+  ...overrides,
+})
+
 describe("BranchManagement", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(client.ChangeOrdersService.listChangeOrders).mockResolvedValue([
-      {
-        change_order_id: "co-1",
-        change_order_number: "CO-001",
-        title: "Test",
-        branch: "co-001",
-        workflow_status: "design",
-        project_id: "test-project-id",
-        created_by_id: "user-1",
-        created_at: "2025-01-01T00:00:00Z",
-        entity_id: "co-1",
-        status: "active",
-        version: 1,
-      },
+      buildChangeOrder(),
     ])
   })
 
@@ -68,7 +76,7 @@ describe("BranchManagement", () => {
     renderWithProviders(<BranchManagement projectId="test-project-id" />)
 
     await waitFor(() => {
-      expect(screen.getByText(/co-001|main/i)).toBeInTheDocument()
+      expect(screen.getAllByText(/co-001/i).length).toBeGreaterThan(0)
     })
   })
 })

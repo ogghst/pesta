@@ -36,6 +36,7 @@ import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
 import DeleteCostElement from "@/components/Projects/DeleteCostElement"
 import EditCostElement from "@/components/Projects/EditCostElement"
 import MetricsSummary from "@/components/Projects/MetricsSummary"
+import { BranchProvider } from "@/context/BranchContext"
 import { useTimeMachine } from "@/context/TimeMachineContext"
 import type { CostElementView } from "./projects.$id.wbes.$wbeId.cost-elements.$costElementId"
 
@@ -363,137 +364,143 @@ function WBEDetail() {
 
   // If we're on a cost element detail route (child route), render Outlet for child route
   if (isCostElementRoute) {
-    return <Outlet />
+    return (
+      <BranchProvider projectId={projectId}>
+        <Outlet />
+      </BranchProvider>
+    )
   }
 
   return (
-    <Container maxW="full">
-      <Flex alignItems="center" gap={2} pt={12} mb={2}>
-        <Link to="/projects" search={{ page: 1 }}>
-          <Text
-            fontSize="sm"
-            color="blue.500"
-            _hover={{ textDecoration: "underline" }}
-          >
-            Projects
-          </Text>
-        </Link>
-        <FiChevronRight />
-        <Link
-          to="/projects/$id"
-          params={{ id: project.project_id }}
-          search={{ page: 1, tab: "wbes" } as any}
-        >
-          <Text
-            fontSize="sm"
-            color="blue.500"
-            _hover={{ textDecoration: "underline" }}
-          >
-            {project.project_name}
-          </Text>
-        </Link>
-        <FiChevronRight />
-        <Text fontSize="sm" color="gray.600">
-          {wbe.machine_type}
-        </Text>
-      </Flex>
-      <Heading size="lg">
-        {project.project_name} - {wbe.machine_type}
-      </Heading>
-
-      <Tabs.Root
-        value={mappedTab}
-        onValueChange={({ value }) => handleTabChange(value as WbeDetailTab)}
-        variant="subtle"
-        mt={4}
-      >
-        <Tabs.List>
-          <Tabs.Trigger value="info">WBE Information</Tabs.Trigger>
-          <Tabs.Trigger value="cost-elements">Cost Elements</Tabs.Trigger>
-          <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
-          <Tabs.Trigger value="timeline">Budget Timeline</Tabs.Trigger>
-          <Tabs.Trigger value="ai-assessment">AI Assessment</Tabs.Trigger>
-        </Tabs.List>
-
-        <Tabs.Content value="info">
-          <Box mt={4}>
-            <Text color="fg.muted">
-              WBE information content will be added here.
+    <BranchProvider projectId={projectId}>
+      <Container maxW="full">
+        <Flex alignItems="center" gap={2} pt={12} mb={2}>
+          <Link to="/projects" search={{ page: 1 }}>
+            <Text
+              fontSize="sm"
+              color="blue.500"
+              _hover={{ textDecoration: "underline" }}
+            >
+              Projects
             </Text>
-          </Box>
-        </Tabs.Content>
+          </Link>
+          <FiChevronRight />
+          <Link
+            to="/projects/$id"
+            params={{ id: project.project_id }}
+            search={{ page: 1, tab: "wbes" } as any}
+          >
+            <Text
+              fontSize="sm"
+              color="blue.500"
+              _hover={{ textDecoration: "underline" }}
+            >
+              {project.project_name}
+            </Text>
+          </Link>
+          <FiChevronRight />
+          <Text fontSize="sm" color="gray.600">
+            {wbe.machine_type}
+          </Text>
+        </Flex>
+        <Heading size="lg">
+          {project.project_name} - {wbe.machine_type}
+        </Heading>
 
-        <Tabs.Content value="cost-elements">
-          <Box mt={4}>
-            <Flex alignItems="center" justifyContent="space-between" mb={4}>
-              <Heading size="md">Cost Elements</Heading>
-              <AddCostElement wbeId={wbe.wbe_id} />
-            </Flex>
-            <CostElementsTable wbeId={wbe.wbe_id} />
-          </Box>
-        </Tabs.Content>
+        <Tabs.Root
+          value={mappedTab}
+          onValueChange={({ value }) => handleTabChange(value as WbeDetailTab)}
+          variant="subtle"
+          mt={4}
+        >
+          <Tabs.List>
+            <Tabs.Trigger value="info">WBE Information</Tabs.Trigger>
+            <Tabs.Trigger value="cost-elements">Cost Elements</Tabs.Trigger>
+            <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
+            <Tabs.Trigger value="timeline">Budget Timeline</Tabs.Trigger>
+            <Tabs.Trigger value="ai-assessment">AI Assessment</Tabs.Trigger>
+          </Tabs.List>
 
-        <Tabs.Content value="metrics">
-          <MetricsSummary
-            level="wbe"
-            projectId={projectId}
-            wbeId={wbe.wbe_id}
-          />
-        </Tabs.Content>
+          <Tabs.Content value="info">
+            <Box mt={4}>
+              <Text color="fg.muted">
+                WBE information content will be added here.
+              </Text>
+            </Box>
+          </Tabs.Content>
 
-        <Tabs.Content value="timeline">
-          <Box mt={4}>
-            <Heading size="md" mb={4}>
-              Budget Timeline
-            </Heading>
-            <BudgetTimelineFilter
+          <Tabs.Content value="cost-elements">
+            <Box mt={4}>
+              <Flex alignItems="center" justifyContent="space-between" mb={4}>
+                <Heading size="md">Cost Elements</Heading>
+                <AddCostElement wbeId={wbe.wbe_id} />
+              </Flex>
+              <CostElementsTable wbeId={wbe.wbe_id} />
+            </Box>
+          </Tabs.Content>
+
+          <Tabs.Content value="metrics">
+            <MetricsSummary
+              level="wbe"
               projectId={projectId}
-              context="wbe"
-              initialFilters={{ wbeIds: [wbeId] }}
-              onFilterChange={handleFilterChange}
+              wbeId={wbe.wbe_id}
             />
-            {isLoadingCostElements ? (
-              <Box
-                p={4}
-                borderWidth="1px"
-                borderRadius="lg"
-                bg="bg.surface"
-                mt={4}
-              >
-                <Text>Loading cost elements...</Text>
-              </Box>
-            ) : costElements && costElements.length === 0 ? (
-              <Box
-                p={4}
-                borderWidth="1px"
-                borderRadius="lg"
-                bg="bg.surface"
-                mt={4}
-              >
-                <Text color="fg.muted">
-                  No cost elements found matching the selected filters.
-                </Text>
-              </Box>
-            ) : (
-              <Box mt={4}>
-                <BudgetTimeline
-                  costElements={costElements || []}
-                  viewMode="aggregated"
-                  projectId={projectId}
-                  wbeIds={normalizedFilter.wbeIds}
-                  costElementIds={normalizedFilter.costElementIds}
-                />
-              </Box>
-            )}
-          </Box>
-        </Tabs.Content>
+          </Tabs.Content>
 
-        <Tabs.Content value="ai-assessment">
-          <Box mt={4} h="calc(100vh - 300px)">
-            <AIChat contextType="wbe" contextId={wbe.wbe_id} />
-          </Box>
-        </Tabs.Content>
-      </Tabs.Root>
-    </Container>
+          <Tabs.Content value="timeline">
+            <Box mt={4}>
+              <Heading size="md" mb={4}>
+                Budget Timeline
+              </Heading>
+              <BudgetTimelineFilter
+                projectId={projectId}
+                context="wbe"
+                initialFilters={{ wbeIds: [wbeId] }}
+                onFilterChange={handleFilterChange}
+              />
+              {isLoadingCostElements ? (
+                <Box
+                  p={4}
+                  borderWidth="1px"
+                  borderRadius="lg"
+                  bg="bg.surface"
+                  mt={4}
+                >
+                  <Text>Loading cost elements...</Text>
+                </Box>
+              ) : costElements && costElements.length === 0 ? (
+                <Box
+                  p={4}
+                  borderWidth="1px"
+                  borderRadius="lg"
+                  bg="bg.surface"
+                  mt={4}
+                >
+                  <Text color="fg.muted">
+                    No cost elements found matching the selected filters.
+                  </Text>
+                </Box>
+              ) : (
+                <Box mt={4}>
+                  <BudgetTimeline
+                    costElements={costElements || []}
+                    viewMode="aggregated"
+                    projectId={projectId}
+                    wbeIds={normalizedFilter.wbeIds}
+                    costElementIds={normalizedFilter.costElementIds}
+                  />
+                </Box>
+              )}
+            </Box>
+          </Tabs.Content>
+
+          <Tabs.Content value="ai-assessment">
+            <Box mt={4} h="calc(100vh - 300px)">
+              <AIChat contextType="wbe" contextId={wbe.wbe_id} />
+            </Box>
+          </Tabs.Content>
+        </Tabs.Root>
+      </Container>
+    </BranchProvider>
   )
 }

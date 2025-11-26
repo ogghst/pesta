@@ -82,12 +82,10 @@ describe("AddChangeOrder", () => {
     const trigger = screen.getByText(/add change order/i)
     fireEvent.click(trigger)
 
-    await waitFor(() => {
-      const submitButton = screen.getByRole("button", { name: /save/i })
-      fireEvent.click(submitButton)
-    })
+    const titleInput = await screen.findByLabelText(/title/i)
+    fireEvent.focus(titleInput)
+    fireEvent.blur(titleInput)
 
-    // Form should show validation errors
     await waitFor(() => {
       expect(screen.getByText(/title is required/i)).toBeInTheDocument()
     })
@@ -99,22 +97,26 @@ describe("AddChangeOrder", () => {
     const trigger = screen.getByText(/add change order/i)
     fireEvent.click(trigger)
 
-    await waitFor(() => {
-      const titleInput = screen.getByLabelText(/title/i)
-      fireEvent.change(titleInput, { target: { value: "Test CO" } })
+    const titleInput = await screen.findByLabelText(/title/i)
+    fireEvent.change(titleInput, { target: { value: "Test CO" } })
+    fireEvent.blur(titleInput)
 
-      const descriptionInput = screen.getByLabelText(/description/i)
-      fireEvent.change(descriptionInput, {
-        target: { value: "Test description" },
-      })
-
-      const requestingPartyInput = screen.getByLabelText(/requesting party/i)
-      fireEvent.change(requestingPartyInput, {
-        target: { value: "Test Party" },
-      })
+    const descriptionInput = screen.getByLabelText(/description/i)
+    fireEvent.change(descriptionInput, {
+      target: { value: "Test description" },
     })
+    fireEvent.blur(descriptionInput)
+
+    const requestingPartyInput = screen.getByLabelText(/requesting party/i)
+    fireEvent.change(requestingPartyInput, {
+      target: { value: "Test Party" },
+    })
+    fireEvent.blur(requestingPartyInput)
 
     const submitButton = screen.getByRole("button", { name: /save/i })
+    await waitFor(() => {
+      expect(submitButton).toBeEnabled()
+    })
     fireEvent.click(submitButton)
 
     await waitFor(() => {
@@ -129,9 +131,6 @@ describe("AddChangeOrder", () => {
     fireEvent.click(trigger)
 
     await waitFor(() => {
-      // Change order number field should exist (may be disabled/readonly)
-      const _coNumberField = screen.queryByLabelText(/change order number/i)
-      // Field may not be visible if auto-generated, but form should work
       expect(screen.getByLabelText(/title/i)).toBeInTheDocument()
     })
   })
@@ -142,22 +141,26 @@ describe("AddChangeOrder", () => {
     const trigger = screen.getByText(/add change order/i)
     fireEvent.click(trigger)
 
-    await waitFor(() => {
-      const titleInput = screen.getByLabelText(/title/i)
-      fireEvent.change(titleInput, { target: { value: "Test CO" } })
+    const titleInput = await screen.findByLabelText(/title/i)
+    fireEvent.change(titleInput, { target: { value: "Test CO" } })
+    fireEvent.blur(titleInput)
 
-      const descriptionInput = screen.getByLabelText(/description/i)
-      fireEvent.change(descriptionInput, {
-        target: { value: "Test description" },
-      })
-
-      const requestingPartyInput = screen.getByLabelText(/requesting party/i)
-      fireEvent.change(requestingPartyInput, {
-        target: { value: "Test Party" },
-      })
+    const descriptionInput = screen.getByLabelText(/description/i)
+    fireEvent.change(descriptionInput, {
+      target: { value: "Test description" },
     })
+    fireEvent.blur(descriptionInput)
+
+    const requestingPartyInput = screen.getByLabelText(/requesting party/i)
+    fireEvent.change(requestingPartyInput, {
+      target: { value: "Test Party" },
+    })
+    fireEvent.blur(requestingPartyInput)
 
     const submitButton = screen.getByRole("button", { name: /save/i })
+    await waitFor(() => {
+      expect(submitButton).toBeEnabled()
+    })
     fireEvent.click(submitButton)
 
     await waitFor(() => {

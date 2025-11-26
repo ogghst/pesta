@@ -34,24 +34,32 @@ function renderWithProviders(ui: React.ReactElement) {
   )
 }
 
+const buildChangeOrder = (
+  overrides: Partial<client.ChangeOrderPublic> = {},
+): client.ChangeOrderPublic => ({
+  change_order_id: "co-1",
+  change_order_number: "CO-001",
+  title: "Test",
+  description: "Test change order",
+  requesting_party: "Project Owner",
+  effective_date: "2025-01-01",
+  workflow_status: "design",
+  project_id: "test-project-id",
+  created_by_id: "user-1",
+  created_at: "2025-01-01T00:00:00Z",
+  entity_id: "co-1",
+  status: "active",
+  version: 1,
+  branch: "co-001",
+  ...overrides,
+})
+
 describe("ChangeOrderStatusTransition", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(
       client.ChangeOrdersService.transitionChangeOrderStatus,
-    ).mockResolvedValue({
-      change_order_id: "co-1",
-      change_order_number: "CO-001",
-      title: "Test",
-      workflow_status: "approve",
-      project_id: "test-project-id",
-      created_by_id: "user-1",
-      created_at: "2025-01-01T00:00:00Z",
-      entity_id: "co-1",
-      status: "active",
-      version: 1,
-      branch: "co-001",
-    })
+    ).mockResolvedValue(buildChangeOrder({ workflow_status: "approve" }))
   })
 
   it("shows available transitions", () => {
@@ -63,7 +71,10 @@ describe("ChangeOrderStatusTransition", () => {
       />,
     )
 
-    expect(screen.getByText(/transition|status/i)).toBeInTheDocument()
+    expect(screen.getByText(/Current status:/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole("button", { name: /Transition to Approve/i }),
+    ).toBeInTheDocument()
   })
 
   it("validates transition rules", () => {

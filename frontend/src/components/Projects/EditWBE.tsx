@@ -9,10 +9,16 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
-import { Controller, type SubmitHandler, useForm } from "react-hook-form"
+import {
+  Controller,
+  type FieldValues,
+  type SubmitHandler,
+  useForm,
+} from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 import { type WBEPublic, type WBEUpdate, WbesService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
+import { useBranch } from "@/context/BranchContext"
 import useCustomToast from "@/hooks/useCustomToast"
 import { useRevenueAllocationValidation } from "@/hooks/useRevenueAllocationValidation"
 import { handleError } from "@/utils"
@@ -31,10 +37,13 @@ interface EditWBEProps {
   wbe: WBEPublic
 }
 
+type WBEUpdateFormValues = WBEUpdate & FieldValues
+
 const EditWBE = ({ wbe }: EditWBEProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+  const { currentBranch } = useBranch()
   const {
     control,
     register,
@@ -44,7 +53,7 @@ const EditWBE = ({ wbe }: EditWBEProps) => {
     setError,
     clearErrors,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<WBEUpdate>({
+  } = useForm<WBEUpdateFormValues>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
@@ -52,7 +61,7 @@ const EditWBE = ({ wbe }: EditWBEProps) => {
       serial_number: wbe.serial_number,
       contracted_delivery_date: wbe.contracted_delivery_date || null,
       revenue_allocation: wbe.revenue_allocation,
-      status: wbe.status,
+      business_status: wbe.business_status ?? "designing",
       notes: wbe.notes,
     },
   })
@@ -98,7 +107,11 @@ const EditWBE = ({ wbe }: EditWBEProps) => {
 
   const mutation = useMutation({
     mutationFn: (data: WBEUpdate) =>
-      WbesService.updateWbe({ id: wbe.wbe_id, requestBody: data }),
+      WbesService.updateWbe({
+        id: wbe.wbe_id,
+        requestBody: data,
+        branch: currentBranch || wbe.branch || "main",
+      }),
     onSuccess: () => {
       showSuccessToast("WBE updated successfully.")
       reset()
@@ -113,7 +126,7 @@ const EditWBE = ({ wbe }: EditWBEProps) => {
     },
   })
 
-  const onSubmit: SubmitHandler<WBEUpdate> = (data) => {
+  const onSubmit: SubmitHandler<WBEUpdateFormValues> = (data) => {
     mutation.mutate(data)
   }
 
@@ -217,17 +230,17 @@ const EditWBE = ({ wbe }: EditWBEProps) => {
               </Field>
 
               <Field
-                invalid={!!errors.status}
-                errorText={errors.status?.message}
-                label="Status"
+                invalid={!!errors.business_status}
+                errorText={errors.business_status?.message}
+                label="Business Status"
               >
                 <Controller
                   control={control}
-                  name="status"
+                  name="business_status"
                   render={({ field }) => (
                     <select
                       {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       style={{
                         width: "100%",
                         padding: "8px",

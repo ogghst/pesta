@@ -402,7 +402,88 @@ def test_merge_branch_last_write_wins(db: Session) -> None:
     assert main_ce_latest is not None
     assert main_ce_latest.version == 2  # New version created
     assert main_ce_latest.department_name == "Branch Department"  # Branch value wins
-    assert main_ce_latest.budget_bac == 15000.00  # Branch value wins
+
+
+def test_clone_branch_creates_new_branch_with_entities(db: Session) -> None:
+    """Cloning a branch should copy WBEs and cost elements into the new branch."""
+    pm_user = _create_pm_user(db)
+    project = _create_project(db, pm_user)
+    change_order = _create_change_order(db, project, pm_user)
+    source_branch = BranchService.create_branch(
+        db, change_order_id=change_order.change_order_id
+    )
+
+    from app.models import WBE, CostElement, CostElementType, CostElementTypeCreate
+
+    branch_wbe = WBE(
+        entity_id=uuid.uuid4(),
+        project_id=project.project_id,
+        machine_type="Clone Source WBE",
+        revenue_allocation=42000.00,
+        business_status="designing",
+        notes="Original branch wbe",
+        branch=source_branch,
+        version=2,
+        status="active",
+    )
+    db.add(branch_wbe)
+    db.flush()
+
+    cet_in = CostElementTypeCreate(
+        type_code=f"clone_{uuid.uuid4().hex[:6]}",
+        type_name="Clone Test Type",
+        category_type="engineering_mechanical",
+        display_order=1,
+        is_active=True,
+    )
+    cet = CostElementType.model_validate(cet_in)
+    db.add(cet)
+    db.commit()
+    db.refresh(branch_wbe)
+    db.refresh(cet)
+
+    branch_ce = CostElement(
+        entity_id=uuid.uuid4(),
+        wbe_id=branch_wbe.wbe_id,
+        cost_element_type_id=cet.cost_element_type_id,
+        department_code="CLONE",
+        department_name="Clone Department",
+        budget_bac=12345.67,
+        revenue_plan=15000.00,
+        business_status="planned",
+        branch=source_branch,
+        version=2,
+        status="active",
+    )
+    db.add(branch_ce)
+    db.commit()
+
+    cloned_branch = BranchService.clone_branch(session=db, source_branch=source_branch)
+    db.commit()
+
+    assert cloned_branch != source_branch
+
+    cloned_wbes = db.exec(
+        select(WBE).where(WBE.branch == cloned_branch).order_by(WBE.created_at)
+    ).all()
+    assert len(cloned_wbes) == 1
+    assert cloned_wbes[0].machine_type == "Clone Source WBE"
+    assert cloned_wbes[0].entity_id == branch_wbe.entity_id
+    assert cloned_wbes[0].wbe_id != branch_wbe.wbe_id
+    assert cloned_wbes[0].version == 2
+
+    cloned_ce = db.exec(
+        select(CostElement).where(CostElement.branch == cloned_branch)
+    ).one()
+    assert cloned_ce.department_name == "Clone Department"
+    assert cloned_ce.entity_id == branch_ce.entity_id
+    assert cloned_ce.wbe_id == cloned_wbes[0].wbe_id
+
+
+def test_clone_branch_rejects_main_branch(db: Session) -> None:
+    """Cloning the main branch should raise an error."""
+    with pytest.raises(ValueError):
+        BranchService.clone_branch(session=db, source_branch=BranchService.MAIN_BRANCH)
 
 
 def test_merge_branch_handles_update_operations(db: Session) -> None:

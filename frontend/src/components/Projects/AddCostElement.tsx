@@ -9,7 +9,12 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
-import { Controller, type SubmitHandler, useForm } from "react-hook-form"
+import {
+  Controller,
+  type FieldValues,
+  type SubmitHandler,
+  useForm,
+} from "react-hook-form"
 import { FaPlus } from "react-icons/fa"
 import {
   type CostElementCreate,
@@ -36,6 +41,8 @@ interface AddCostElementProps {
   wbeId: string
 }
 
+type CostElementCreateFormValues = CostElementCreate & FieldValues
+
 const AddCostElement = ({ wbeId }: AddCostElementProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -61,7 +68,7 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
     setError,
     clearErrors,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<CostElementCreate>({
+  } = useForm<CostElementCreateFormValues>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
@@ -69,7 +76,7 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
       department_name: "",
       budget_bac: 0,
       revenue_plan: 0,
-      status: "planned",
+      business_status: "planned",
       notes: null,
       wbe_id: wbeId,
       cost_element_type_id: "",
@@ -145,7 +152,10 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
 
   const mutation = useMutation({
     mutationFn: (data: CostElementCreate) =>
-      CostElementsService.createCostElement({ requestBody: data }),
+      CostElementsService.createCostElement({
+        requestBody: data,
+        branch: currentBranch || "main",
+      }),
     onSuccess: () => {
       showSuccessToast("Cost Element created successfully.")
       reset()
@@ -160,11 +170,8 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
     },
   })
 
-  const onSubmit: SubmitHandler<CostElementCreate> = (data) => {
-    mutation.mutate({
-      ...data,
-      branch: currentBranch || "main",
-    })
+  const onSubmit: SubmitHandler<CostElementCreateFormValues> = (data) => {
+    mutation.mutate(data)
   }
 
   return (
@@ -349,16 +356,17 @@ const AddCostElement = ({ wbeId }: AddCostElementProps) => {
               </Field>
 
               <Field
-                invalid={!!errors.status}
-                errorText={errors.status?.message}
-                label="Status"
+                invalid={!!errors.business_status}
+                errorText={errors.business_status?.message}
+                label="Business Status"
               >
                 <Controller
                   control={control}
-                  name="status"
+                  name="business_status"
                   render={({ field }) => (
                     <select
                       {...field}
+                      value={field.value ?? ""}
                       style={{
                         width: "100%",
                         padding: "8px",

@@ -77,7 +77,7 @@ const MergeBranchDialog = ({
 
   return (
     <DialogRoot open={isOpen} onOpenChange={({ open }) => !open && onClose()}>
-      <DialogContent size={{ base: "xs", md: "xl" }}>
+      <DialogContent w="100%" maxW={{ base: "xs", md: "xl" }}>
         <DialogHeader>
           <DialogTitle>Merge Branch: {branch}</DialogTitle>
         </DialogHeader>

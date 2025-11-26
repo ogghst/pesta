@@ -85,10 +85,9 @@ describe("EditChangeOrder", () => {
     const trigger = screen.getByRole("button", { name: /edit change order/i })
     fireEvent.click(trigger)
 
-    await waitFor(() => {
-      const titleInput = screen.getByLabelText(/title/i)
-      fireEvent.change(titleInput, { target: { value: "" } })
-    })
+    const titleInput = await screen.findByLabelText(/title/i)
+    fireEvent.change(titleInput, { target: { value: "" } })
+    fireEvent.blur(titleInput)
 
     const submitButton = screen.getByRole("button", { name: /save/i })
     fireEvent.click(submitButton)

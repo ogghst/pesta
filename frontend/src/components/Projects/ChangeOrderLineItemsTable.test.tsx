@@ -41,14 +41,13 @@ describe("ChangeOrderLineItemsTable", () => {
       client.ChangeOrderLineItemsService.listChangeOrderLineItems,
     ).mockResolvedValue([
       {
-        line_item_id: "li-1",
-        change_order_id: "co-1",
         operation_type: "create",
         target_type: "wbe",
-        staging_target_id: "wbe-1",
-        actual_target_id: null,
+        branch_target_id: "wbe-1",
+        main_target_id: null,
         budget_change: "1000.00",
         revenue_change: "1200.00",
+        description: "Test line item",
       },
     ])
   })
@@ -103,7 +102,8 @@ describe("ChangeOrderLineItemsTable", () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText(/1000|1200|€/i)).toBeInTheDocument()
+      expect(screen.getAllByText(/€1,000.00/).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(/€1,200.00/).length).toBeGreaterThan(0)
     })
   })
 })

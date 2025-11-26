@@ -1,6 +1,7 @@
 import { Box, Heading, Text, VStack } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { VersionHistoryService } from "@/client"
+import type { VersionHistoryResponse } from "@/types/versionHistory"
 
 interface VersionHistoryViewerProps {
   entityType: string
@@ -13,14 +14,16 @@ const VersionHistoryViewer = ({
   entityId,
   branch,
 }: VersionHistoryViewerProps) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<VersionHistoryResponse>({
     queryKey: ["version-history", entityType, entityId, branch],
-    queryFn: () =>
-      VersionHistoryService.getEntityVersionHistory({
+    queryFn: async () => {
+      const response = await VersionHistoryService.getEntityVersionHistory({
         entityType,
         entityId,
         branch,
-      }),
+      })
+      return response as unknown as VersionHistoryResponse
+    },
     enabled: !!entityType && !!entityId,
   })
 
@@ -54,7 +57,6 @@ const VersionHistoryViewer = ({
   }
 
   const versions = data.versions
-  const _currentVersion = versions[0] // Latest version is first
 
   return (
     <Box p={4}>

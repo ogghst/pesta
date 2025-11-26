@@ -42,6 +42,7 @@ describe("RestoreEntity", () => {
       wbe_id: "wbe-1",
       entity_id: "wbe-1",
       machine_type: "Test Machine",
+      project_id: "project-123",
       status: "active",
       version: 2,
       branch: "main",

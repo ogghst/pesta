@@ -128,8 +128,8 @@ describe("ChangeOrderDetailView", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Financial Impact Summary")).toBeInTheDocument()
-      expect(screen.getByText(/€1,000.00/)).toBeInTheDocument()
-      expect(screen.getByText(/€500.00/)).toBeInTheDocument()
+      expect(screen.getAllByText(/€1,000.00/)).not.toHaveLength(0)
+      expect(screen.getAllByText(/€500.00/)).not.toHaveLength(0)
     })
   })
 

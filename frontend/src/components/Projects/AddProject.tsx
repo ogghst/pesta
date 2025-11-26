@@ -9,7 +9,12 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { Controller, type SubmitHandler, useForm } from "react-hook-form"
+import {
+  Controller,
+  type FieldValues,
+  type SubmitHandler,
+  useForm,
+} from "react-hook-form"
 import { FaPlus } from "react-icons/fa"
 import {
   type ProjectCreate,
@@ -31,6 +36,8 @@ import {
 } from "../ui/dialog"
 import { Field } from "../ui/field"
 
+type ProjectCreateFormValues = ProjectCreate & FieldValues
+
 const AddProject = () => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -41,7 +48,7 @@ const AddProject = () => {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<ProjectCreate>({
+  } = useForm<ProjectCreateFormValues>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
@@ -53,7 +60,7 @@ const AddProject = () => {
       start_date: "",
       planned_completion_date: "",
       project_manager_id: "",
-      status: "active",
+      business_status: "active",
       notes: null,
     },
   })
@@ -82,7 +89,7 @@ const AddProject = () => {
     },
   })
 
-  const onSubmit: SubmitHandler<ProjectCreate> = (data) => {
+  const onSubmit: SubmitHandler<ProjectCreateFormValues> = (data) => {
     mutation.mutate(data)
   }
 
@@ -243,16 +250,17 @@ const AddProject = () => {
               </Field>
 
               <Field
-                invalid={!!errors.status}
-                errorText={errors.status?.message}
-                label="Status"
+                invalid={!!errors.business_status}
+                errorText={errors.business_status?.message}
+                label="Business Status"
               >
                 <Controller
                   control={control}
-                  name="status"
+                  name="business_status"
                   render={({ field }) => (
                     <select
                       {...field}
+                      value={field.value ?? ""}
                       style={{
                         width: "100%",
                         padding: "8px",

@@ -9,7 +9,12 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { Controller, type SubmitHandler, useForm } from "react-hook-form"
+import {
+  Controller,
+  type FieldValues,
+  type SubmitHandler,
+  useForm,
+} from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 import {
   type ProjectPublic,
@@ -36,6 +41,8 @@ interface EditProjectProps {
   project: ProjectPublic
 }
 
+type ProjectUpdateFormValues = ProjectUpdate & FieldValues
+
 const EditProject = ({ project }: EditProjectProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -46,7 +53,7 @@ const EditProject = ({ project }: EditProjectProps) => {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<ProjectUpdate>({
+  } = useForm<ProjectUpdateFormValues>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
@@ -58,7 +65,7 @@ const EditProject = ({ project }: EditProjectProps) => {
       start_date: project.start_date,
       planned_completion_date: project.planned_completion_date,
       project_manager_id: project.project_manager_id,
-      status: project.status,
+      business_status: project.business_status ?? "active",
       notes: project.notes,
     },
   })
@@ -93,7 +100,7 @@ const EditProject = ({ project }: EditProjectProps) => {
     },
   })
 
-  const onSubmit: SubmitHandler<ProjectUpdate> = (data) => {
+  const onSubmit: SubmitHandler<ProjectUpdateFormValues> = (data) => {
     mutation.mutate(data)
   }
 
@@ -254,17 +261,17 @@ const EditProject = ({ project }: EditProjectProps) => {
               </Field>
 
               <Field
-                invalid={!!errors.status}
-                errorText={errors.status?.message}
-                label="Status"
+                invalid={!!errors.business_status}
+                errorText={errors.business_status?.message}
+                label="Business Status"
               >
                 <Controller
                   control={control}
-                  name="status"
+                  name="business_status"
                   render={({ field }) => (
                     <select
                       {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       style={{
                         width: "100%",
                         padding: "8px",

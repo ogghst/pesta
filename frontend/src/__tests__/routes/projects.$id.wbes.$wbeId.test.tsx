@@ -6,6 +6,7 @@ import type React from "react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import * as client from "@/client"
 import { ColorModeProvider } from "@/components/ui/color-mode"
+import { BranchProvider } from "@/context/BranchContext"
 import { TimeMachineProvider } from "@/context/TimeMachineContext"
 import { Route } from "@/routes/_layout/projects.$id.wbes.$wbeId"
 import { system } from "@/theme"
@@ -85,7 +86,9 @@ function renderWithProviders(ui: React.ReactElement) {
     <ChakraProvider value={system}>
       <ColorModeProvider defaultTheme="light">
         <QueryClientProvider client={qc}>
-          <TimeMachineProvider>{ui}</TimeMachineProvider>
+          <BranchProvider projectId="project-123">
+            <TimeMachineProvider>{ui}</TimeMachineProvider>
+          </BranchProvider>
         </QueryClientProvider>
       </ColorModeProvider>
     </ChakraProvider>,

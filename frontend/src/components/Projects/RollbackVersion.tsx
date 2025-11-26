@@ -15,6 +15,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { VersionHistoryService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
+import type { VersionHistoryResponse } from "@/types/versionHistory"
 import { handleError } from "@/utils"
 
 interface RollbackVersionProps {
@@ -38,14 +39,16 @@ const RollbackVersion = ({
   const { showSuccessToast } = useCustomToast()
 
   // Fetch version history to get target version data
-  const { data: versionHistory } = useQuery({
+  const { data: versionHistory } = useQuery<VersionHistoryResponse>({
     queryKey: ["version-history", entityType, entityId, branch],
-    queryFn: () =>
-      VersionHistoryService.getEntityVersionHistory({
+    queryFn: async () => {
+      const response = await VersionHistoryService.getEntityVersionHistory({
         entityType,
         entityId,
         branch,
-      }),
+      })
+      return response as unknown as VersionHistoryResponse
+    },
     enabled: isOpen && !!entityType && !!entityId,
   })
 
@@ -89,7 +92,7 @@ const RollbackVersion = ({
 
   return (
     <DialogRoot open={isOpen} onOpenChange={({ open }) => !open && onClose()}>
-      <DialogContent size={{ base: "xs", md: "md" }}>
+      <DialogContent w="100%" maxW={{ base: "xs", md: "md" }}>
         <DialogHeader>
           <DialogTitle>Rollback to Version {targetVersion}</DialogTitle>
         </DialogHeader>
