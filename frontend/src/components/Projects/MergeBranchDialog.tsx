@@ -15,6 +15,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { BranchComparisonService, ChangeOrdersService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
+import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 import BranchComparisonView from "./BranchComparisonView"
@@ -25,6 +26,7 @@ interface MergeBranchDialogProps {
   changeOrderId: string
   isOpen: boolean
   onClose: () => void
+  onSuccess?: () => void
 }
 
 const MergeBranchDialog = ({
@@ -33,9 +35,11 @@ const MergeBranchDialog = ({
   changeOrderId,
   isOpen,
   onClose,
+  onSuccess,
 }: MergeBranchDialogProps) => {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+  const { user } = useAuth()
 
   // Fetch comparison data
   const { data: comparisonData, isLoading: isLoadingComparison } = useQuery({
@@ -51,20 +55,26 @@ const MergeBranchDialog = ({
 
   // Mutation to transition change order status (approve → execute triggers merge)
   const mergeMutation = useMutation({
-    mutationFn: () =>
-      ChangeOrdersService.transitionChangeOrderStatus({
+    mutationFn: () => {
+      if (!user?.id) {
+        throw new Error("User must be logged in to merge branch")
+      }
+      return ChangeOrdersService.transitionChangeOrderStatus({
         projectId,
         changeOrderId,
         requestBody: {
           workflow_status: "execute",
+          implemented_by_id: user.id,
         },
-      }),
+      })
+    },
     onSuccess: () => {
       showSuccessToast("Branch merged successfully.")
       queryClient.invalidateQueries({ queryKey: ["change-orders"] })
       queryClient.invalidateQueries({ queryKey: ["wbes"] })
       queryClient.invalidateQueries({ queryKey: ["cost-elements"] })
       onClose()
+      onSuccess?.()
     },
     onError: (err: ApiError) => {
       handleError(err)

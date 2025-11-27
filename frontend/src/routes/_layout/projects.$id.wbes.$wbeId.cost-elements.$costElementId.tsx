@@ -229,7 +229,7 @@ function CostElementDetailContent({
             Budget BAC: {costElement.budget_bac ?? "0.00"}
           </Text>
         </Box>
-        <BranchSelector />
+        <BranchSelector projectId={projectId} />
       </Flex>
 
       <Tabs.Root

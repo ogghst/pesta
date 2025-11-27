@@ -7,10 +7,11 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { ChangeOrderLineItemPublic, ChangeOrderPublic } from "@/client"
 import { ChangeOrderLineItemsService, ChangeOrdersService } from "@/client"
 import BranchComparisonView from "./BranchComparisonView"
+import ChangeOrderStatusTransition from "./ChangeOrderStatusTransition"
 import { formatCurrency, formatDate } from "./changeOrderColumns"
 
 interface ChangeOrderDetailViewProps {
@@ -22,6 +23,7 @@ const ChangeOrderDetailView = ({
   changeOrderId,
   projectId,
 }: ChangeOrderDetailViewProps) => {
+  const queryClient = useQueryClient()
   const { data: changeOrder, isLoading: isLoadingCO } = useQuery({
     queryFn: () =>
       ChangeOrdersService.readChangeOrder({
@@ -183,6 +185,28 @@ const ChangeOrderDetailView = ({
             />
           </Box>
         )}
+
+        {/* Status Transition */}
+        {co.workflow_status !== "execute" &&
+          co.workflow_status !== "cancelled" && (
+            <Box borderWidth="1px" borderRadius="md" p={4}>
+              <Heading size="sm" mb={3}>
+                Workflow Status
+              </Heading>
+              <ChangeOrderStatusTransition
+                projectId={projectId}
+                changeOrderId={co.change_order_id}
+                currentStatus={co.workflow_status}
+                branch={co.branch}
+                onSuccess={() => {
+                  // Refetch change order data after status transition
+                  queryClient.invalidateQueries({
+                    queryKey: ["change-orders", projectId, changeOrderId],
+                  })
+                }}
+              />
+            </Box>
+          )}
       </VStack>
     </Box>
   )

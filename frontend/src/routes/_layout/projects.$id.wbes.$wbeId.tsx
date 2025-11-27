@@ -400,7 +400,7 @@ function WBEDetailContent({
         <Heading size="lg">
           {project.project_name} - {wbe.machine_type}
         </Heading>
-        <BranchSelector />
+        <BranchSelector projectId={projectId} />
       </Flex>
 
       <Tabs.Root

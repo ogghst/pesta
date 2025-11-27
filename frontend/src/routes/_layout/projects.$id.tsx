@@ -381,7 +381,7 @@ function ProjectDetail() {
         </Flex>
         <Flex alignItems="center" justifyContent="space-between" mb={4}>
           <Heading size="lg">{project.project_name}</Heading>
-          <BranchSelector />
+          <BranchSelector projectId={project.project_id} />
         </Flex>
 
         <Tabs.Root
