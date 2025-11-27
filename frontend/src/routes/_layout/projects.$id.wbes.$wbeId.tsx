@@ -34,6 +34,7 @@ import AIChat from "@/components/Projects/AIChat"
 import BranchSelector from "@/components/Projects/BranchSelector"
 import BudgetTimeline from "@/components/Projects/BudgetTimeline"
 import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
+import { ChangeStatusIndicator } from "@/components/Projects/ChangeStatusIndicator"
 import DeleteCostElement from "@/components/Projects/DeleteCostElement"
 import EditCostElement from "@/components/Projects/EditCostElement"
 import MetricsSummary from "@/components/Projects/MetricsSummary"
@@ -84,6 +85,8 @@ function getWBEQueryOptions({
   branch: string
 }) {
   return {
+    // TODO: After client regeneration, use readWbeByEntityId with entity_id
+    // For now, using primary key endpoint for URL compatibility
     queryFn: () => WbesService.readWbe({ id, branch: branch || "main" }),
     queryKey: ["wbes", id, controlDate, branch],
   }
@@ -94,11 +97,13 @@ function getCostElementsQueryOptions({
   page,
   controlDate,
   branch,
+  viewMode,
 }: {
   wbeId: string
   page: number
   controlDate: string
   branch: string
+  viewMode: "merged" | "branch-only"
 }) {
   return {
     queryFn: () =>
@@ -107,8 +112,15 @@ function getCostElementsQueryOptions({
         skip: (page - 1) * PER_PAGE,
         limit: PER_PAGE,
         branch: branch || "main",
+        viewMode: viewMode,
       }),
-    queryKey: ["cost-elements", { wbeId: wbeId, page }, controlDate, branch],
+    queryKey: [
+      "cost-elements",
+      { wbeId: wbeId, page },
+      controlDate,
+      branch,
+      viewMode,
+    ],
   }
 }
 
@@ -117,66 +129,113 @@ export const Route = createFileRoute("/_layout/projects/$id/wbes/$wbeId")({
   validateSearch: (search) => wbeDetailSearchSchema.parse(search),
 })
 
-// Column definitions for Cost Elements table
-const costElementsColumns: ColumnDefExtended<CostElementPublic>[] = [
-  {
-    accessorKey: "department_name",
-    header: "Department",
-    enableSorting: true,
-    enableResizing: true,
-    enableColumnFilter: true,
-    filterType: "text",
-    size: 200,
-    defaultVisible: true,
-  },
-  {
-    accessorKey: "department_code",
-    header: "Department Code",
-    enableSorting: true,
-    enableResizing: true,
-    enableColumnFilter: true,
-    filterType: "text",
-    size: 150,
-    defaultVisible: true,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    enableSorting: true,
-    enableResizing: true,
-    enableColumnFilter: true,
-    filterType: "select",
-    filterConfig: {
-      type: "select",
-      options: ["planned", "in-progress", "completed", "on-hold"],
+// Function to get column definitions for Cost Elements table
+function getCostElementsColumns(
+  viewMode: "merged" | "branch-only",
+): ColumnDefExtended<CostElementPublic>[] {
+  const columns: ColumnDefExtended<CostElementPublic>[] = [
+    {
+      accessorKey: "department_name",
+      header: "Department",
+      enableSorting: true,
+      enableResizing: true,
+      enableColumnFilter: true,
+      filterType: "text",
+      size: 200,
+      defaultVisible: true,
+      cell: ({ row, getValue }) => {
+        const value = getValue() as string
+        const isDeleted =
+          viewMode === "merged" && row.original.change_status === "deleted"
+        return (
+          <Text
+            textDecoration={isDeleted ? "line-through" : "none"}
+            color={isDeleted ? "gray.500" : "inherit"}
+          >
+            {value}
+          </Text>
+        )
+      },
     },
-    size: 120,
-    defaultVisible: true,
-    cell: ({ getValue }) => (
-      <span style={{ textTransform: "capitalize" }}>
-        {(getValue() as string) || "planned"}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "budget_bac",
-    header: "Budget (BAC)",
-    enableSorting: true,
-    enableResizing: true,
-    size: 120,
-    defaultVisible: true,
-    cell: ({ getValue }) => (getValue() as string) || "0.00",
-  },
-  {
-    accessorKey: "revenue_plan",
-    header: "Revenue Plan",
-    enableSorting: true,
-    enableResizing: true,
-    size: 120,
-    defaultVisible: true,
-    cell: ({ getValue }) => (getValue() as string) || "0.00",
-  },
-  {
+    {
+      accessorKey: "department_code",
+      header: "Department Code",
+      enableSorting: true,
+      enableResizing: true,
+      enableColumnFilter: true,
+      filterType: "text",
+      size: 150,
+      defaultVisible: true,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      enableSorting: true,
+      enableResizing: true,
+      enableColumnFilter: true,
+      filterType: "select",
+      filterConfig: {
+        type: "select",
+        options: ["planned", "in-progress", "completed", "on-hold"],
+      },
+      size: 120,
+      defaultVisible: true,
+      cell: ({ getValue }) => (
+        <span style={{ textTransform: "capitalize" }}>
+          {(getValue() as string) || "planned"}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "budget_bac",
+      header: "Budget (BAC)",
+      enableSorting: true,
+      enableResizing: true,
+      size: 120,
+      defaultVisible: true,
+      cell: ({ getValue }) => (getValue() as string) || "0.00",
+    },
+    {
+      accessorKey: "revenue_plan",
+      header: "Revenue Plan",
+      enableSorting: true,
+      enableResizing: true,
+      size: 120,
+      defaultVisible: true,
+      cell: ({ getValue }) => (getValue() as string) || "0.00",
+    },
+  ]
+
+  // Add change status column when in merged view
+  if (viewMode === "merged") {
+    columns.splice(2, 0, {
+      accessorKey: "change_status",
+      header: "Change Status",
+      enableSorting: true,
+      enableResizing: true,
+      enableColumnFilter: true,
+      filterType: "select",
+      filterConfig: {
+        type: "select",
+        options: ["created", "updated", "deleted", "unchanged"],
+      },
+      size: 120,
+      defaultVisible: true,
+      cell: ({ row }) => {
+        const changeStatus = row.original.change_status
+        if (!changeStatus) return null
+        return (
+          <ChangeStatusIndicator
+            changeStatus={
+              changeStatus as "created" | "updated" | "deleted" | "unchanged"
+            }
+          />
+        )
+      },
+    })
+  }
+
+  columns.push({
     id: "actions",
     header: "Actions",
     enableSorting: false,
@@ -187,20 +246,21 @@ const costElementsColumns: ColumnDefExtended<CostElementPublic>[] = [
       <Flex gap={2}>
         <EditCostElement costElement={row.original} />
         <DeleteCostElement
-          id={row.original.cost_element_id}
+          costElement={row.original}
           departmentName={row.original.department_name}
-          wbeId={row.original.wbe_id}
         />
       </Flex>
     ),
-  },
-]
+  })
+
+  return columns
+}
 
 function CostElementsTable({ wbeId }: { wbeId: string }) {
   const navigate = useNavigate({ from: Route.fullPath })
   const { page } = Route.useSearch()
   const { controlDate } = useTimeMachine()
-  const { currentBranch } = useBranch()
+  const { currentBranch, viewMode } = useBranch()
 
   const { data, isLoading } = useQuery({
     ...getCostElementsQueryOptions({
@@ -208,6 +268,7 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
       page,
       controlDate,
       branch: currentBranch,
+      viewMode,
     }),
     placeholderData: (prevData) => prevData,
   })
@@ -256,10 +317,12 @@ function CostElementsTable({ wbeId }: { wbeId: string }) {
     )
   }
 
+  const columns = getCostElementsColumns(viewMode)
+
   return (
     <DataTable
       data={costElements}
-      columns={costElementsColumns}
+      columns={columns}
       tableId="cost-elements-table"
       onRowClick={handleRowClick}
       isLoading={isLoading}

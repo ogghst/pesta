@@ -108,7 +108,7 @@ const EditWBE = ({ wbe }: EditWBEProps) => {
   const mutation = useMutation({
     mutationFn: (data: WBEUpdate) =>
       WbesService.updateWbe({
-        id: wbe.wbe_id,
+        entityId: wbe.entity_id,
         requestBody: data,
         branch: currentBranch || wbe.branch || "main",
       }),

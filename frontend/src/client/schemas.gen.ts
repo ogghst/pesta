@@ -811,6 +811,81 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const BranchNotificationPublicSchema = {
+    properties: {
+        notification_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Notification Id'
+        },
+        project_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Id'
+        },
+        branch: {
+            type: 'string',
+            title: 'Branch'
+        },
+        event_type: {
+            type: 'string',
+            title: 'Event Type'
+        },
+        message: {
+            type: 'string',
+            title: 'Message'
+        },
+        recipients: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Recipients'
+        },
+        context: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Context'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        }
+    },
+    type: 'object',
+    required: ['notification_id', 'project_id', 'branch', 'event_type', 'message', 'recipients', 'created_at'],
+    title: 'BranchNotificationPublic',
+    description: 'Public representation of a branch notification.'
+} as const;
+
+export const BranchNotificationsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/BranchNotificationPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'BranchNotificationsPublic',
+    description: 'Collection wrapper for branch notifications.'
+} as const;
+
 export const BudgetSummaryPublicSchema = {
     properties: {
         level: {
@@ -1575,6 +1650,17 @@ export const CostElementPublicSchema = {
         branch: {
             type: 'string',
             title: 'Branch'
+        },
+        change_status: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Change Status'
         }
     },
     type: 'object',
@@ -2102,6 +2188,17 @@ export const CostElementWithSchedulePublicSchema = {
         branch: {
             type: 'string',
             title: 'Branch'
+        },
+        change_status: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Change Status'
         },
         schedule: {
             anyOf: [
@@ -5639,6 +5736,17 @@ export const WBEPublicSchema = {
         branch: {
             type: 'string',
             title: 'Branch'
+        },
+        change_status: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Change Status'
         }
     },
     type: 'object',

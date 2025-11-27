@@ -6,10 +6,14 @@ entities with version tracking.
 
 import uuid
 from typing import Any, TypeVar
+from uuid import UUID
 
 from sqlmodel import Session, SQLModel, select
 
-from app.services.branch_filtering import apply_status_filters
+from app.services.branch_filtering import (
+    apply_status_filters,
+    resolve_entity_by_entity_id,
+)
 from app.services.version_service import VersionService
 
 T = TypeVar("T", bound=SQLModel)
@@ -499,3 +503,88 @@ def hard_delete_entity(
         all_versions = session.exec(statement).all()
         for version in all_versions:
             session.delete(version)
+
+
+def ensure_branch_version(
+    session: Session,
+    entity_class: type[T],
+    entity_id: UUID | str,
+    branch: str,
+    entity_type: str,
+) -> T:
+    """Ensure an entity exists in the specified branch, creating a version 1 copy if needed.
+
+    This function is used before update/delete operations to ensure the entity exists
+    in the target branch. If the entity only exists in main branch, it creates a
+    version 1 copy in the specified branch.
+
+    Args:
+        session: Database session
+        entity_class: Entity model class (must be branch-enabled: WBE or CostElement)
+        entity_id: Entity ID (UUID)
+        branch: Branch name (must not be 'main')
+        entity_type: Entity type name (e.g., 'wbe', 'costelement')
+
+    Returns:
+        Entity in the specified branch (existing or newly created)
+
+    Raises:
+        ValueError: If entity not found in any branch, or if branch is 'main'
+    """
+    from app.models import BranchVersionMixin
+
+    if not issubclass(entity_class, BranchVersionMixin):
+        raise ValueError(
+            f"ensure_branch_version can only be used with branch-enabled models (WBE, CostElement), got {entity_class.__name__}"
+        )
+
+    if branch == "main":
+        raise ValueError("ensure_branch_version cannot be used with branch='main'")
+
+    # Convert entity_id to UUID if needed
+    if isinstance(entity_id, str):
+        entity_id = UUID(entity_id)
+
+    # Try to resolve in the specified branch
+    try:
+        entity = resolve_entity_by_entity_id(session, entity_class, entity_id, branch)
+        return entity
+    except ValueError:
+        # Not found in branch, try to get from main branch
+        pass
+
+    # Try to get from main branch
+    try:
+        main_entity = resolve_entity_by_entity_id(
+            session, entity_class, entity_id, "main"
+        )
+    except ValueError:
+        raise ValueError(
+            f"{entity_class.__name__} with entity_id={entity_id} not found in branch '{branch}' or 'main'"
+        )
+
+    # Entity exists in main but not in branch - create version 1 copy in branch
+    # Get all fields from main entity and create a new version in branch
+    entity_data = main_entity.model_dump()
+    # Remove primary key and version fields (will be set by create_entity_with_version)
+    pk_column = list(entity_class.__table__.primary_key.columns)[0]  # type: ignore[attr-defined]
+    pk_field_name = pk_column.name
+    entity_data.pop(pk_field_name, None)
+    entity_data.pop("version", None)
+    entity_data.pop("status", None)
+    entity_data.pop("branch", None)  # Remove branch, will be set explicitly
+    # Ensure entity_id is set
+    entity_data["entity_id"] = entity_id
+
+    # Create new entity instance
+    new_entity = entity_class.model_validate(entity_data)
+
+    # Use create_entity_with_version to set version=1 and status='active'
+    # Note: create_entity_with_version will set branch, version, and status
+    return create_entity_with_version(
+        session=session,
+        entity=new_entity,
+        entity_type=entity_type,
+        entity_id=entity_id,
+        branch=branch,
+    )

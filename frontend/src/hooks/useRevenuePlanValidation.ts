@@ -27,6 +27,8 @@ export function useRevenuePlanValidation(
   newRevenuePlan: number | undefined,
 ): UseRevenuePlanValidationResult {
   // Fetch WBE to get revenue_allocation
+  // TODO: After client regeneration, use readWbeByEntityId with entity_id
+  // For now, using primary key endpoint for compatibility
   const { data: wbe } = useQuery({
     queryKey: ["wbes", wbeId],
     queryFn: () => WbesService.readWbe({ id: wbeId! }),

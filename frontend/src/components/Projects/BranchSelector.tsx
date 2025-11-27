@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useBranch } from "@/context/BranchContext"
+import { ViewModeToggle } from "./ViewModeToggle"
 
 interface BranchSelectorProps {
   projectId: string
@@ -164,18 +165,21 @@ const BranchSelector = ({ projectId }: BranchSelectorProps) => {
 
   return (
     <>
-      <HStack gap={2}>
-        <Text fontSize="sm" color="fg.muted">
-          Branch: <strong>{currentBranch}</strong>
-        </Text>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setIsDialogOpen(true)}
-          disabled={isLoading}
-        >
-          Switch
-        </Button>
+      <HStack gap={4} align="center">
+        <HStack gap={2}>
+          <Text fontSize="sm" color="fg.muted">
+            Branch: <strong>{currentBranch}</strong>
+          </Text>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setIsDialogOpen(true)}
+            disabled={isLoading}
+          >
+            Switch
+          </Button>
+        </HStack>
+        <ViewModeToggle />
       </HStack>
 
       {/* Branch Selection Dialog */}

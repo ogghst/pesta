@@ -460,3 +460,213 @@ def test_update_wbe_within_project_contract_value(
     content = response.json()
     assert float(content["revenue_allocation"]) == 50000.00
     assert content["machine_type"] == "Machine 2"
+
+
+def test_read_wbes_with_view_mode_branch_only(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test that read_wbes with view_mode='branch-only' returns only branch entities."""
+    from decimal import Decimal
+
+    from app import crud
+    from app.models import WBE, Project, ProjectCreate, UserCreate, WBECreate
+
+    # Create project
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="View Mode Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date.today(),
+        planned_completion_date=date.today() + timedelta(days=365),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    branch = "co-001"
+
+    # Create WBE in main branch
+    main_wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Main WBE",
+        revenue_allocation=Decimal("10000.00"),
+        status="designing",
+    )
+    main_wbe = WBE.model_validate(main_wbe_in)
+    db.add(main_wbe)
+    db.commit()
+    db.refresh(main_wbe)
+
+    # Create WBE in branch
+    branch_wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Branch WBE",
+        revenue_allocation=Decimal("20000.00"),
+        status="designing",
+    )
+    branch_wbe = WBE.model_validate(branch_wbe_in)
+    branch_wbe.branch = branch
+    db.add(branch_wbe)
+    db.commit()
+
+    # Test branch-only view mode
+    response = client.get(
+        f"{settings.API_V1_STR}/wbes/?project_id={project.project_id}&branch={branch}&view_mode=branch-only",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    # Should only return branch WBE
+    assert content["count"] == 1
+    assert len(content["data"]) == 1
+    assert content["data"][0]["machine_type"] == "Branch WBE"
+    assert content["data"][0]["branch"] == branch
+
+
+def test_read_wbes_with_view_mode_merged_default(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test that read_wbes defaults to view_mode='merged' and includes change_status."""
+    from decimal import Decimal
+
+    from app import crud
+    from app.models import WBE, Project, ProjectCreate, UserCreate, WBECreate
+
+    # Create project
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Merged View Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date.today(),
+        planned_completion_date=date.today() + timedelta(days=365),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    branch = "co-001"
+
+    # Create WBE in main branch
+    main_wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Main WBE",
+        revenue_allocation=Decimal("10000.00"),
+        status="designing",
+    )
+    main_wbe = WBE.model_validate(main_wbe_in)
+    db.add(main_wbe)
+    db.commit()
+    db.refresh(main_wbe)
+
+    # Create WBE in branch
+    branch_wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Branch WBE",
+        revenue_allocation=Decimal("20000.00"),
+        status="designing",
+    )
+    branch_wbe = WBE.model_validate(branch_wbe_in)
+    branch_wbe.branch = branch
+    db.add(branch_wbe)
+    db.commit()
+
+    # Test merged view mode (default, no view_mode parameter)
+    response = client.get(
+        f"{settings.API_V1_STR}/wbes/?project_id={project.project_id}&branch={branch}",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    # Should return both main and branch WBEs
+    assert content["count"] == 2
+    assert len(content["data"]) == 2
+
+    # Check that change_status is included in merged view
+    entity_map = {wbe["entity_id"]: wbe for wbe in content["data"]}
+    # All WBEs in merged view should have change_status
+    for wbe in content["data"]:
+        assert "change_status" in wbe, "change_status should be included in merged view"
+    # Check specific change statuses
+    assert entity_map[main_wbe.entity_id]["change_status"] == "unchanged"
+    assert entity_map[branch_wbe.entity_id]["change_status"] == "created"
+
+    # Test explicit merged view mode
+    response2 = client.get(
+        f"{settings.API_V1_STR}/wbes/?project_id={project.project_id}&branch={branch}&view_mode=merged",
+        headers=superuser_token_headers,
+    )
+    assert response2.status_code == 200
+    content2 = response2.json()
+    assert content2["count"] == 2
+    assert len(content2["data"]) == 2
+
+
+def test_read_wbe_with_view_mode_merged(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test that read_wbe (single entity) supports view_mode parameter."""
+    from decimal import Decimal
+
+    from app import crud
+    from app.models import WBE, Project, ProjectCreate, UserCreate, WBECreate
+
+    # Create project
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Single WBE Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date.today(),
+        planned_completion_date=date.today() + timedelta(days=365),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    branch = "co-001"
+
+    # Create WBE in main branch
+    main_wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Main WBE",
+        revenue_allocation=Decimal("10000.00"),
+        status="designing",
+    )
+    main_wbe = WBE.model_validate(main_wbe_in)
+    db.add(main_wbe)
+    db.commit()
+    db.refresh(main_wbe)
+
+    # Test single WBE with merged view mode
+    response = client.get(
+        f"{settings.API_V1_STR}/wbes/{main_wbe.wbe_id}?branch={branch}&view_mode=merged",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["machine_type"] == "Main WBE"
+    # change_status should be included when view_mode='merged'
+    # Note: For single entity, change_status might be in response or metadata

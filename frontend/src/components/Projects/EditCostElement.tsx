@@ -106,7 +106,7 @@ const EditCostElement = ({ costElement }: EditCostElementProps) => {
   const mutation = useMutation({
     mutationFn: (data: CostElementUpdate) =>
       CostElementsService.updateCostElement({
-        id: costElement.cost_element_id,
+        entityId: costElement.entity_id,
         requestBody: data,
         branch: currentBranch || costElement.branch || "main",
       }),

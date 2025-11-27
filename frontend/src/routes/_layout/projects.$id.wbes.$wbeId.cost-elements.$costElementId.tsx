@@ -72,6 +72,8 @@ function getWBEQueryOptions({
   branch: string
 }) {
   return {
+    // TODO: After client regeneration, use readWbeByEntityId with entity_id
+    // For now, using primary key endpoint for URL compatibility
     queryFn: () => WbesService.readWbe({ id, branch: branch || "main" }),
     queryKey: ["wbes", id, controlDate, branch],
   }
@@ -87,6 +89,8 @@ function getCostElementQueryOptions({
   branch: string
 }) {
   return {
+    // TODO: After client regeneration, use readCostElementByEntityId with entity_id
+    // For now, using primary key endpoint for URL compatibility
     queryFn: () =>
       CostElementsService.readCostElement({ id, branch: branch || "main" }),
     queryKey: ["cost-elements", id, controlDate, branch],

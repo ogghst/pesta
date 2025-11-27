@@ -189,6 +189,30 @@ export type Body_login_login_access_token = {
 };
 
 /**
+ * Public representation of a branch notification.
+ */
+export type BranchNotificationPublic = {
+    notification_id: string;
+    project_id: string;
+    branch: string;
+    event_type: string;
+    message: string;
+    recipients: Array<(string)>;
+    context?: ({
+    [key: string]: unknown;
+} | null);
+    created_at: string;
+};
+
+/**
+ * Collection wrapper for branch notifications.
+ */
+export type BranchNotificationsPublic = {
+    data: Array<BranchNotificationPublic>;
+    count: number;
+};
+
+/**
  * Public schema for budget summary response.
  */
 export type BudgetSummaryPublic = {
@@ -339,6 +363,7 @@ export type CostElementPublic = {
     status: string;
     version: number;
     branch: string;
+    change_status?: (string | null);
 };
 
 /**
@@ -453,6 +478,7 @@ export type CostElementWithSchedulePublic = {
     status: string;
     version: number;
     branch: string;
+    change_status?: (string | null);
     schedule?: (CostElementSchedulePublic | null);
 };
 
@@ -1366,6 +1392,7 @@ export type WBEPublic = {
     status: string;
     version: number;
     branch: string;
+    change_status?: (string | null);
 };
 
 /**
@@ -1561,6 +1588,13 @@ export type BranchComparisonCompareBranchesResponse = ({
     [key: string]: unknown;
 });
 
+export type BranchNotificationsListBranchNotificationsData = {
+    limit?: number;
+    projectId: string;
+};
+
+export type BranchNotificationsListBranchNotificationsResponse = (BranchNotificationsPublic);
+
 export type BudgetSummaryGetProjectBudgetSummaryData = {
     projectId: string;
 };
@@ -1653,6 +1687,10 @@ export type CostElementsReadCostElementsData = {
     limit?: number;
     skip?: number;
     /**
+     * View mode: 'merged' (default) or 'branch-only'
+     */
+    viewMode?: string;
+    /**
      * Filter by WBE ID
      */
     wbeId?: (string | null);
@@ -1670,22 +1708,15 @@ export type CostElementsCreateCostElementData = {
 
 export type CostElementsCreateCostElementResponse = (CostElementPublic);
 
-export type CostElementsReadCostElementData = {
-    /**
-     * Branch name (defaults to 'main')
-     */
-    branch?: (string | null);
-    id: string;
-};
-
-export type CostElementsReadCostElementResponse = (CostElementPublic);
-
 export type CostElementsUpdateCostElementData = {
     /**
      * Branch name (defaults to 'main')
      */
     branch?: (string | null);
-    id: string;
+    /**
+     * Entity ID of the cost element
+     */
+    entityId: string;
     requestBody: CostElementUpdate;
 };
 
@@ -1696,10 +1727,44 @@ export type CostElementsDeleteCostElementData = {
      * Branch name (defaults to 'main')
      */
     branch?: (string | null);
-    id: string;
+    /**
+     * Entity ID of the cost element
+     */
+    entityId: string;
 };
 
 export type CostElementsDeleteCostElementResponse = (Message);
+
+export type CostElementsReadCostElementByEntityIdData = {
+    /**
+     * Branch name (defaults to 'main')
+     */
+    branch?: (string | null);
+    /**
+     * Entity ID of the cost element
+     */
+    entityId: string;
+    /**
+     * View mode: 'merged' (default) or 'branch-only'
+     */
+    viewMode?: string;
+};
+
+export type CostElementsReadCostElementByEntityIdResponse = (CostElementPublic);
+
+export type CostElementsReadCostElementData = {
+    /**
+     * Branch name (defaults to 'main')
+     */
+    branch?: (string | null);
+    id: string;
+    /**
+     * View mode: 'merged' (default) or 'branch-only'
+     */
+    viewMode?: string;
+};
+
+export type CostElementsReadCostElementResponse = (CostElementPublic);
 
 export type CostElementSchedulesReadScheduleByCostElementData = {
     /**
@@ -2251,6 +2316,10 @@ export type WbesReadWbesData = {
      */
     projectId?: (string | null);
     skip?: number;
+    /**
+     * View mode: 'merged' (default) or 'branch-only'
+     */
+    viewMode?: string;
 };
 
 export type WbesReadWbesResponse = (WBEsPublic);
@@ -2265,22 +2334,15 @@ export type WbesCreateWbeData = {
 
 export type WbesCreateWbeResponse = (WBEPublic);
 
-export type WbesReadWbeData = {
-    /**
-     * Branch name (defaults to 'main')
-     */
-    branch?: (string | null);
-    id: string;
-};
-
-export type WbesReadWbeResponse = (WBEPublic);
-
 export type WbesUpdateWbeData = {
     /**
      * Branch name (defaults to 'main')
      */
     branch?: (string | null);
-    id: string;
+    /**
+     * Entity ID of the WBE
+     */
+    entityId: string;
     requestBody: WBEUpdate;
 };
 
@@ -2291,7 +2353,41 @@ export type WbesDeleteWbeData = {
      * Branch name (defaults to 'main')
      */
     branch?: (string | null);
-    id: string;
+    /**
+     * Entity ID of the WBE
+     */
+    entityId: string;
 };
 
 export type WbesDeleteWbeResponse = (Message);
+
+export type WbesReadWbeByEntityIdData = {
+    /**
+     * Branch name (defaults to 'main')
+     */
+    branch?: (string | null);
+    /**
+     * Entity ID of the WBE
+     */
+    entityId: string;
+    /**
+     * View mode: 'merged' (default) or 'branch-only'
+     */
+    viewMode?: string;
+};
+
+export type WbesReadWbeByEntityIdResponse = (WBEPublic);
+
+export type WbesReadWbeData = {
+    /**
+     * Branch name (defaults to 'main')
+     */
+    branch?: (string | null);
+    id: string;
+    /**
+     * View mode: 'merged' (default) or 'branch-only'
+     */
+    viewMode?: string;
+};
+
+export type WbesReadWbeResponse = (WBEPublic);

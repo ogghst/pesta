@@ -1,6 +1,6 @@
 import { Button, Text, VStack } from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { ChangeOrdersService } from "@/client"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { ChangeOrdersService, UsersService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -21,6 +21,12 @@ const ChangeOrderStatusTransition = ({
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
+  // Get current user for approved_by_id and implemented_by_id
+  const { data: currentUser } = useQuery({
+    queryFn: () => UsersService.readUserMe(),
+    queryKey: ["users", "me"],
+  })
+
   const getNextStatus = (): "approve" | "execute" | null => {
     if (currentStatus === "design") return "approve"
     if (currentStatus === "approve") return "execute"
@@ -30,14 +36,31 @@ const ChangeOrderStatusTransition = ({
   const nextStatus = getNextStatus()
 
   const transitionMutation = useMutation({
-    mutationFn: (newStatus: "approve" | "execute") =>
-      ChangeOrdersService.transitionChangeOrderStatus({
+    mutationFn: (newStatus: "approve" | "execute") => {
+      const requestBody: {
+        workflow_status: "approve" | "execute"
+        approved_by_id?: string
+        implemented_by_id?: string
+      } = {
+        workflow_status: newStatus,
+      }
+
+      // Include approved_by_id when transitioning to approve
+      if (newStatus === "approve" && currentUser?.id) {
+        requestBody.approved_by_id = currentUser.id
+      }
+
+      // Include implemented_by_id when transitioning to execute
+      if (newStatus === "execute" && currentUser?.id) {
+        requestBody.implemented_by_id = currentUser.id
+      }
+
+      return ChangeOrdersService.transitionChangeOrderStatus({
         projectId,
         changeOrderId,
-        requestBody: {
-          workflow_status: newStatus,
-        },
-      }),
+        requestBody,
+      })
+    },
     onSuccess: (data) => {
       showSuccessToast(
         `Change order status updated to ${data.workflow_status} successfully.`,
@@ -83,7 +106,7 @@ const ChangeOrderStatusTransition = ({
         variant="solid"
         colorPalette="blue"
         onClick={handleTransition}
-        disabled={transitionMutation.isPending}
+        disabled={transitionMutation.isPending || !currentUser?.id}
         loading={transitionMutation.isPending}
       >
         Transition to {transitionLabels[nextStatus]}

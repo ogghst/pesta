@@ -31,6 +31,7 @@ import BranchSelector from "@/components/Projects/BranchSelector"
 import BudgetTimeline from "@/components/Projects/BudgetTimeline"
 import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
 import ChangeOrdersTable from "@/components/Projects/ChangeOrdersTable"
+import { ChangeStatusIndicator } from "@/components/Projects/ChangeStatusIndicator"
 import DeleteWBE from "@/components/Projects/DeleteWBE"
 import EditWBE from "@/components/Projects/EditWBE"
 import MetricsSummary from "@/components/Projects/MetricsSummary"
@@ -74,11 +75,13 @@ function getWBEsQueryOptions({
   page,
   controlDate,
   branch,
+  viewMode,
 }: {
   projectId: string
   page: number
   controlDate: string
   branch: string
+  viewMode: "merged" | "branch-only"
 }) {
   return {
     queryFn: () =>
@@ -87,8 +90,15 @@ function getWBEsQueryOptions({
         skip: (page - 1) * PER_PAGE,
         limit: PER_PAGE,
         branch: branch || "main",
+        viewMode: viewMode,
       }),
-    queryKey: ["wbes", { projectId: projectId, page }, controlDate, branch],
+    queryKey: [
+      "wbes",
+      { projectId: projectId, page },
+      controlDate,
+      branch,
+      viewMode,
+    ],
   }
 }
 
@@ -97,72 +107,121 @@ export const Route = createFileRoute("/_layout/projects/$id")({
   validateSearch: (search) => projectDetailSearchSchema.parse(search),
 })
 
-// Column definitions for WBEs table
-const wbesColumns: ColumnDefExtended<WBEPublic>[] = [
-  {
-    accessorKey: "machine_type",
-    header: "Machine Type",
-    enableSorting: true,
-    enableResizing: true,
-    enableColumnFilter: true,
-    filterType: "text",
-    size: 200,
-    defaultVisible: true,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    enableSorting: true,
-    enableResizing: true,
-    enableColumnFilter: true,
-    filterType: "select",
-    filterConfig: {
-      type: "select",
-      options: [
-        "designing",
-        "in-production",
-        "shipped",
-        "commissioning",
-        "completed",
-      ],
+// Function to get column definitions for WBEs table
+function getWbesColumns(
+  viewMode: "merged" | "branch-only",
+): ColumnDefExtended<WBEPublic>[] {
+  const columns: ColumnDefExtended<WBEPublic>[] = [
+    {
+      accessorKey: "machine_type",
+      header: "Machine Type",
+      enableSorting: true,
+      enableResizing: true,
+      enableColumnFilter: true,
+      filterType: "text",
+      size: 200,
+      defaultVisible: true,
+      cell: ({ row, getValue }) => {
+        const value = getValue() as string
+        const isDeleted =
+          viewMode === "merged" && row.original.change_status === "deleted"
+        return (
+          <Text
+            textDecoration={isDeleted ? "line-through" : "none"}
+            color={isDeleted ? "gray.500" : "inherit"}
+          >
+            {value}
+          </Text>
+        )
+      },
     },
-    size: 120,
-    defaultVisible: true,
-    cell: ({ getValue }) => (
-      <span style={{ textTransform: "capitalize" }}>
-        {(getValue() as string) || "designing"}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "serial_number",
-    header: "Serial Number",
-    enableSorting: true,
-    enableResizing: true,
-    size: 150,
-    defaultVisible: true,
-    cell: ({ getValue }) => (getValue() as string) || "N/A",
-  },
-  {
-    accessorKey: "revenue_allocation",
-    header: "Revenue Allocation",
-    enableSorting: true,
-    enableResizing: true,
-    size: 120,
-    defaultVisible: true,
-    cell: ({ getValue }) => (getValue() as string) || "0.00",
-  },
-  {
-    accessorKey: "contracted_delivery_date",
-    header: "Contracted Delivery",
-    enableSorting: true,
-    enableResizing: true,
-    size: 150,
-    defaultVisible: true,
-    cell: ({ getValue }) =>
-      getValue() ? new Date(getValue() as string).toLocaleDateString() : "N/A",
-  },
-  {
+    {
+      accessorKey: "status",
+      header: "Status",
+      enableSorting: true,
+      enableResizing: true,
+      enableColumnFilter: true,
+      filterType: "select",
+      filterConfig: {
+        type: "select",
+        options: [
+          "designing",
+          "in-production",
+          "shipped",
+          "commissioning",
+          "completed",
+        ],
+      },
+      size: 120,
+      defaultVisible: true,
+      cell: ({ getValue }) => (
+        <span style={{ textTransform: "capitalize" }}>
+          {(getValue() as string) || "designing"}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "serial_number",
+      header: "Serial Number",
+      enableSorting: true,
+      enableResizing: true,
+      size: 150,
+      defaultVisible: true,
+      cell: ({ getValue }) => (getValue() as string) || "N/A",
+    },
+    {
+      accessorKey: "revenue_allocation",
+      header: "Revenue Allocation",
+      enableSorting: true,
+      enableResizing: true,
+      size: 120,
+      defaultVisible: true,
+      cell: ({ getValue }) => (getValue() as string) || "0.00",
+    },
+    {
+      accessorKey: "contracted_delivery_date",
+      header: "Contracted Delivery",
+      enableSorting: true,
+      enableResizing: true,
+      size: 150,
+      defaultVisible: true,
+      cell: ({ getValue }) =>
+        getValue()
+          ? new Date(getValue() as string).toLocaleDateString()
+          : "N/A",
+    },
+  ]
+
+  // Add change status column when in merged view
+  if (viewMode === "merged") {
+    columns.splice(1, 0, {
+      accessorKey: "change_status",
+      header: "Change Status",
+      enableSorting: true,
+      enableResizing: true,
+      enableColumnFilter: true,
+      filterType: "select",
+      filterConfig: {
+        type: "select",
+        options: ["created", "updated", "deleted", "unchanged"],
+      },
+      size: 120,
+      defaultVisible: true,
+      cell: ({ row }) => {
+        const changeStatus = row.original.change_status
+        if (!changeStatus) return null
+        return (
+          <ChangeStatusIndicator
+            changeStatus={
+              changeStatus as "created" | "updated" | "deleted" | "unchanged"
+            }
+          />
+        )
+      },
+    })
+  }
+
+  columns.push({
     id: "actions",
     header: "Actions",
     enableSorting: false,
@@ -172,20 +231,19 @@ const wbesColumns: ColumnDefExtended<WBEPublic>[] = [
     cell: ({ row }) => (
       <Flex gap={2}>
         <EditWBE wbe={row.original} />
-        <DeleteWBE
-          id={row.original.wbe_id}
-          machineType={row.original.machine_type}
-        />
+        <DeleteWBE wbe={row.original} machineType={row.original.machine_type} />
       </Flex>
     ),
-  },
-]
+  })
+
+  return columns
+}
 
 function WBEsTable({ projectId }: { projectId: string }) {
   const navigate = useNavigate({ from: Route.fullPath })
   const { page } = Route.useSearch()
   const { controlDate } = useTimeMachine()
-  const { currentBranch } = useBranch()
+  const { currentBranch, viewMode } = useBranch()
 
   const { data, isLoading } = useQuery({
     ...getWBEsQueryOptions({
@@ -193,6 +251,7 @@ function WBEsTable({ projectId }: { projectId: string }) {
       page,
       controlDate,
       branch: currentBranch,
+      viewMode,
     }),
     placeholderData: (prevData) => prevData,
   })
@@ -232,10 +291,12 @@ function WBEsTable({ projectId }: { projectId: string }) {
     )
   }
 
+  const columns = getWbesColumns(viewMode)
+
   return (
     <DataTable
       data={wbes}
-      columns={wbesColumns}
+      columns={columns}
       tableId="wbes-table"
       onRowClick={handleRowClick}
       isLoading={isLoading}

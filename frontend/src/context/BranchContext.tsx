@@ -11,10 +11,14 @@ import {
 
 import { ChangeOrdersService } from "@/client"
 
+type ViewMode = "merged" | "branch-only"
+
 type BranchContextValue = {
   currentBranch: string
+  viewMode: ViewMode
   isLoading: boolean
   setCurrentBranch: (branch: string) => void
+  setViewMode: (mode: ViewMode) => void
   availableBranches: string[]
 }
 
@@ -26,6 +30,7 @@ export function BranchProvider({
 }: PropsWithChildren<{ projectId: string }>) {
   const queryClient = useQueryClient()
   const storageKey = `current-branch-${projectId}`
+  const viewModeStorageKey = `view-mode-${projectId}`
 
   // Initialize branch from localStorage or default to "main"
   const [currentBranch, setCurrentBranchState] = useState<string>(() => {
@@ -41,7 +46,20 @@ export function BranchProvider({
     return "main"
   })
 
-  // Sync branch when projectId changes
+  // Initialize view mode from localStorage or default to "merged"
+  const [viewMode, setViewModeState] = useState<ViewMode>(() => {
+    if (typeof window !== "undefined" && projectId) {
+      try {
+        const stored = localStorage.getItem(viewModeStorageKey)
+        return (stored === "branch-only" ? "branch-only" : "merged") as ViewMode
+      } catch {
+        return "merged"
+      }
+    }
+    return "merged"
+  })
+
+  // Sync branch and view mode when projectId changes
   useEffect(() => {
     if (typeof window !== "undefined" && projectId) {
       try {
@@ -50,13 +68,21 @@ export function BranchProvider({
         if (stored) {
           setCurrentBranchState(stored)
         }
+        const viewModeStored = localStorage.getItem(viewModeStorageKey)
+        if (viewModeStored) {
+          setViewModeState(
+            (viewModeStored === "branch-only"
+              ? "branch-only"
+              : "merged") as ViewMode,
+          )
+        }
       } catch {
         // Ignore errors
       }
     }
-    // Only run when projectId changes, not when currentBranch changes
+    // Only run when projectId changes, not when currentBranch or viewMode changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId])
+  }, [projectId, viewModeStorageKey])
 
   // Fetch change orders to get available branches
   const { data: changeOrdersData, isLoading } = useQuery({
@@ -85,10 +111,14 @@ export function BranchProvider({
   const setCurrentBranch = useCallback(
     (branch: string) => {
       setCurrentBranchState(branch)
+      // Reset view mode to 'merged' when branch changes (invalidation)
+      setViewModeState("merged")
       // Persist branch selection to localStorage
       if (typeof window !== "undefined" && projectId) {
         try {
           localStorage.setItem(storageKey, branch)
+          // Reset view mode in localStorage
+          localStorage.setItem(viewModeStorageKey, "merged")
         } catch (error) {
           console.warn("Failed to save branch selection", error)
         }
@@ -107,17 +137,54 @@ export function BranchProvider({
         refetchType: "active",
       })
     },
-    [queryClient, projectId, storageKey],
+    [queryClient, projectId, storageKey, viewModeStorageKey],
+  )
+
+  const setViewMode = useCallback(
+    (mode: ViewMode) => {
+      setViewModeState(mode)
+      // Persist view mode to localStorage
+      if (typeof window !== "undefined" && projectId) {
+        try {
+          localStorage.setItem(viewModeStorageKey, mode)
+        } catch (error) {
+          console.warn("Failed to save view mode", error)
+        }
+      }
+      // Invalidate queries that depend on view mode
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          // Invalidate queries that have viewMode in their key or are view-dependent
+          const key = query.queryKey
+          return (
+            key.includes("wbes") ||
+            key.includes("cost-elements") ||
+            key.includes("change-orders")
+          )
+        },
+        refetchType: "active",
+      })
+    },
+    [queryClient, projectId, viewModeStorageKey],
   )
 
   const value = useMemo<BranchContextValue>(
     () => ({
       currentBranch,
+      viewMode,
       isLoading,
       setCurrentBranch,
+      setViewMode,
       availableBranches,
     }),
-    [currentBranch, isLoading, setCurrentBranch, availableBranches],
+    [
+      currentBranch,
+      viewMode,
+      isLoading,
+      setCurrentBranch,
+      setViewMode,
+      availableBranches,
+    ],
   )
 
   return (

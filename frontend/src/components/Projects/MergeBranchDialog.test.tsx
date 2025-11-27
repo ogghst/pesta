@@ -10,14 +10,30 @@ import { BranchProvider } from "@/context/BranchContext"
 import { system } from "@/theme"
 import MergeBranchDialog from "./MergeBranchDialog"
 
-vi.mock("@/client", () => ({
-  BranchComparisonService: {
-    compareBranches: vi.fn(),
-  },
-  ChangeOrdersService: {
-    transitionChangeOrderStatus: vi.fn(),
-  },
+vi.mock("@/hooks/useAuth", () => ({
+  __esModule: true,
+  default: () => ({
+    user: { id: "user-1" },
+    signUpMutation: { mutate: vi.fn(), isPending: false },
+    loginMutation: { mutate: vi.fn(), isPending: false },
+    logout: vi.fn(),
+    error: null,
+    resetError: vi.fn(),
+  }),
 }))
+
+vi.mock("@/client", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/client")>()
+  return {
+    ...actual,
+    BranchComparisonService: {
+      compareBranches: vi.fn(),
+    },
+    ChangeOrdersService: {
+      transitionChangeOrderStatus: vi.fn(),
+    },
+  }
+})
 
 function renderWithProviders(ui: React.ReactElement) {
   const qc = new QueryClient({

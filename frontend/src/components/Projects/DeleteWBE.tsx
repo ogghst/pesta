@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { FiTrash2 } from "react-icons/fi"
 
-import { WbesService } from "@/client"
+import { type WBEPublic, WbesService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import {
   DialogActionTrigger,
@@ -16,29 +16,32 @@ import {
   DialogRoot,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useBranch } from "@/context/BranchContext"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
 interface DeleteWBEProps {
-  id: string
+  wbe: WBEPublic
   machineType: string
 }
 
-const DeleteWBE = ({ id, machineType }: DeleteWBEProps) => {
+const DeleteWBE = ({ wbe, machineType }: DeleteWBEProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+  const { currentBranch } = useBranch()
   const {
     handleSubmit,
     formState: { isSubmitting },
   } = useForm()
 
-  const deleteWBE = async (wbeId: string) => {
-    await WbesService.deleteWbe({ id: wbeId })
+  const deleteWBE = async (entityId: string, branch: string) => {
+    await WbesService.deleteWbe({ entityId, branch })
   }
 
   const mutation = useMutation({
-    mutationFn: deleteWBE,
+    mutationFn: () =>
+      deleteWBE(wbe.entity_id, currentBranch || wbe.branch || "main"),
     onSuccess: () => {
       showSuccessToast("WBE deleted successfully")
       setIsOpen(false)
@@ -52,7 +55,7 @@ const DeleteWBE = ({ id, machineType }: DeleteWBEProps) => {
   })
 
   const onSubmit = async () => {
-    mutation.mutate(id)
+    mutation.mutate()
   }
 
   return (

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@chakra-ui/icons':
+        specifier: ^2.2.4
+        version: 2.2.4(@chakra-ui/react@3.29.0(@emotion/react@11.14.0(@types/react@19.2.5)(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@chakra-ui/react':
         specifier: ^3.27.0
         version: 3.29.0(@emotion/react@11.14.0(@types/react@19.2.5)(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -335,6 +338,12 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@chakra-ui/icons@2.2.4':
+    resolution: {integrity: sha512-l5QdBgwrAg3Sc2BRqtNkJpfuLw/pWRDwwT58J6c4PqQT6wzXxyNa8Q0PForu1ltB5qEiFb1kxr/F/HO1EwNa6g==}
+    peerDependencies:
+      '@chakra-ui/react': '>=2.0.0'
+      react: '>=18'
 
   '@chakra-ui/react@3.29.0':
     resolution: {integrity: sha512-CQuZKf9kyH9NZDom/Rbh6q/wZvF3lOnWF1CeGIFb1kHfk4qooieR4g3w6S2vKMY9y+qvZDZAnBBKT8drvN8bgA==}
@@ -2969,6 +2978,11 @@ snapshots:
 
   '@biomejs/cli-win32-x64@2.3.5':
     optional: true
+
+  '@chakra-ui/icons@2.2.4(@chakra-ui/react@3.29.0(@emotion/react@11.14.0(@types/react@19.2.5)(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      '@chakra-ui/react': 3.29.0(@emotion/react@11.14.0(@types/react@19.2.5)(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react: 19.2.0
 
   '@chakra-ui/react@3.29.0(@emotion/react@11.14.0(@types/react@19.2.5)(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:

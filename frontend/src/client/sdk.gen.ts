@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { AdminListAppConfigurationsResponse, AdminCreateAppConfigurationData, AdminCreateAppConfigurationResponse, AdminGetAppConfigurationData, AdminGetAppConfigurationResponse, AdminUpdateAppConfigurationData, AdminUpdateAppConfigurationResponse, AdminDeleteAppConfigurationData, AdminDeleteAppConfigurationResponse, AdminListVarianceThresholdConfigsResponse, AdminCreateVarianceThresholdConfigData, AdminCreateVarianceThresholdConfigResponse, AdminGetVarianceThresholdConfigData, AdminGetVarianceThresholdConfigResponse, AdminUpdateVarianceThresholdConfigData, AdminUpdateVarianceThresholdConfigResponse, AdminDeleteVarianceThresholdConfigData, AdminDeleteVarianceThresholdConfigResponse, BaselineLogsListBaselineLogsData, BaselineLogsListBaselineLogsResponse, BaselineLogsCreateBaselineLogData, BaselineLogsCreateBaselineLogResponse, BaselineLogsReadBaselineLogData, BaselineLogsReadBaselineLogResponse, BaselineLogsUpdateBaselineLogData, BaselineLogsUpdateBaselineLogResponse, BaselineLogsCancelBaselineLogData, BaselineLogsCancelBaselineLogResponse, BaselineLogsGetBaselineSnapshotSummaryData, BaselineLogsGetBaselineSnapshotSummaryResponse, BaselineLogsGetBaselineCostElementsByWbeData, BaselineLogsGetBaselineCostElementsByWbeResponse, BaselineLogsGetBaselineCostElementsData, BaselineLogsGetBaselineCostElementsResponse, BaselineLogsGetBaselineEarnedValueEntriesData, BaselineLogsGetBaselineEarnedValueEntriesResponse, BranchComparisonCompareBranchesData, BranchComparisonCompareBranchesResponse, BudgetSummaryGetProjectBudgetSummaryData, BudgetSummaryGetProjectBudgetSummaryResponse, BudgetSummaryGetWbeBudgetSummaryData, BudgetSummaryGetWbeBudgetSummaryResponse, BudgetTimelineGetCostElementsWithSchedulesData, BudgetTimelineGetCostElementsWithSchedulesResponse, ChangeOrderLineItemsListChangeOrderLineItemsData, ChangeOrderLineItemsListChangeOrderLineItemsResponse, ChangeOrdersCreateChangeOrderData, ChangeOrdersCreateChangeOrderResponse, ChangeOrdersListChangeOrdersData, ChangeOrdersListChangeOrdersResponse, ChangeOrdersReadChangeOrderData, ChangeOrdersReadChangeOrderResponse, ChangeOrdersUpdateChangeOrderData, ChangeOrdersUpdateChangeOrderResponse, ChangeOrdersDeleteChangeOrderData, ChangeOrdersDeleteChangeOrderResponse, ChangeOrdersTransitionChangeOrderStatusData, ChangeOrdersTransitionChangeOrderStatusResponse, CostCategoriesReadCostCategoriesResponse, CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, CostElementSchedulesReadScheduleByCostElementData, CostElementSchedulesReadScheduleByCostElementResponse, CostElementSchedulesCreateScheduleData, CostElementSchedulesCreateScheduleResponse, CostElementSchedulesReadScheduleHistoryByCostElementData, CostElementSchedulesReadScheduleHistoryByCostElementResponse, CostElementSchedulesUpdateScheduleData, CostElementSchedulesUpdateScheduleResponse, CostElementSchedulesDeleteScheduleData, CostElementSchedulesDeleteScheduleResponse, CostElementTypesReadCostElementTypesResponse, CostRegistrationsReadCostRegistrationsData, CostRegistrationsReadCostRegistrationsResponse, CostRegistrationsCreateCostRegistrationData, CostRegistrationsCreateCostRegistrationResponse, CostRegistrationsReadCostRegistrationData, CostRegistrationsReadCostRegistrationResponse, CostRegistrationsUpdateCostRegistrationData, CostRegistrationsUpdateCostRegistrationResponse, CostRegistrationsDeleteCostRegistrationData, CostRegistrationsDeleteCostRegistrationResponse, CostSummaryGetCostElementCostSummaryData, CostSummaryGetCostElementCostSummaryResponse, CostSummaryGetWbeCostSummaryData, CostSummaryGetWbeCostSummaryResponse, CostSummaryGetProjectCostSummaryData, CostSummaryGetProjectCostSummaryResponse, CostTimelineGetProjectCostTimelineData, CostTimelineGetProjectCostTimelineResponse, EarnedValueGetCostElementEarnedValueData, EarnedValueGetCostElementEarnedValueResponse, EarnedValueGetWbeEarnedValueData, EarnedValueGetWbeEarnedValueResponse, EarnedValueGetProjectEarnedValueData, EarnedValueGetProjectEarnedValueResponse, EarnedValueEntriesReadEarnedValueEntriesData, EarnedValueEntriesReadEarnedValueEntriesResponse, EarnedValueEntriesCreateEarnedValueEntryData, EarnedValueEntriesCreateEarnedValueEntryResponse, EarnedValueEntriesReadEarnedValueEntryData, EarnedValueEntriesReadEarnedValueEntryResponse, EarnedValueEntriesUpdateEarnedValueEntryData, EarnedValueEntriesUpdateEarnedValueEntryResponse, EarnedValueEntriesDeleteEarnedValueEntryData, EarnedValueEntriesDeleteEarnedValueEntryResponse, EvmIndicesGetWbeEvmIndicesData, EvmIndicesGetWbeEvmIndicesResponse, EvmIndicesGetProjectEvmIndicesData, EvmIndicesGetProjectEvmIndicesResponse, EvmMetricsGetCostElementEvmMetricsEndpointData, EvmMetricsGetCostElementEvmMetricsEndpointResponse, EvmMetricsGetWbeEvmMetricsEndpointData, EvmMetricsGetWbeEvmMetricsEndpointResponse, EvmMetricsGetProjectEvmMetricsEndpointData, EvmMetricsGetProjectEvmMetricsEndpointResponse, ForecastsReadForecastsData, ForecastsReadForecastsResponse, ForecastsCreateForecastData, ForecastsCreateForecastResponse, ForecastsReadForecastData, ForecastsReadForecastResponse, ForecastsUpdateForecastData, ForecastsUpdateForecastResponse, ForecastsDeleteForecastData, ForecastsDeleteForecastResponse, HardDeleteHardDeleteProjectData, HardDeleteHardDeleteProjectResponse, HardDeleteHardDeleteWbeData, HardDeleteHardDeleteWbeResponse, HardDeleteHardDeleteCostElementData, HardDeleteHardDeleteCostElementResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PlannedValueGetCostElementPlannedValueData, PlannedValueGetCostElementPlannedValueResponse, PlannedValueGetWbePlannedValueData, PlannedValueGetWbePlannedValueResponse, PlannedValueGetProjectPlannedValueData, PlannedValueGetProjectPlannedValueResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, ReportsGetProjectCostPerformanceReportEndpointData, ReportsGetProjectCostPerformanceReportEndpointResponse, ReportsGetProjectVarianceAnalysisReportEndpointData, ReportsGetProjectVarianceAnalysisReportEndpointResponse, ReportsGetVarianceTrendEndpointData, ReportsGetVarianceTrendEndpointResponse, RestoreRestoreProjectData, RestoreRestoreProjectResponse, RestoreRestoreWbeData, RestoreRestoreWbeResponse, RestoreRestoreCostElementData, RestoreRestoreCostElementResponse, RestoreRestoreChangeOrderData, RestoreRestoreChangeOrderResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersReadTimeMachinePreferenceResponse, UsersUpdateTimeMachinePreferenceData, UsersUpdateTimeMachinePreferenceResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, VersionHistoryGetEntityVersionHistoryData, VersionHistoryGetEntityVersionHistoryResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesReadWbeData, WbesReadWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse } from './types.gen';
+import type { AdminListAppConfigurationsResponse, AdminCreateAppConfigurationData, AdminCreateAppConfigurationResponse, AdminGetAppConfigurationData, AdminGetAppConfigurationResponse, AdminUpdateAppConfigurationData, AdminUpdateAppConfigurationResponse, AdminDeleteAppConfigurationData, AdminDeleteAppConfigurationResponse, AdminListVarianceThresholdConfigsResponse, AdminCreateVarianceThresholdConfigData, AdminCreateVarianceThresholdConfigResponse, AdminGetVarianceThresholdConfigData, AdminGetVarianceThresholdConfigResponse, AdminUpdateVarianceThresholdConfigData, AdminUpdateVarianceThresholdConfigResponse, AdminDeleteVarianceThresholdConfigData, AdminDeleteVarianceThresholdConfigResponse, BaselineLogsListBaselineLogsData, BaselineLogsListBaselineLogsResponse, BaselineLogsCreateBaselineLogData, BaselineLogsCreateBaselineLogResponse, BaselineLogsReadBaselineLogData, BaselineLogsReadBaselineLogResponse, BaselineLogsUpdateBaselineLogData, BaselineLogsUpdateBaselineLogResponse, BaselineLogsCancelBaselineLogData, BaselineLogsCancelBaselineLogResponse, BaselineLogsGetBaselineSnapshotSummaryData, BaselineLogsGetBaselineSnapshotSummaryResponse, BaselineLogsGetBaselineCostElementsByWbeData, BaselineLogsGetBaselineCostElementsByWbeResponse, BaselineLogsGetBaselineCostElementsData, BaselineLogsGetBaselineCostElementsResponse, BaselineLogsGetBaselineEarnedValueEntriesData, BaselineLogsGetBaselineEarnedValueEntriesResponse, BranchComparisonCompareBranchesData, BranchComparisonCompareBranchesResponse, BranchNotificationsListBranchNotificationsData, BranchNotificationsListBranchNotificationsResponse, BudgetSummaryGetProjectBudgetSummaryData, BudgetSummaryGetProjectBudgetSummaryResponse, BudgetSummaryGetWbeBudgetSummaryData, BudgetSummaryGetWbeBudgetSummaryResponse, BudgetTimelineGetCostElementsWithSchedulesData, BudgetTimelineGetCostElementsWithSchedulesResponse, ChangeOrderLineItemsListChangeOrderLineItemsData, ChangeOrderLineItemsListChangeOrderLineItemsResponse, ChangeOrdersCreateChangeOrderData, ChangeOrdersCreateChangeOrderResponse, ChangeOrdersListChangeOrdersData, ChangeOrdersListChangeOrdersResponse, ChangeOrdersReadChangeOrderData, ChangeOrdersReadChangeOrderResponse, ChangeOrdersUpdateChangeOrderData, ChangeOrdersUpdateChangeOrderResponse, ChangeOrdersDeleteChangeOrderData, ChangeOrdersDeleteChangeOrderResponse, ChangeOrdersTransitionChangeOrderStatusData, ChangeOrdersTransitionChangeOrderStatusResponse, CostCategoriesReadCostCategoriesResponse, CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, CostElementsReadCostElementByEntityIdData, CostElementsReadCostElementByEntityIdResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementSchedulesReadScheduleByCostElementData, CostElementSchedulesReadScheduleByCostElementResponse, CostElementSchedulesCreateScheduleData, CostElementSchedulesCreateScheduleResponse, CostElementSchedulesReadScheduleHistoryByCostElementData, CostElementSchedulesReadScheduleHistoryByCostElementResponse, CostElementSchedulesUpdateScheduleData, CostElementSchedulesUpdateScheduleResponse, CostElementSchedulesDeleteScheduleData, CostElementSchedulesDeleteScheduleResponse, CostElementTypesReadCostElementTypesResponse, CostRegistrationsReadCostRegistrationsData, CostRegistrationsReadCostRegistrationsResponse, CostRegistrationsCreateCostRegistrationData, CostRegistrationsCreateCostRegistrationResponse, CostRegistrationsReadCostRegistrationData, CostRegistrationsReadCostRegistrationResponse, CostRegistrationsUpdateCostRegistrationData, CostRegistrationsUpdateCostRegistrationResponse, CostRegistrationsDeleteCostRegistrationData, CostRegistrationsDeleteCostRegistrationResponse, CostSummaryGetCostElementCostSummaryData, CostSummaryGetCostElementCostSummaryResponse, CostSummaryGetWbeCostSummaryData, CostSummaryGetWbeCostSummaryResponse, CostSummaryGetProjectCostSummaryData, CostSummaryGetProjectCostSummaryResponse, CostTimelineGetProjectCostTimelineData, CostTimelineGetProjectCostTimelineResponse, EarnedValueGetCostElementEarnedValueData, EarnedValueGetCostElementEarnedValueResponse, EarnedValueGetWbeEarnedValueData, EarnedValueGetWbeEarnedValueResponse, EarnedValueGetProjectEarnedValueData, EarnedValueGetProjectEarnedValueResponse, EarnedValueEntriesReadEarnedValueEntriesData, EarnedValueEntriesReadEarnedValueEntriesResponse, EarnedValueEntriesCreateEarnedValueEntryData, EarnedValueEntriesCreateEarnedValueEntryResponse, EarnedValueEntriesReadEarnedValueEntryData, EarnedValueEntriesReadEarnedValueEntryResponse, EarnedValueEntriesUpdateEarnedValueEntryData, EarnedValueEntriesUpdateEarnedValueEntryResponse, EarnedValueEntriesDeleteEarnedValueEntryData, EarnedValueEntriesDeleteEarnedValueEntryResponse, EvmIndicesGetWbeEvmIndicesData, EvmIndicesGetWbeEvmIndicesResponse, EvmIndicesGetProjectEvmIndicesData, EvmIndicesGetProjectEvmIndicesResponse, EvmMetricsGetCostElementEvmMetricsEndpointData, EvmMetricsGetCostElementEvmMetricsEndpointResponse, EvmMetricsGetWbeEvmMetricsEndpointData, EvmMetricsGetWbeEvmMetricsEndpointResponse, EvmMetricsGetProjectEvmMetricsEndpointData, EvmMetricsGetProjectEvmMetricsEndpointResponse, ForecastsReadForecastsData, ForecastsReadForecastsResponse, ForecastsCreateForecastData, ForecastsCreateForecastResponse, ForecastsReadForecastData, ForecastsReadForecastResponse, ForecastsUpdateForecastData, ForecastsUpdateForecastResponse, ForecastsDeleteForecastData, ForecastsDeleteForecastResponse, HardDeleteHardDeleteProjectData, HardDeleteHardDeleteProjectResponse, HardDeleteHardDeleteWbeData, HardDeleteHardDeleteWbeResponse, HardDeleteHardDeleteCostElementData, HardDeleteHardDeleteCostElementResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PlannedValueGetCostElementPlannedValueData, PlannedValueGetCostElementPlannedValueResponse, PlannedValueGetWbePlannedValueData, PlannedValueGetWbePlannedValueResponse, PlannedValueGetProjectPlannedValueData, PlannedValueGetProjectPlannedValueResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, ReportsGetProjectCostPerformanceReportEndpointData, ReportsGetProjectCostPerformanceReportEndpointResponse, ReportsGetProjectVarianceAnalysisReportEndpointData, ReportsGetProjectVarianceAnalysisReportEndpointResponse, ReportsGetVarianceTrendEndpointData, ReportsGetVarianceTrendEndpointResponse, RestoreRestoreProjectData, RestoreRestoreProjectResponse, RestoreRestoreWbeData, RestoreRestoreWbeResponse, RestoreRestoreCostElementData, RestoreRestoreCostElementResponse, RestoreRestoreChangeOrderData, RestoreRestoreChangeOrderResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersReadTimeMachinePreferenceResponse, UsersUpdateTimeMachinePreferenceData, UsersUpdateTimeMachinePreferenceResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, VersionHistoryGetEntityVersionHistoryData, VersionHistoryGetEntityVersionHistoryResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse, WbesReadWbeByEntityIdData, WbesReadWbeByEntityIdResponse, WbesReadWbeData, WbesReadWbeResponse } from './types.gen';
 
 export class AdminService {
     /**
@@ -563,6 +563,33 @@ export class BranchComparisonService {
     }
 }
 
+export class BranchNotificationsService {
+    /**
+     * List Branch Notifications
+     * Return the latest notifications for a project.
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.limit
+     * @returns BranchNotificationsPublic Successful Response
+     * @throws ApiError
+     */
+    public static listBranchNotifications(data: BranchNotificationsListBranchNotificationsData): CancelablePromise<BranchNotificationsListBranchNotificationsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/notifications/',
+            path: {
+                project_id: data.projectId
+            },
+            query: {
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
 export class BudgetSummaryService {
     /**
      * Get Project Budget Summary
@@ -861,11 +888,18 @@ export class CostElementsService {
     /**
      * Read Cost Elements
      * Retrieve cost elements.
+     *
+     * When view_mode='merged' (default), returns merged view of main + branch entities
+     * with change_status field indicating: 'created', 'updated', 'deleted', or 'unchanged'.
+     *
+     * When view_mode='branch-only', returns only entities from the specified branch
+     * (existing behavior).
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
      * @param data.wbeId Filter by WBE ID
      * @param data.branch Branch name (defaults to 'main')
+     * @param data.viewMode View mode: 'merged' (default) or 'branch-only'
      * @returns CostElementsPublic Successful Response
      * @throws ApiError
      */
@@ -877,7 +911,8 @@ export class CostElementsService {
                 skip: data.skip,
                 limit: data.limit,
                 wbe_id: data.wbeId,
-                branch: data.branch
+                branch: data.branch,
+                view_mode: data.viewMode
             },
             errors: {
                 422: 'Validation Error'
@@ -910,35 +945,13 @@ export class CostElementsService {
     }
     
     /**
-     * Read Cost Element
-     * Get cost element by ID.
-     * @param data The data for the request.
-     * @param data.id
-     * @param data.branch Branch name (defaults to 'main')
-     * @returns CostElementPublic Successful Response
-     * @throws ApiError
-     */
-    public static readCostElement(data: CostElementsReadCostElementData): CancelablePromise<CostElementsReadCostElementResponse> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/v1/cost-elements/{id}',
-            path: {
-                id: data.id
-            },
-            query: {
-                branch: data.branch
-            },
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
      * Update Cost Element
      * Update a cost element. Creates a new version in the specified branch.
+     *
+     * If entity only exists in main branch, creates a new version in the specified branch
+     * with the user's changes. If entity exists in the branch, performs normal version increment.
      * @param data The data for the request.
-     * @param data.id
+     * @param data.entityId Entity ID of the cost element
      * @param data.requestBody
      * @param data.branch Branch name (defaults to 'main')
      * @returns CostElementPublic Successful Response
@@ -947,11 +960,9 @@ export class CostElementsService {
     public static updateCostElement(data: CostElementsUpdateCostElementData): CancelablePromise<CostElementsUpdateCostElementResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/api/v1/cost-elements/{id}',
-            path: {
-                id: data.id
-            },
+            url: '/api/v1/cost-elements/',
             query: {
+                entity_id: data.entityId,
                 branch: data.branch
             },
             body: data.requestBody,
@@ -965,8 +976,11 @@ export class CostElementsService {
     /**
      * Delete Cost Element
      * Delete a cost element (soft delete: sets status='deleted').
+     *
+     * If entity only exists in main branch, creates a new version in the specified branch
+     * with status='deleted'. If entity exists in the branch, performs normal soft delete.
      * @param data The data for the request.
-     * @param data.id
+     * @param data.entityId Entity ID of the cost element
      * @param data.branch Branch name (defaults to 'main')
      * @returns Message Successful Response
      * @throws ApiError
@@ -974,12 +988,69 @@ export class CostElementsService {
     public static deleteCostElement(data: CostElementsDeleteCostElementData): CancelablePromise<CostElementsDeleteCostElementResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
+            url: '/api/v1/cost-elements/',
+            query: {
+                entity_id: data.entityId,
+                branch: data.branch
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Cost Element By Entity Id
+     * Get cost element by entity_id and branch.
+     *
+     * When view_mode='merged' (default), returns cost element with change_status field
+     * indicating its status relative to main branch.
+     *
+     * When view_mode='branch-only', returns cost element from specified branch only.
+     * @param data The data for the request.
+     * @param data.entityId Entity ID of the cost element
+     * @param data.branch Branch name (defaults to 'main')
+     * @param data.viewMode View mode: 'merged' (default) or 'branch-only'
+     * @returns CostElementPublic Successful Response
+     * @throws ApiError
+     */
+    public static readCostElementByEntityId(data: CostElementsReadCostElementByEntityIdData): CancelablePromise<CostElementsReadCostElementByEntityIdResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/cost-elements/by-entity-id',
+            query: {
+                entity_id: data.entityId,
+                branch: data.branch,
+                view_mode: data.viewMode
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Cost Element
+     * Get cost element by primary key (for backward compatibility with URLs).
+     *
+     * This endpoint resolves the primary key to entity_id and then uses entity_id-based logic.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.branch Branch name (defaults to 'main')
+     * @param data.viewMode View mode: 'merged' (default) or 'branch-only'
+     * @returns CostElementPublic Successful Response
+     * @throws ApiError
+     */
+    public static readCostElement(data: CostElementsReadCostElementData): CancelablePromise<CostElementsReadCostElementResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
             url: '/api/v1/cost-elements/{id}',
             path: {
                 id: data.id
             },
             query: {
-                branch: data.branch
+                branch: data.branch,
+                view_mode: data.viewMode
             },
             errors: {
                 422: 'Validation Error'
@@ -2703,11 +2774,18 @@ export class WbesService {
     /**
      * Read Wbes
      * Retrieve WBEs.
+     *
+     * When view_mode='merged' (default), returns merged view of main + branch entities
+     * with change_status field indicating: 'created', 'updated', 'deleted', or 'unchanged'.
+     *
+     * When view_mode='branch-only', returns only entities from the specified branch
+     * (existing behavior).
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
      * @param data.projectId Filter by project ID
      * @param data.branch Branch name (defaults to 'main')
+     * @param data.viewMode View mode: 'merged' (default) or 'branch-only'
      * @returns WBEsPublic Successful Response
      * @throws ApiError
      */
@@ -2719,7 +2797,8 @@ export class WbesService {
                 skip: data.skip,
                 limit: data.limit,
                 project_id: data.projectId,
-                branch: data.branch
+                branch: data.branch,
+                view_mode: data.viewMode
             },
             errors: {
                 422: 'Validation Error'
@@ -2752,35 +2831,13 @@ export class WbesService {
     }
     
     /**
-     * Read Wbe
-     * Get WBE by ID.
-     * @param data The data for the request.
-     * @param data.id
-     * @param data.branch Branch name (defaults to 'main')
-     * @returns WBEPublic Successful Response
-     * @throws ApiError
-     */
-    public static readWbe(data: WbesReadWbeData): CancelablePromise<WbesReadWbeResponse> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/v1/wbes/{id}',
-            path: {
-                id: data.id
-            },
-            query: {
-                branch: data.branch
-            },
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
      * Update Wbe
      * Update a WBE. Creates a new version in the specified branch.
+     *
+     * If entity only exists in main branch, creates a new version in the specified branch
+     * with the user's changes. If entity exists in the branch, performs normal version increment.
      * @param data The data for the request.
-     * @param data.id
+     * @param data.entityId Entity ID of the WBE
      * @param data.requestBody
      * @param data.branch Branch name (defaults to 'main')
      * @returns WBEPublic Successful Response
@@ -2789,11 +2846,9 @@ export class WbesService {
     public static updateWbe(data: WbesUpdateWbeData): CancelablePromise<WbesUpdateWbeResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/api/v1/wbes/{id}',
-            path: {
-                id: data.id
-            },
+            url: '/api/v1/wbes/',
             query: {
+                entity_id: data.entityId,
                 branch: data.branch
             },
             body: data.requestBody,
@@ -2807,8 +2862,11 @@ export class WbesService {
     /**
      * Delete Wbe
      * Delete a WBE (soft delete: sets status='deleted').
+     *
+     * If entity only exists in main branch, creates a new version in the specified branch
+     * with status='deleted'. If entity exists in the branch, performs normal soft delete.
      * @param data The data for the request.
-     * @param data.id
+     * @param data.entityId Entity ID of the WBE
      * @param data.branch Branch name (defaults to 'main')
      * @returns Message Successful Response
      * @throws ApiError
@@ -2816,12 +2874,69 @@ export class WbesService {
     public static deleteWbe(data: WbesDeleteWbeData): CancelablePromise<WbesDeleteWbeResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
+            url: '/api/v1/wbes/',
+            query: {
+                entity_id: data.entityId,
+                branch: data.branch
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Wbe By Entity Id
+     * Get WBE by entity_id and branch.
+     *
+     * When view_mode='merged' (default), returns WBE with change_status field
+     * indicating its status relative to main branch.
+     *
+     * When view_mode='branch-only', returns WBE from specified branch only.
+     * @param data The data for the request.
+     * @param data.entityId Entity ID of the WBE
+     * @param data.branch Branch name (defaults to 'main')
+     * @param data.viewMode View mode: 'merged' (default) or 'branch-only'
+     * @returns WBEPublic Successful Response
+     * @throws ApiError
+     */
+    public static readWbeByEntityId(data: WbesReadWbeByEntityIdData): CancelablePromise<WbesReadWbeByEntityIdResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/wbes/by-entity-id',
+            query: {
+                entity_id: data.entityId,
+                branch: data.branch,
+                view_mode: data.viewMode
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Wbe
+     * Get WBE by primary key (for backward compatibility with URLs).
+     *
+     * This endpoint resolves the primary key to entity_id and then uses entity_id-based logic.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.branch Branch name (defaults to 'main')
+     * @param data.viewMode View mode: 'merged' (default) or 'branch-only'
+     * @returns WBEPublic Successful Response
+     * @throws ApiError
+     */
+    public static readWbe(data: WbesReadWbeData): CancelablePromise<WbesReadWbeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
             url: '/api/v1/wbes/{id}',
             path: {
                 id: data.id
             },
             query: {
-                branch: data.branch
+                branch: data.branch,
+                view_mode: data.viewMode
             },
             errors: {
                 422: 'Validation Error'

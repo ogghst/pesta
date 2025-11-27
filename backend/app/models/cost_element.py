@@ -87,6 +87,7 @@ class CostElementPublic(CostElementBase):
     status: str  # Versioning status (from BranchVersionMixin)
     version: int
     branch: str
+    change_status: str | None = None  # Change status when view_mode='merged': 'created' | 'updated' | 'deleted' | 'unchanged'
 
 
 class CostElementsPublic(SQLModel):

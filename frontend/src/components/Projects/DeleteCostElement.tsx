@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { FiTrash2 } from "react-icons/fi"
 
-import { CostElementsService } from "@/client"
+import { type CostElementPublic, CostElementsService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import {
   DialogActionTrigger,
@@ -16,30 +16,38 @@ import {
   DialogRoot,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useBranch } from "@/context/BranchContext"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
 interface DeleteCostElementProps {
-  id: string
+  costElement: CostElementPublic
   departmentName: string
-  wbeId: string
 }
 
-const DeleteCostElement = ({ id, departmentName }: DeleteCostElementProps) => {
+const DeleteCostElement = ({
+  costElement,
+  departmentName,
+}: DeleteCostElementProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+  const { currentBranch } = useBranch()
   const {
     handleSubmit,
     formState: { isSubmitting },
   } = useForm()
 
-  const deleteCostElement = async (costElementId: string) => {
-    await CostElementsService.deleteCostElement({ id: costElementId })
+  const deleteCostElement = async (entityId: string, branch: string) => {
+    await CostElementsService.deleteCostElement({ entityId, branch })
   }
 
   const mutation = useMutation({
-    mutationFn: deleteCostElement,
+    mutationFn: () =>
+      deleteCostElement(
+        costElement.entity_id,
+        currentBranch || costElement.branch || "main",
+      ),
     onSuccess: () => {
       showSuccessToast("Cost element deleted successfully")
       setIsOpen(false)
@@ -54,7 +62,7 @@ const DeleteCostElement = ({ id, departmentName }: DeleteCostElementProps) => {
   })
 
   const onSubmit = async () => {
-    mutation.mutate(id)
+    mutation.mutate()
   }
 
   return (

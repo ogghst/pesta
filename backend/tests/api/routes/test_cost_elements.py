@@ -869,3 +869,356 @@ def test_update_cost_element_both_budget_and_revenue_creates_one_budget_allocati
     assert update_budget is not None
     assert update_budget.budget_amount == Decimal("15000.00")
     assert update_budget.revenue_amount == Decimal("18000.00")
+
+
+def test_read_cost_elements_with_view_mode_branch_only(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test that read_cost_elements with view_mode='branch-only' returns only branch entities."""
+    from decimal import Decimal
+
+    from app import crud
+    from app.models import (
+        WBE,
+        CostElement,
+        CostElementCreate,
+        CostElementType,
+        CostElementTypeCreate,
+        Project,
+        ProjectCreate,
+        UserCreate,
+        WBECreate,
+    )
+
+    # Create project
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="View Mode Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date.today(),
+        planned_completion_date=date.today() + timedelta(days=365),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    branch = "co-001"
+
+    # Create WBE
+    wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Test WBE",
+        revenue_allocation=Decimal("50000.00"),
+        status="designing",
+    )
+    wbe = WBE.model_validate(wbe_in)
+    db.add(wbe)
+    db.commit()
+    db.refresh(wbe)
+
+    # Create CostElementType
+    cet_in = CostElementTypeCreate(
+        type_code=f"test_{uuid.uuid4().hex[:6]}",
+        type_name="Test Type",
+        category_type="engineering_mechanical",
+        display_order=1,
+        is_active=True,
+    )
+    cet = CostElementType.model_validate(cet_in)
+    db.add(cet)
+    db.commit()
+    db.refresh(cet)
+
+    # Create cost element in main branch
+    main_ce_in = CostElementCreate(
+        wbe_id=wbe.wbe_id,
+        cost_element_type_id=cet.cost_element_type_id,
+        department_code="MAIN",
+        department_name="Main Department",
+        budget_bac=Decimal("10000.00"),
+        revenue_plan=Decimal("12000.00"),
+    )
+    main_ce = CostElement.model_validate(main_ce_in)
+    db.add(main_ce)
+    db.commit()
+    db.refresh(main_ce)
+
+    # Create WBE in branch
+    branch_wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Branch WBE",
+        revenue_allocation=Decimal("30000.00"),
+        status="designing",
+    )
+    branch_wbe = WBE.model_validate(branch_wbe_in)
+    branch_wbe.branch = branch
+    db.add(branch_wbe)
+    db.commit()
+    db.refresh(branch_wbe)
+
+    # Create cost element in branch
+    branch_ce_in = CostElementCreate(
+        wbe_id=branch_wbe.wbe_id,
+        cost_element_type_id=cet.cost_element_type_id,
+        department_code="BRANCH",
+        department_name="Branch Department",
+        budget_bac=Decimal("20000.00"),
+        revenue_plan=Decimal("24000.00"),
+    )
+    branch_ce = CostElement.model_validate(branch_ce_in)
+    branch_ce.branch = branch
+    db.add(branch_ce)
+    db.commit()
+
+    # Test branch-only view mode
+    response = client.get(
+        f"{settings.API_V1_STR}/cost-elements/?wbe_id={branch_wbe.wbe_id}&branch={branch}&view_mode=branch-only",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    # Should only return branch cost element
+    assert content["count"] == 1
+    assert len(content["data"]) == 1
+    assert content["data"][0]["department_code"] == "BRANCH"
+    assert content["data"][0]["branch"] == branch
+
+
+def test_read_cost_elements_with_view_mode_merged_default(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test that read_cost_elements defaults to view_mode='merged' and includes change_status."""
+    from decimal import Decimal
+
+    from app import crud
+    from app.models import (
+        WBE,
+        CostElement,
+        CostElementCreate,
+        CostElementType,
+        CostElementTypeCreate,
+        Project,
+        ProjectCreate,
+        UserCreate,
+        WBECreate,
+    )
+
+    # Create project
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Merged View Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date.today(),
+        planned_completion_date=date.today() + timedelta(days=365),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    branch = "co-001"
+
+    # Create WBE in main
+    main_wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Main WBE",
+        revenue_allocation=Decimal("50000.00"),
+        status="designing",
+    )
+    main_wbe = WBE.model_validate(main_wbe_in)
+    db.add(main_wbe)
+    db.commit()
+    db.refresh(main_wbe)
+
+    # Create CostElementType
+    cet_in = CostElementTypeCreate(
+        type_code=f"test_{uuid.uuid4().hex[:6]}",
+        type_name="Test Type",
+        category_type="engineering_mechanical",
+        display_order=1,
+        is_active=True,
+    )
+    cet = CostElementType.model_validate(cet_in)
+    db.add(cet)
+    db.commit()
+    db.refresh(cet)
+
+    # Create cost element in main branch
+    main_ce_in = CostElementCreate(
+        wbe_id=main_wbe.wbe_id,
+        cost_element_type_id=cet.cost_element_type_id,
+        department_code="MAIN",
+        department_name="Main Department",
+        budget_bac=Decimal("10000.00"),
+        revenue_plan=Decimal("12000.00"),
+    )
+    main_ce = CostElement.model_validate(main_ce_in)
+    db.add(main_ce)
+    db.commit()
+    db.refresh(main_ce)
+
+    # Create WBE in branch
+    branch_wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Branch WBE",
+        revenue_allocation=Decimal("30000.00"),
+        status="designing",
+    )
+    branch_wbe = WBE.model_validate(branch_wbe_in)
+    branch_wbe.branch = branch
+    db.add(branch_wbe)
+    db.commit()
+    db.refresh(branch_wbe)
+
+    # Create cost element in branch
+    branch_ce_in = CostElementCreate(
+        wbe_id=branch_wbe.wbe_id,
+        cost_element_type_id=cet.cost_element_type_id,
+        department_code="BRANCH",
+        department_name="Branch Department",
+        budget_bac=Decimal("20000.00"),
+        revenue_plan=Decimal("24000.00"),
+    )
+    branch_ce = CostElement.model_validate(branch_ce_in)
+    branch_ce.branch = branch
+    db.add(branch_ce)
+    db.commit()
+    db.refresh(branch_ce)
+
+    # Test merged view mode (default, no view_mode parameter) - filter by main WBE
+    response = client.get(
+        f"{settings.API_V1_STR}/cost-elements/?wbe_id={main_wbe.wbe_id}&branch={branch}",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    # Should return main cost element with unchanged status
+    assert content["count"] == 1
+    assert len(content["data"]) == 1
+    assert content["data"][0]["department_code"] == "MAIN"
+
+    # Check that change_status is included in merged view
+    assert (
+        "change_status" in content["data"][0]
+    ), "change_status should be included in merged view"
+    assert content["data"][0]["change_status"] == "unchanged"
+
+    # Test explicit merged view mode - filter by branch WBE
+    response2 = client.get(
+        f"{settings.API_V1_STR}/cost-elements/?wbe_id={branch_wbe.wbe_id}&branch={branch}&view_mode=merged",
+        headers=superuser_token_headers,
+    )
+    assert response2.status_code == 200
+    content2 = response2.json()
+    assert content2["count"] == 1
+    assert len(content2["data"]) == 1
+    assert content2["data"][0]["department_code"] == "BRANCH"
+    assert content2["data"][0]["change_status"] == "created"
+
+
+def test_read_cost_element_with_view_mode_merged(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    """Test that read_cost_element (single entity) supports view_mode parameter."""
+    from decimal import Decimal
+
+    from app import crud
+    from app.models import (
+        WBE,
+        CostElement,
+        CostElementCreate,
+        CostElementType,
+        CostElementTypeCreate,
+        Project,
+        ProjectCreate,
+        UserCreate,
+        WBECreate,
+    )
+
+    # Create project
+    email = f"pm_{uuid.uuid4().hex[:8]}@example.com"
+    password = "testpassword123"
+    user_in = UserCreate(email=email, password=password)
+    pm_user = crud.create_user(session=db, user_create=user_in)
+
+    project_in = ProjectCreate(
+        project_name="Single CE Test Project",
+        customer_name="Test Customer",
+        contract_value=Decimal("100000.00"),
+        start_date=date.today(),
+        planned_completion_date=date.today() + timedelta(days=365),
+        project_manager_id=pm_user.id,
+        status="active",
+    )
+    project = Project.model_validate(project_in)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    branch = "co-001"
+
+    # Create WBE
+    wbe_in = WBECreate(
+        project_id=project.project_id,
+        machine_type="Test WBE",
+        revenue_allocation=Decimal("50000.00"),
+        status="designing",
+    )
+    wbe = WBE.model_validate(wbe_in)
+    db.add(wbe)
+    db.commit()
+    db.refresh(wbe)
+
+    # Create CostElementType
+    cet_in = CostElementTypeCreate(
+        type_code=f"test_{uuid.uuid4().hex[:6]}",
+        type_name="Test Type",
+        category_type="engineering_mechanical",
+        display_order=1,
+        is_active=True,
+    )
+    cet = CostElementType.model_validate(cet_in)
+    db.add(cet)
+    db.commit()
+    db.refresh(cet)
+
+    # Create cost element in main branch
+    main_ce_in = CostElementCreate(
+        wbe_id=wbe.wbe_id,
+        cost_element_type_id=cet.cost_element_type_id,
+        department_code="MAIN",
+        department_name="Main Department",
+        budget_bac=Decimal("10000.00"),
+        revenue_plan=Decimal("12000.00"),
+    )
+    main_ce = CostElement.model_validate(main_ce_in)
+    db.add(main_ce)
+    db.commit()
+    db.refresh(main_ce)
+
+    # Test single cost element with merged view mode
+    response = client.get(
+        f"{settings.API_V1_STR}/cost-elements/{main_ce.cost_element_id}?branch={branch}&view_mode=merged",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["department_code"] == "MAIN"
+    # change_status should be included when view_mode='merged'
+    assert "change_status" in content, "change_status should be included in merged view"
+    assert content["change_status"] == "unchanged"
