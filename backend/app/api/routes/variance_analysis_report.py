@@ -51,6 +51,9 @@ def get_project_variance_analysis_report_endpoint(
         default="cv",
         description="Sort field: 'cv' (cost variance) or 'sv' (schedule variance)",
     ),
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """Get variance analysis report for a project.
 
@@ -80,6 +83,7 @@ def get_project_variance_analysis_report_endpoint(
             control_date=control_date,
             show_only_problems=show_only_problems,
             sort_by=sort_by,
+            branch=branch,
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

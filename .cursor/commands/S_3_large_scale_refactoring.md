@@ -14,7 +14,7 @@ This change touches many files. Let's proceed carefully:
    - Files touched: [list]
    - Tests to verify: [list]
    - Rollback point
-   
+
    Phase 2: [description]
    ...
 

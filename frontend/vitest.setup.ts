@@ -1,6 +1,43 @@
 import { vi } from "vitest"
 import "@testing-library/jest-dom/vitest"
 
+// Suppress CSS parsing errors in jsdom (jsdom doesn't support modern CSS features like @layer)
+// This error occurs when emotion/Chakra UI tries to inject CSS with @layer directive
+const originalConsoleError = console.error
+
+console.error = (...args: any[]) => {
+  // Check all arguments for CSS parsing error messages
+  const hasCssError = args.some((arg) => {
+    if (typeof arg === "string") {
+      return (
+        arg.includes("Could not parse CSS stylesheet") ||
+        arg.includes("stylesheets.js")
+      )
+    }
+    if (arg instanceof Error) {
+      return (
+        arg.message.includes("Could not parse CSS stylesheet") ||
+        arg.stack?.includes("stylesheets.js")
+      )
+    }
+    if (typeof arg === "object" && arg !== null) {
+      const message = (arg as any).message || String(arg)
+      const stack = (arg as any).stack
+      return (
+        (typeof message === "string" &&
+          message.includes("Could not parse CSS stylesheet")) ||
+        (typeof stack === "string" && stack.includes("stylesheets.js"))
+      )
+    }
+    return false
+  })
+
+  if (hasCssError) {
+    return // Silently ignore CSS parsing errors
+  }
+  originalConsoleError.apply(console, args)
+}
+
 vi.mock("@/components/ui/toaster", () => {
   return {
     toaster: {

@@ -140,6 +140,7 @@ async function seedReportData() {
         cost_element_id: costElement.cost_element_id,
         completion_date: today,
         percent_complete: 50,
+        deliverables: "Seeded deliverables for cost performance tests",
         description: "Seeded EV entry",
       },
     }),

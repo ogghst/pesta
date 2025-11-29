@@ -87,3 +87,12 @@ def get_current_user_with_role(
 # Keep old function name for backward compatibility during migration
 # Will be removed after all routes are updated
 get_current_active_superuser = get_current_active_admin
+
+
+def get_current_user_project_manager_or_admin(current_user: CurrentUser) -> User:
+    """Dependency to ensure current user has project_manager or admin role."""
+    if current_user.role not in (UserRole.admin, UserRole.project_manager):
+        raise HTTPException(
+            status_code=403, detail="The user doesn't have enough privileges"
+        )
+    return current_user

@@ -8,7 +8,6 @@ from sqlmodel import Field, Relationship, SQLModel
 
 # Import for forward references
 from app.models.user import User
-from app.models.version_status_mixin import VersionStatusMixin
 
 
 class AuditLogBase(SQLModel):
@@ -45,8 +44,11 @@ class AuditLogUpdate(SQLModel):
     user_agent: str | None = Field(default=None, max_length=500)
 
 
-class AuditLog(AuditLogBase, VersionStatusMixin, table=True):
-    """Audit Log database model."""
+class AuditLog(AuditLogBase, table=True):
+    """Audit Log database model.
+
+    Audit logs are immutable records and do not use versioning.
+    """
 
     audit_log_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
@@ -64,15 +66,9 @@ class AuditLogPublic(AuditLogBase):
     """Public audit log schema for API responses.
 
     Note: entity_id in AuditLogBase refers to the audited entity's ID.
-    The versioning entity_id (from VersionStatusMixin) would conflict, so we use
-    the same entity_id field for both purposes (the audited entity's ID is used
-    as the versioning entity_id for the audit log itself).
+    Audit logs are immutable and do not use versioning.
     """
 
     audit_log_id: uuid.UUID
     user_id: uuid.UUID
     timestamp: datetime
-    # Note: entity_id is inherited from AuditLogBase and represents the audited entity's ID
-    # This same ID is also used for versioning the audit log itself
-    status: str
-    version: int

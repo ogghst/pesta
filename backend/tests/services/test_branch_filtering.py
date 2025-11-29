@@ -11,7 +11,7 @@ from app.services.branch_filtering import (
 )
 
 
-def test_apply_branch_filters_wbe_defaults(db: Session) -> None:
+def test_apply_branch_filters_wbe_defaults(_db: Session) -> None:
     """Test that apply_branch_filters adds default branch='main' and status='active' for WBE queries."""
     statement = select(WBE)
 
@@ -22,7 +22,7 @@ def test_apply_branch_filters_wbe_defaults(db: Session) -> None:
     # The actual filtering will be tested when we execute the query
 
 
-def test_apply_branch_filters_wbe_custom_branch(db: Session) -> None:
+def test_apply_branch_filters_wbe_custom_branch(_db: Session) -> None:
     """Test that apply_branch_filters works with custom branch for WBE."""
     statement = select(WBE)
 
@@ -31,7 +31,7 @@ def test_apply_branch_filters_wbe_custom_branch(db: Session) -> None:
     assert filtered_statement is not None
 
 
-def test_apply_branch_filters_cost_element_defaults(db: Session) -> None:
+def test_apply_branch_filters_cost_element_defaults(_db: Session) -> None:
     """Test that apply_branch_filters adds default branch='main' and status='active' for CostElement queries."""
     statement = select(CostElement)
 
@@ -40,7 +40,7 @@ def test_apply_branch_filters_cost_element_defaults(db: Session) -> None:
     assert filtered_statement is not None
 
 
-def test_apply_branch_filters_cost_element_custom_branch(db: Session) -> None:
+def test_apply_branch_filters_cost_element_custom_branch(_db: Session) -> None:
     """Test that apply_branch_filters works with custom branch for CostElement."""
     statement = select(CostElement)
 
@@ -49,7 +49,7 @@ def test_apply_branch_filters_cost_element_custom_branch(db: Session) -> None:
     assert filtered_statement is not None
 
 
-def test_apply_status_filters_project(db: Session) -> None:
+def test_apply_status_filters_project(_db: Session) -> None:
     """Test that apply_status_filters adds status='active' filter for Project queries."""
     statement = select(Project)
 
@@ -58,7 +58,7 @@ def test_apply_status_filters_project(db: Session) -> None:
     assert filtered_statement is not None
 
 
-def test_apply_status_filters_user(db: Session) -> None:
+def test_apply_status_filters_user(_db: Session) -> None:
     """Test that apply_status_filters adds status='active' filter for User queries."""
     statement = select(User)
 
@@ -67,7 +67,7 @@ def test_apply_status_filters_user(db: Session) -> None:
     assert filtered_statement is not None
 
 
-def test_apply_status_filters_custom_status(db: Session) -> None:
+def test_apply_status_filters_custom_status(_db: Session) -> None:
     """Test that apply_status_filters works with custom status values."""
     statement = select(Project)
 
@@ -76,7 +76,7 @@ def test_apply_status_filters_custom_status(db: Session) -> None:
     assert filtered_statement is not None
 
 
-def test_branch_filtering_with_joins(db: Session) -> None:
+def test_branch_filtering_with_joins(_db: Session) -> None:
     """Test that branch filtering works with joined queries."""
     statement = select(CostElement).join(WBE)
 
@@ -85,7 +85,7 @@ def test_branch_filtering_with_joins(db: Session) -> None:
     assert filtered_statement is not None
 
 
-def test_status_filtering_with_joins(db: Session) -> None:
+def test_status_filtering_with_joins(_db: Session) -> None:
     """Test that status filtering works with joined queries."""
     statement = select(Project).join(User)
 

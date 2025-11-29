@@ -27,6 +27,7 @@ import PendingItems from "@/components/Pending/PendingItems"
 import AddWBE from "@/components/Projects/AddWBE"
 import AIChat from "@/components/Projects/AIChat"
 import BaselineLogsTable from "@/components/Projects/BaselineLogsTable"
+import BranchManagement from "@/components/Projects/BranchManagement"
 import BranchSelector from "@/components/Projects/BranchSelector"
 import BudgetTimeline from "@/components/Projects/BudgetTimeline"
 import BudgetTimelineFilter from "@/components/Projects/BudgetTimelineFilter"
@@ -51,6 +52,7 @@ const projectDetailSearchSchema = z.object({
       "baselines",
       "ai-assessment",
       "change-orders",
+      "branch-management",
     ])
     .catch("wbes"),
 })
@@ -387,7 +389,8 @@ function ProjectDetail() {
           | "timeline"
           | "baselines"
           | "ai-assessment"
-          | "change-orders",
+          | "change-orders"
+          | "branch-management",
       }),
     })
   }
@@ -458,6 +461,9 @@ function ProjectDetail() {
             <Tabs.Trigger value="timeline">Budget Timeline</Tabs.Trigger>
             <Tabs.Trigger value="baselines">Baselines</Tabs.Trigger>
             <Tabs.Trigger value="change-orders">Change Orders</Tabs.Trigger>
+            <Tabs.Trigger value="branch-management">
+              Branch Management
+            </Tabs.Trigger>
             <Tabs.Trigger value="ai-assessment">AI Assessment</Tabs.Trigger>
           </Tabs.List>
 
@@ -601,6 +607,10 @@ function ProjectDetail() {
               </Heading>
               <ChangeOrdersTable projectId={project.project_id} />
             </Box>
+          </Tabs.Content>
+
+          <Tabs.Content value="branch-management">
+            <BranchManagement projectId={project.project_id} />
           </Tabs.Content>
 
           <Tabs.Content value="ai-assessment">

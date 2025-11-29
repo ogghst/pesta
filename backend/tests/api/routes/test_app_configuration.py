@@ -14,7 +14,7 @@ from app.models import AppConfiguration, UserCreate
 
 
 def test_create_app_configuration(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
 ) -> None:
     """Test creating app configuration (admin only)."""
     # Generate a test Fernet key

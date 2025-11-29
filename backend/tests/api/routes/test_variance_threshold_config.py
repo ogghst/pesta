@@ -13,7 +13,7 @@ from app.models import (
 
 
 def test_create_variance_threshold_config(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
 ) -> None:
     """Test creating a variance threshold configuration (admin only)."""
     # Use is_active=False to avoid conflict with seeded active config
@@ -43,7 +43,7 @@ def test_create_variance_threshold_config(
 
 
 def test_create_variance_threshold_config_non_admin_forbidden(
-    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], _db: Session
 ) -> None:
     """Test that non-admin users cannot create variance threshold configurations."""
     config_in = {
@@ -62,7 +62,7 @@ def test_create_variance_threshold_config_non_admin_forbidden(
 
 
 def test_list_variance_threshold_configs(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
 ) -> None:
     """Test listing all variance threshold configurations (admin only)."""
     # Note: Configs may already exist from seed data, so we just verify the list endpoint works
@@ -235,7 +235,7 @@ def test_deleted_variance_threshold_config_not_listed(
 
 
 def test_create_variance_threshold_config_validation_positive_percentage(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
 ) -> None:
     """Test that positive percentage is rejected."""
     config_in = {
@@ -254,7 +254,7 @@ def test_create_variance_threshold_config_validation_positive_percentage(
 
 
 def test_create_variance_threshold_config_validation_below_minus_100(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], _db: Session
 ) -> None:
     """Test that percentage below -100 is rejected."""
     config_in = {

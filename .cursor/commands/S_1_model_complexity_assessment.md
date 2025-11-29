@@ -27,5 +27,5 @@ Analyze this task to determine appropriate model selection:
 4. DOWNGRADE TRIGGERS
    What signs indicate we should switch to a higher capability model:
    - [list specific failure modes]
-   
+
 Provide your assessment and recommendations.

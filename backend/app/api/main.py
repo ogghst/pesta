@@ -6,6 +6,7 @@ from app.api.routes import (
     baseline_logs,
     branch_comparison,
     branch_notifications,
+    branches,
     budget_summary,
     budget_timeline,
     change_order_line_items,
@@ -66,6 +67,7 @@ api_router.include_router(evm_aggregation.router)
 api_router.include_router(baseline_logs.router)
 api_router.include_router(branch_comparison.router)
 api_router.include_router(branch_notifications.router)
+api_router.include_router(branches.router)
 api_router.include_router(cost_performance_report.router)
 api_router.include_router(variance_analysis_report.router)
 api_router.include_router(variance_threshold_config.router)

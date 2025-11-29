@@ -16,11 +16,11 @@ Something has gone wrong. Let's diagnose and recover:
    Option A: Rollback
    - Revert to last known good state
    - What do we lose?
-   
+
    Option B: Fix Forward
    - What needs to change?
    - How many steps to recovery?
-   
+
    Option C: Replanning
    - Should we restart with new approach?
    - What do we know now that we didn't before?

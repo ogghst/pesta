@@ -4,7 +4,7 @@ import uuid
 from datetime import date
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.deps import (
     CurrentUser,
@@ -37,6 +37,9 @@ def get_project_cost_performance_report_endpoint(
     _current_user: CurrentUser,
     project_id: uuid.UUID,
     control_date: Annotated[date, Depends(get_time_machine_control_date)],
+    branch: str | None = Query(
+        default=None, description="Branch name (defaults to 'main')"
+    ),
 ) -> Any:
     """Get cost performance report for a project.
 
@@ -53,7 +56,9 @@ def get_project_cost_performance_report_endpoint(
 
     # Get report using service function
     try:
-        report = get_cost_performance_report(session, project_id, control_date)
+        report = get_cost_performance_report(
+            session, project_id, control_date, branch=branch
+        )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 

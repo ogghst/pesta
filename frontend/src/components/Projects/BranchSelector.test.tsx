@@ -10,11 +10,33 @@ import { BranchProvider } from "@/context/BranchContext"
 import { system } from "@/theme"
 import BranchSelector from "./BranchSelector"
 
+const mockNavigate = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+}))
+
 vi.mock("@/client", () => ({
   ChangeOrdersService: {
     listChangeOrders: vi.fn(),
   },
+  OpenAPI: {
+    BASE: "http://localhost:8010",
+  },
 }))
+
+vi.mock("@/hooks/useCustomToast", () => ({
+  __esModule: true,
+  default: () => ({
+    showErrorToast: vi.fn(),
+    showSuccessToast: vi.fn(),
+    showInfoToast: vi.fn(),
+  }),
+}))
+
+// Mock global fetch for branch locks endpoint
+const mockFetch = vi.fn()
+global.fetch = mockFetch
 
 function renderWithProviders(ui: React.ReactElement) {
   const qc = new QueryClient({
@@ -37,6 +59,15 @@ function renderWithProviders(ui: React.ReactElement) {
 describe("BranchSelector", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockNavigate.mockClear()
+
+    // Mock localStorage
+    Storage.prototype.getItem = vi.fn((key: string) => {
+      if (key === "current-branch-test-project-id") return "main"
+      return null
+    })
+    Storage.prototype.setItem = vi.fn()
+
     // Mock change orders with a branch
     vi.mocked(client.ChangeOrdersService.listChangeOrders).mockResolvedValue([
       {
@@ -56,58 +87,107 @@ describe("BranchSelector", () => {
         branch: "co-001",
       },
     ])
+
+    // Mock fetch for branch locks endpoint
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ locks: {} }),
+    })
   })
 
-  it("renders branch dropdown", () => {
-    renderWithProviders(<BranchSelector />)
-    const select = screen.getByRole("combobox")
-    expect(select).toBeInTheDocument()
+  it("renders branch text and switch button", () => {
+    renderWithProviders(<BranchSelector projectId="test-project-id" />)
+
+    // Should show current branch text
+    expect(screen.getByText(/Branch:/i)).toBeInTheDocument()
+    expect(screen.getByText("main")).toBeInTheDocument()
+
+    // Should show Switch button
+    const switchButton = screen.getByRole("button", { name: /switch/i })
+    expect(switchButton).toBeInTheDocument()
   })
 
   it("shows current branch", () => {
-    renderWithProviders(<BranchSelector />)
-    const select = screen.getByRole("combobox") as HTMLSelectElement
+    renderWithProviders(<BranchSelector projectId="test-project-id" />)
+
     // Default branch should be 'main'
-    expect(select.value).toBe("main")
+    expect(screen.getByText("main")).toBeInTheDocument()
   })
 
-  it("allows switching branches", async () => {
-    renderWithProviders(<BranchSelector />)
+  it("opens dialog when switch button is clicked", async () => {
+    renderWithProviders(<BranchSelector projectId="test-project-id" />)
 
-    // Wait for branches to load
+    const switchButton = screen.getByRole("button", { name: /switch/i })
+    fireEvent.click(switchButton)
+
+    // Wait for dialog to open
     await waitFor(() => {
-      const select = screen.getByRole("combobox") as HTMLSelectElement
-      expect(select.options.length).toBeGreaterThan(1)
+      expect(screen.getByText(/Select Branch/i)).toBeInTheDocument()
     })
 
-    const select = screen.getByRole("combobox") as HTMLSelectElement
-
-    // Change to a different branch
-    fireEvent.change(select, { target: { value: "co-001" } })
-
-    // Value should be updated
-    await waitFor(() => {
-      expect(select.value).toBe("co-001")
-    })
+    // Dialog should be visible
+    expect(
+      screen.getByText(/Select a branch to switch to/i),
+    ).toBeInTheDocument()
   })
 
-  it("updates query on branch change", async () => {
-    renderWithProviders(<BranchSelector />)
+  it("displays branches in dialog after opening", async () => {
+    renderWithProviders(<BranchSelector projectId="test-project-id" />)
 
-    // Wait for branches to load
+    const switchButton = screen.getByRole("button", { name: /switch/i })
+    fireEvent.click(switchButton)
+
+    // Wait for dialog and branches to load
     await waitFor(() => {
-      const select = screen.getByRole("combobox") as HTMLSelectElement
-      expect(select.options.length).toBeGreaterThan(1)
+      expect(screen.getByText(/Select Branch/i)).toBeInTheDocument()
     })
 
-    const select = screen.getByRole("combobox") as HTMLSelectElement
+    await waitFor(
+      () => {
+        // Should show main branch and change order branch in the table
+        expect(screen.getByText("main")).toBeInTheDocument()
+        expect(screen.getByText("co-001")).toBeInTheDocument()
+      },
+      { timeout: 3000 },
+    )
+  })
 
-    // Change branch
-    fireEvent.change(select, { target: { value: "co-001" } })
+  it("opens confirmation dialog when a branch is selected", async () => {
+    renderWithProviders(<BranchSelector projectId="test-project-id" />)
 
-    // The context should update (we can't directly test query invalidation without mocking)
+    // Open the branch selection dialog
+    const switchButton = screen.getByRole("button", { name: /switch/i })
+    fireEvent.click(switchButton)
+
     await waitFor(() => {
-      expect(select.value).toBe("co-001")
+      expect(screen.getByText(/Select Branch/i)).toBeInTheDocument()
     })
+
+    // Wait for branches to load and find the branch row
+    await waitFor(
+      () => {
+        expect(screen.getByText("co-001")).toBeInTheDocument()
+      },
+      { timeout: 3000 },
+    )
+
+    // Find all table rows and click on the one containing "co-001"
+    await waitFor(() => {
+      const rows = screen.getAllByRole("row")
+      const branchRow = rows.find((row) => row.textContent?.includes("co-001"))
+      expect(branchRow).toBeInTheDocument()
+      if (branchRow) {
+        fireEvent.click(branchRow)
+      }
+    })
+
+    // Wait for confirmation dialog
+    await waitFor(() => {
+      expect(screen.getByText(/Confirm Branch Switch/i)).toBeInTheDocument()
+    })
+
+    // Should show branch names in confirmation
+    expect(screen.getByText(/main/i)).toBeInTheDocument()
+    expect(screen.getByText(/co-001/i)).toBeInTheDocument()
   })
 })

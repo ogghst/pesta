@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { useMemo, useState } from "react"
 import type { ChangeOrderPublic } from "@/client"
-import { ChangeOrdersService } from "@/client"
+import { ChangeOrdersService, OpenAPI } from "@/client"
 import { DataTable } from "@/components/DataTable/DataTable"
 import type { ColumnDefExtended } from "@/components/DataTable/types"
 import {
@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useBranch } from "@/context/BranchContext"
+import useCustomToast from "@/hooks/useCustomToast"
 import { ViewModeToggle } from "./ViewModeToggle"
 
 interface BranchSelectorProps {
@@ -28,11 +29,17 @@ interface BranchData {
   status: string
   changeOrderNumber: string | null
   lastUpdated: string
+  isLocked: boolean
+  lockInfo: {
+    locked_by_name: string | null
+    reason: string | null
+  } | null
 }
 
 const BranchSelector = ({ projectId }: BranchSelectorProps) => {
   const { currentBranch, setCurrentBranch, isLoading } = useBranch()
   const navigate = useNavigate()
+  const { showErrorToast } = useCustomToast()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null)
@@ -51,27 +58,76 @@ const BranchSelector = ({ projectId }: BranchSelectorProps) => {
     enabled: isDialogOpen && !!projectId,
   })
 
+  // Fetch lock status for all branches
+  const { data: locksData, isLoading: isLoadingLocks } = useQuery<{
+    locks: Record<
+      string,
+      {
+        lock_id: string
+        project_id: string
+        branch: string
+        locked_by_id: string
+        locked_by_name: string | null
+        reason: string | null
+        locked_at: string
+      }
+    >
+  }>({
+    queryFn: async () => {
+      const apiBase =
+        OpenAPI.BASE ||
+        window.env?.VITE_API_URL ||
+        import.meta.env.VITE_API_URL ||
+        "http://localhost:8010"
+      const token = localStorage.getItem("access_token") || ""
+      const response = await fetch(
+        `${apiBase}/api/v1/projects/${projectId}/branches/locks`,
+        {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        },
+      )
+      if (!response.ok) {
+        throw new Error("Failed to fetch branch locks")
+      }
+      return response.json()
+    },
+    queryKey: ["branch-locks", projectId],
+    enabled: isDialogOpen && !!projectId,
+  })
+
   // Create branch data with statuses, ordered by last update date
   const branchData = useMemo<BranchData[]>(() => {
     const branches: BranchData[] = []
 
-    // Add main branch
+    // Add main branch (main branch cannot be locked)
     branches.push({
       branch: "main",
       status: "active",
       changeOrderNumber: null,
       lastUpdated: new Date().toISOString(), // Main branch is always current
+      isLocked: false,
+      lockInfo: null,
     })
 
     // Add change order branches
     if (changeOrders) {
       changeOrders.forEach((co) => {
         if (co.branch && co.branch !== "main") {
+          const lockInfo = locksData?.locks[co.branch]
           branches.push({
             branch: co.branch,
             status: co.workflow_status,
             changeOrderNumber: co.change_order_number,
             lastUpdated: co.created_at, // Use created_at as last updated
+            isLocked: !!lockInfo,
+            lockInfo: lockInfo
+              ? {
+                  locked_by_name: lockInfo.locked_by_name,
+                  reason: lockInfo.reason,
+                }
+              : null,
           })
         }
       })
@@ -83,7 +139,7 @@ const BranchSelector = ({ projectId }: BranchSelectorProps) => {
       const dateB = new Date(b.lastUpdated).getTime()
       return dateB - dateA
     })
-  }, [changeOrders])
+  }, [changeOrders, locksData])
 
   const branchColumns: ColumnDefExtended<BranchData>[] = [
     {
@@ -135,6 +191,30 @@ const BranchSelector = ({ projectId }: BranchSelectorProps) => {
       cell: ({ getValue }) => {
         const date = getValue() as string
         return new Date(date).toLocaleDateString()
+      },
+    },
+    {
+      accessorKey: "isLocked",
+      header: "Lock Status",
+      enableSorting: true,
+      size: 150,
+      defaultVisible: true,
+      cell: ({ row }) => {
+        const isLocked = row.original.isLocked
+        const lockInfo = row.original.lockInfo
+        if (!isLocked) {
+          return <Badge colorPalette="gray">Unlocked</Badge>
+        }
+        return (
+          <Box>
+            <Badge colorPalette="orange">Locked</Badge>
+            {lockInfo?.locked_by_name && (
+              <Text fontSize="xs" color="fg.muted">
+                by {lockInfo.locked_by_name}
+              </Text>
+            )}
+          </Box>
+        )
       },
     },
   ]
@@ -199,19 +279,28 @@ const BranchSelector = ({ projectId }: BranchSelectorProps) => {
                 Select a branch to switch to. You will be redirected to the
                 project main page.
               </Text>
-              {isLoadingChangeOrders ? (
+              {isLoadingChangeOrders || isLoadingLocks ? (
                 <Text>Loading branches...</Text>
               ) : (
                 <DataTable
                   data={branchData}
                   columns={branchColumns}
                   tableId="branch-selector-table"
-                  isLoading={isLoadingChangeOrders}
+                  isLoading={isLoadingChangeOrders || isLoadingLocks}
                   count={branchData.length}
                   page={1}
                   onPageChange={() => {}}
                   pageSize={branchData.length}
-                  onRowClick={handleBranchSelect}
+                  onRowClick={(branch: BranchData) => {
+                    // Prevent selection of locked branches (except current)
+                    if (branch.isLocked && branch.branch !== currentBranch) {
+                      showErrorToast(
+                        `Cannot switch to branch ${branch.branch} because it is locked.`,
+                      )
+                      return
+                    }
+                    handleBranchSelect(branch)
+                  }}
                 />
               )}
             </VStack>

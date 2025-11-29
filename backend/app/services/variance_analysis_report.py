@@ -142,6 +142,7 @@ def get_variance_analysis_report(
     control_date: date,
     show_only_problems: bool = True,
     sort_by: str = "cv",
+    branch: str | None = None,
 ) -> VarianceAnalysisReportPublic:
     """Get variance analysis report for a project.
 
@@ -151,36 +152,46 @@ def get_variance_analysis_report(
         control_date: Control date for time-machine filtering
         show_only_problems: If True, filter to rows with negative CV or SV (default: True)
         sort_by: Sort field ('cv' or 'sv'), defaults to 'cv' (most negative first)
+        branch: Branch name to filter by (defaults to 'main')
 
     Returns:
         VarianceAnalysisReportPublic with filtered/sorted rows and project summary
     """
+    from app.services.branch_filtering import apply_branch_filters
+
     # Get project
     project = session.get(Project, project_id)
     if not project:
         raise ValueError(f"Project {project_id} not found")
 
+    # Determine branch to use
+    branch_name = branch or "main"
+
     # Get active variance thresholds
     thresholds = get_active_variance_thresholds(session)
 
-    # Get all WBEs for project (respecting control date)
+    # Get all WBEs for project (respecting control date and branch)
     cutoff = end_of_day(control_date)
-    wbes = session.exec(
-        select(WBE).where(
-            WBE.project_id == project_id,
-            WBE.created_at <= cutoff,
-        )
-    ).all()
+    wbe_statement = select(WBE).where(
+        WBE.project_id == project_id,
+        WBE.created_at <= cutoff,
+    )
+    wbe_statement = apply_branch_filters(wbe_statement, WBE, branch=branch_name)
+    wbes = session.exec(wbe_statement).all()
 
-    # Get all cost elements for project (respecting control date)
-    cost_elements = session.exec(
+    # Get all cost elements for project (respecting control date and branch)
+    cost_element_statement = (
         select(CostElement)
         .join(WBE)
         .where(
             WBE.project_id == project_id,
             CostElement.created_at <= cutoff,
         )
-    ).all()
+    )
+    cost_element_statement = apply_branch_filters(
+        cost_element_statement, CostElement, branch=branch_name
+    )
+    cost_elements = session.exec(cost_element_statement).all()
 
     if not cost_elements:
         # Return empty report with zero summary

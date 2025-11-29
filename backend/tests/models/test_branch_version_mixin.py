@@ -60,7 +60,7 @@ def test_branch_version_mixin_can_be_inherited() -> None:
     assert issubclass(TestBranchModel, SQLModel)
 
 
-def test_branch_version_mixin_fields_accessible(db: Session) -> None:
+def test_branch_version_mixin_fields_accessible(_db: Session) -> None:
     """Test that BranchVersionMixin fields are accessible on model instances."""
     instance = TestBranchModel(name="Test Item")
 
