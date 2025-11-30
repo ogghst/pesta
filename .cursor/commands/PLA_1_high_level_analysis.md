@@ -40,4 +40,4 @@ Ask the user over the Objective if not clear
 - Flag any ambiguities or missing information
 - Identify risks and unknown factors
 
-name the analysis with a 6 digit code and record your analysis in [analysis](/docs/analysis/) folder and wait for my feedback before proceeding to detailed planning.
+tag the analysis with a 6 digit code and store in [analysis](/docs/analysis/) folder. wait for my feedback before proceeding to detailed planning.

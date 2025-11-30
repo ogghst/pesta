@@ -190,7 +190,7 @@ def list_branch_locks(
     session: SessionDep,
     _current_user: CurrentUser,
     project_id: uuid.UUID,
-) -> dict[str, list[dict[str, Any]]]:
+) -> dict[str, dict[str, dict[str, Any]]]:
     """
     Get lock status for all branches in a project.
 

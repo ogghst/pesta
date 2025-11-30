@@ -24,7 +24,7 @@ export function TableFilters<TData>({ columns }: TableFiltersProps<TData>) {
   }
 
   return (
-    <Flex gap={2} flexWrap="wrap" display={{ base: "none", md: "flex" }}>
+    <Flex gap={2} flexWrap="nowrap" display={{ base: "none", md: "flex" }}>
       {filterableColumns.map((column) => {
         const columnDef = column.columnDef as ColumnDefExtended<TData>
         const filterValue = column.getFilterValue()

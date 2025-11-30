@@ -7,10 +7,17 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-import type { BaselineSummaryPublic } from "@/client"
+import type { BaselineProjectPublic, BaselineSummaryPublic } from "@/client"
 import { BaselineLogsService } from "@/client"
 import { useColorModeValue } from "@/components/ui/color-mode"
 import { useTimeMachine } from "@/context/TimeMachineContext"
+import {
+  getCpiStatus,
+  getCvStatus,
+  getSpiStatus,
+  getSvStatus,
+  getTcpiStatus,
+} from "@/utils/statusIndicators"
 
 interface BaselineSummaryProps {
   projectId: string
@@ -34,15 +41,37 @@ export default function BaselineSummary({
     controlDate,
   ]
 
-  const { data: summary, isLoading } = useQuery<BaselineSummaryPublic>({
-    queryKey,
-    queryFn: () =>
-      BaselineLogsService.getBaselineSnapshotSummary({
-        projectId: projectId,
-        baselineId: baselineId,
-      }),
-    enabled: !!projectId && !!baselineId,
-  })
+  const { data: summary, isLoading: isLoadingSummary } =
+    useQuery<BaselineSummaryPublic>({
+      queryKey,
+      queryFn: () =>
+        BaselineLogsService.getBaselineSnapshotSummary({
+          projectId: projectId,
+          baselineId: baselineId,
+        }),
+      enabled: !!projectId && !!baselineId,
+    })
+
+  // Fetch project snapshot for EVM indices
+  const projectSnapshotQueryKey = [
+    "baseline-project-snapshot",
+    projectId,
+    baselineId,
+    controlDate,
+  ]
+
+  const { data: projectSnapshot, isLoading: isLoadingSnapshot } =
+    useQuery<BaselineProjectPublic>({
+      queryKey: projectSnapshotQueryKey,
+      queryFn: () =>
+        BaselineLogsService.getBaselineProjectSnapshot({
+          projectId: projectId,
+          baselineId: baselineId,
+        }),
+      enabled: !!projectId && !!baselineId,
+    })
+
+  const isLoading = isLoadingSummary || isLoadingSnapshot
 
   const formatCurrency = (
     value: string | number | null | undefined,
@@ -74,7 +103,7 @@ export default function BaselineSummary({
           }}
           gap={4}
         >
-          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
             <Box
               key={i}
               p={4}
@@ -108,6 +137,46 @@ export default function BaselineSummary({
     ? Number(summary.total_earned_ev)
     : null
   const costElementCount = summary.cost_element_count
+
+  // Get EVM indices from project snapshot
+  const cpi = projectSnapshot?.cpi
+  const spi = projectSnapshot?.spi
+  const tcpi = projectSnapshot?.tcpi
+  const costVariance = projectSnapshot?.cost_variance
+  const scheduleVariance = projectSnapshot?.schedule_variance
+
+  const cpiStatus = getCpiStatus(cpi)
+  const spiStatus = getSpiStatus(spi)
+  const tcpiStatus = getTcpiStatus(tcpi)
+  const cvStatus = getCvStatus(costVariance)
+  const svStatus = getSvStatus(scheduleVariance)
+
+  const CpiIcon = cpiStatus.icon
+  const SpiIcon = spiStatus.icon
+  const TcpiIcon = tcpiStatus.icon
+  const CvIcon = cvStatus.icon
+  const SvIcon = svStatus.icon
+
+  const formatIndex = (value: string | number | null | undefined): string => {
+    if (value === null || value === undefined) {
+      return "N/A"
+    }
+    const numValue = typeof value === "string" ? Number(value) : value
+    if (Number.isNaN(numValue)) {
+      return "N/A"
+    }
+    return numValue.toFixed(2)
+  }
+
+  const formatTcpi = (tcpi: string | null | undefined): string => {
+    if (tcpi === null || tcpi === undefined) {
+      return "N/A"
+    }
+    if (tcpi === "overrun") {
+      return "overrun"
+    }
+    return formatIndex(tcpi)
+  }
 
   return (
     <Box mb={6}>
@@ -268,6 +337,126 @@ export default function BaselineSummary({
             </Text>
           </VStack>
         </Box>
+
+        {/* Card 8: Cost Performance Index (CPI) */}
+        {projectSnapshot && (
+          <Box
+            p={4}
+            borderWidth="1px"
+            borderRadius="md"
+            borderColor={borderCol}
+            bg={cardBg}
+          >
+            <VStack align="stretch" gap={1}>
+              <Text fontSize="sm" color={mutedText} fontWeight="medium">
+                Cost Performance Index (CPI)
+              </Text>
+              <Text fontSize="xl" fontWeight="bold" color={cpiStatus.color}>
+                {formatIndex(cpi)}
+              </Text>
+              <Text fontSize="xs" color={cpiStatus.color} mt={1}>
+                <CpiIcon style={{ display: "inline", marginRight: "4px" }} />
+                {cpiStatus.label}
+              </Text>
+            </VStack>
+          </Box>
+        )}
+
+        {/* Card 9: Schedule Performance Index (SPI) */}
+        {projectSnapshot && (
+          <Box
+            p={4}
+            borderWidth="1px"
+            borderRadius="md"
+            borderColor={borderCol}
+            bg={cardBg}
+          >
+            <VStack align="stretch" gap={1}>
+              <Text fontSize="sm" color={mutedText} fontWeight="medium">
+                Schedule Performance Index (SPI)
+              </Text>
+              <Text fontSize="xl" fontWeight="bold" color={spiStatus.color}>
+                {formatIndex(spi)}
+              </Text>
+              <Text fontSize="xs" color={spiStatus.color} mt={1}>
+                <SpiIcon style={{ display: "inline", marginRight: "4px" }} />
+                {spiStatus.label}
+              </Text>
+            </VStack>
+          </Box>
+        )}
+
+        {/* Card 10: To-Complete Performance Index (TCPI) */}
+        {projectSnapshot && (
+          <Box
+            p={4}
+            borderWidth="1px"
+            borderRadius="md"
+            borderColor={borderCol}
+            bg={cardBg}
+          >
+            <VStack align="stretch" gap={1}>
+              <Text fontSize="sm" color={mutedText} fontWeight="medium">
+                To-Complete Performance Index (TCPI)
+              </Text>
+              <Text fontSize="xl" fontWeight="bold" color={tcpiStatus.color}>
+                {formatTcpi(tcpi)}
+              </Text>
+              <Text fontSize="xs" color={tcpiStatus.color} mt={1}>
+                <TcpiIcon style={{ display: "inline", marginRight: "4px" }} />
+                {tcpiStatus.label}
+              </Text>
+            </VStack>
+          </Box>
+        )}
+
+        {/* Card 11: Cost Variance (CV) */}
+        {projectSnapshot && (
+          <Box
+            p={4}
+            borderWidth="1px"
+            borderRadius="md"
+            borderColor={borderCol}
+            bg={cardBg}
+          >
+            <VStack align="stretch" gap={1}>
+              <Text fontSize="sm" color={mutedText} fontWeight="medium">
+                Cost Variance (CV)
+              </Text>
+              <Text fontSize="xl" fontWeight="bold" color={cvStatus.color}>
+                {formatCurrency(costVariance)}
+              </Text>
+              <Text fontSize="xs" color={cvStatus.color} mt={1}>
+                <CvIcon style={{ display: "inline", marginRight: "4px" }} />
+                {cvStatus.label}
+              </Text>
+            </VStack>
+          </Box>
+        )}
+
+        {/* Card 12: Schedule Variance (SV) */}
+        {projectSnapshot && (
+          <Box
+            p={4}
+            borderWidth="1px"
+            borderRadius="md"
+            borderColor={borderCol}
+            bg={cardBg}
+          >
+            <VStack align="stretch" gap={1}>
+              <Text fontSize="sm" color={mutedText} fontWeight="medium">
+                Schedule Variance (SV)
+              </Text>
+              <Text fontSize="xl" fontWeight="bold" color={svStatus.color}>
+                {formatCurrency(scheduleVariance)}
+              </Text>
+              <Text fontSize="xs" color={svStatus.color} mt={1}>
+                <SvIcon style={{ display: "inline", marginRight: "4px" }} />
+                {svStatus.label}
+              </Text>
+            </VStack>
+          </Box>
+        )}
       </Grid>
     </Box>
   )

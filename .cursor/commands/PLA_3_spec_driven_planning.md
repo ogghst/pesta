@@ -1,4 +1,4 @@
-SPECIFICATION-FIRST PLANNING
+# SPECIFICATION-FIRST PLANNING
 
 Create a detailed specification that will guide our implementation:
 
@@ -31,3 +31,5 @@ Create a detailed specification that will guide our implementation:
 Record your plan in [plans](/docs/plans/) folder
 
 This specification will serve as our contract and documentation
+
+tag the analysis with a 6 digit code and store in [analysis](/docs/analysis/) folder. wait for my feedback before proceeding to detailed planning.

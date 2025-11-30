@@ -1,3 +1,10 @@
+/**
+ * BaselineWBESnapshot Component
+ *
+ * Displays WBE-level baseline snapshot metrics including all EVM metrics
+ * with status indicators for performance indices.
+ */
+
 import {
   Box,
   Grid,
@@ -7,16 +14,8 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-import {
-  type EarnedValueCostElementPublic,
-  type EarnedValueProjectPublic,
-  EarnedValueService,
-  type EarnedValueWBEPublic,
-  type EVMIndicesCostElementPublic,
-  type EVMIndicesProjectPublic,
-  type EVMIndicesWBEPublic,
-  EvmMetricsService,
-} from "@/client"
+import type { BaselineWBEPublic } from "@/client"
+import { BaselineLogsService } from "@/client"
 import { useColorModeValue } from "@/components/ui/color-mode"
 import { useTimeMachine } from "@/context/TimeMachineContext"
 import {
@@ -27,19 +26,17 @@ import {
   getTcpiStatus,
 } from "@/utils/statusIndicators"
 
-interface EarnedValueSummaryProps {
-  level: "project" | "wbe" | "cost-element"
-  projectId?: string
-  wbeId?: string
-  costElementId?: string
+interface BaselineWBESnapshotProps {
+  projectId: string
+  baselineId: string
+  wbeId: string
 }
 
-export default function EarnedValueSummary({
-  level,
+export default function BaselineWBESnapshot({
   projectId,
+  baselineId,
   wbeId,
-  costElementId,
-}: EarnedValueSummaryProps) {
+}: BaselineWBESnapshotProps) {
   const { controlDate } = useTimeMachine()
   // Theme-aware colors (declare before early returns)
   const cardBg = useColorModeValue("bg.surface", "bg.surface")
@@ -47,86 +44,27 @@ export default function EarnedValueSummary({
   const mutedText = useColorModeValue("fg.muted", "fg.muted")
 
   const queryKey = [
-    "earned-value",
-    level,
-    level === "project" ? projectId : level === "wbe" ? wbeId : costElementId,
+    "baseline-wbe-snapshot",
+    projectId,
+    baselineId,
+    wbeId,
     controlDate,
   ]
 
-  const { data: earnedValue, isLoading: isLoadingEarnedValue } = useQuery<
-    | EarnedValueProjectPublic
-    | EarnedValueWBEPublic
-    | EarnedValueCostElementPublic
-  >({
+  const {
+    data: snapshot,
+    isLoading,
+    isError,
+  } = useQuery<BaselineWBEPublic>({
     queryKey,
-    queryFn: () => {
-      if (level === "project" && projectId) {
-        return EarnedValueService.getProjectEarnedValue({
-          projectId: projectId,
-        })
-      }
-      if (level === "wbe" && wbeId && projectId) {
-        return EarnedValueService.getWbeEarnedValue({
-          projectId: projectId,
-          wbeId: wbeId,
-        })
-      }
-      if (level === "cost-element" && costElementId && projectId) {
-        return EarnedValueService.getCostElementEarnedValue({
-          projectId: projectId,
-          costElementId: costElementId,
-        })
-      }
-      throw new Error(
-        "Invalid props: missing required IDs for earned value query",
-      )
-    },
-    enabled:
-      (level === "project" && !!projectId) ||
-      (level === "wbe" && !!wbeId && !!projectId) ||
-      (level === "cost-element" && !!costElementId && !!projectId),
+    queryFn: () =>
+      BaselineLogsService.getBaselineWbeSnapshotDetail({
+        projectId: projectId,
+        baselineId: baselineId,
+        wbeId: wbeId,
+      }),
+    enabled: !!projectId && !!baselineId && !!wbeId,
   })
-
-  const evmMetricsQueryKey = [
-    "evm-metrics",
-    level,
-    level === "project" ? projectId : level === "wbe" ? wbeId : costElementId,
-    controlDate,
-  ]
-
-  const { data: evmMetrics, isLoading: isLoadingEvmMetrics } = useQuery<
-    EVMIndicesProjectPublic | EVMIndicesWBEPublic | EVMIndicesCostElementPublic
-  >({
-    queryKey: evmMetricsQueryKey,
-    queryFn: () => {
-      if (level === "project" && projectId) {
-        return EvmMetricsService.getProjectEvmMetricsEndpoint({
-          projectId: projectId,
-        })
-      }
-      if (level === "wbe" && wbeId && projectId) {
-        return EvmMetricsService.getWbeEvmMetricsEndpoint({
-          projectId: projectId,
-          wbeId: wbeId,
-        })
-      }
-      if (level === "cost-element" && costElementId && projectId) {
-        return EvmMetricsService.getCostElementEvmMetricsEndpoint({
-          projectId: projectId,
-          costElementId: costElementId,
-        })
-      }
-      throw new Error(
-        "Invalid props: missing required IDs for EVM metrics query",
-      )
-    },
-    enabled:
-      (level === "project" && !!projectId) ||
-      (level === "wbe" && !!wbeId && !!projectId) ||
-      (level === "cost-element" && !!costElementId && !!projectId),
-  })
-
-  const isLoading = isLoadingEarnedValue || isLoadingEvmMetrics
 
   const formatCurrency = (
     value: string | number | null | undefined,
@@ -144,17 +82,6 @@ export default function EarnedValueSummary({
     })}`
   }
 
-  const formatPercent = (value: string | number | null | undefined): string => {
-    if (value === null || value === undefined) {
-      return "N/A"
-    }
-    const numValue = typeof value === "string" ? Number(value) : value
-    if (Number.isNaN(numValue)) {
-      return "N/A"
-    }
-    return `${(numValue * 100).toFixed(2)}%`
-  }
-
   const formatIndex = (value: string | number | null | undefined): string => {
     if (value === null || value === undefined) {
       return "N/A"
@@ -166,41 +93,31 @@ export default function EarnedValueSummary({
     return numValue.toFixed(2)
   }
 
-  const formatTcpi = (value: string | number | null | undefined): string => {
-    if (value === null || value === undefined) {
+  const formatTcpi = (tcpi: string | null | undefined): string => {
+    if (tcpi === null || tcpi === undefined) {
       return "N/A"
     }
-    if (value === "overrun") {
+    if (tcpi === "overrun") {
       return "overrun"
     }
-    const numValue = typeof value === "string" ? Number(value) : value
-    if (Number.isNaN(numValue)) {
-      return "N/A"
-    }
-    return numValue.toFixed(2)
-  }
-
-  const formatVariance = (
-    value: string | number | null | undefined,
-  ): string => {
-    return formatCurrency(value)
+    return formatIndex(tcpi)
   }
 
   if (isLoading) {
     return (
       <Box mb={6}>
         <Heading size="md" mb={4}>
-          Earned Value Summary
+          WBE Baseline Snapshot
         </Heading>
         <Grid
           templateColumns={{
             base: "1fr",
             md: "repeat(2, 1fr)",
-            lg: "repeat(4, 1fr)",
+            lg: "repeat(3, 1fr)",
           }}
           gap={4}
         >
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
             <Box
               key={i}
               p={4}
@@ -217,32 +134,33 @@ export default function EarnedValueSummary({
     )
   }
 
-  if (!earnedValue) {
-    return null
+  if (isError || !snapshot) {
+    return (
+      <Box mb={6}>
+        <Heading size="md" mb={4}>
+          WBE Baseline Snapshot
+        </Heading>
+        <Box
+          p={4}
+          borderWidth="1px"
+          borderRadius="md"
+          borderColor="red.500"
+          bg={cardBg}
+        >
+          <Text color="red.500">
+            Error loading baseline snapshot. Please try again.
+          </Text>
+        </Box>
+      </Box>
+    )
   }
 
-  const earnedValueNum = Number(earnedValue.earned_value || 0)
-  const budgetBacNum = Number(earnedValue.budget_bac || 0)
-  const percentCompleteNum = Number(earnedValue.percent_complete || 0)
-  // Get EAC from evmMetrics (preferred) or earnedValue (fallback)
-  const forecastEac = evmMetrics?.eac ?? earnedValue?.eac
-  const forecastedQuality = earnedValue?.forecasted_quality
+  const cpiStatus = getCpiStatus(snapshot.cpi)
+  const spiStatus = getSpiStatus(snapshot.spi)
+  const tcpiStatus = getTcpiStatus(snapshot.tcpi)
+  const cvStatus = getCvStatus(snapshot.cost_variance)
+  const svStatus = getSvStatus(snapshot.schedule_variance)
 
-  // EVM metrics data (may be null/undefined)
-  const cpi = evmMetrics?.cpi
-  const spi = evmMetrics?.spi
-  const tcpi = evmMetrics?.tcpi
-  const costVariance = evmMetrics?.cost_variance
-  const scheduleVariance = evmMetrics?.schedule_variance
-
-  // Status indicators
-  const cpiStatus = getCpiStatus(cpi)
-  const spiStatus = getSpiStatus(spi)
-  const tcpiStatus = getTcpiStatus(tcpi)
-  const cvStatus = getCvStatus(costVariance)
-  const svStatus = getSvStatus(scheduleVariance)
-
-  // Icon components
   const CpiIcon = cpiStatus.icon
   const SpiIcon = spiStatus.icon
   const TcpiIcon = tcpiStatus.icon
@@ -252,20 +170,38 @@ export default function EarnedValueSummary({
   return (
     <Box mb={6}>
       <Heading size="md" mb={4}>
-        Earned Value Summary
+        WBE Baseline Snapshot
       </Heading>
-      <Text fontSize="sm" color={mutedText} mb={4}>
-        Control Date: {new Date(controlDate).toLocaleDateString()}
-      </Text>
       <Grid
         templateColumns={{
           base: "1fr",
           md: "repeat(2, 1fr)",
-          lg: "repeat(4, 1fr)",
+          lg: "repeat(3, 1fr)",
         }}
         gap={4}
       >
-        {/* Card 1: Earned Value */}
+        {/* Card 1: Planned Value */}
+        <Box
+          p={4}
+          borderWidth="1px"
+          borderRadius="md"
+          borderColor={borderCol}
+          bg={cardBg}
+        >
+          <VStack align="stretch" gap={1}>
+            <Text fontSize="sm" color={mutedText} fontWeight="medium">
+              Planned Value (PV)
+            </Text>
+            <Text fontSize="xl" fontWeight="bold">
+              {formatCurrency(snapshot.planned_value)}
+            </Text>
+            <Text fontSize="xs" color={mutedText} mt={1}>
+              Planned Value
+            </Text>
+          </VStack>
+        </Box>
+
+        {/* Card 2: Earned Value */}
         <Box
           p={4}
           borderWidth="1px"
@@ -278,15 +214,36 @@ export default function EarnedValueSummary({
               Earned Value (EV)
             </Text>
             <Text fontSize="xl" fontWeight="bold">
-              {formatCurrency(earnedValueNum)}
+              {formatCurrency(snapshot.earned_value)}
             </Text>
             <Text fontSize="xs" color={mutedText} mt={1}>
-              Budgeted Cost of Work Performed
+              Earned Value
             </Text>
           </VStack>
         </Box>
 
-        {/* Card 2: Budget at Completion */}
+        {/* Card 3: Actual Cost */}
+        <Box
+          p={4}
+          borderWidth="1px"
+          borderRadius="md"
+          borderColor={borderCol}
+          bg={cardBg}
+        >
+          <VStack align="stretch" gap={1}>
+            <Text fontSize="sm" color={mutedText} fontWeight="medium">
+              Actual Cost (AC)
+            </Text>
+            <Text fontSize="xl" fontWeight="bold">
+              {formatCurrency(snapshot.actual_cost)}
+            </Text>
+            <Text fontSize="xs" color={mutedText} mt={1}>
+              Actual Cost
+            </Text>
+          </VStack>
+        </Box>
+
+        {/* Card 4: Budget BAC */}
         <Box
           p={4}
           borderWidth="1px"
@@ -299,15 +256,15 @@ export default function EarnedValueSummary({
               Budget at Completion (BAC)
             </Text>
             <Text fontSize="xl" fontWeight="bold">
-              {formatCurrency(budgetBacNum)}
+              {formatCurrency(snapshot.budget_bac)}
             </Text>
             <Text fontSize="xs" color={mutedText} mt={1}>
-              Total Planned Budget
+              Budget BAC
             </Text>
           </VStack>
         </Box>
 
-        {/* Card 3: Estimate at Completion (EAC) */}
+        {/* Card 5: Estimate at Completion */}
         <Box
           p={4}
           borderWidth="1px"
@@ -320,36 +277,15 @@ export default function EarnedValueSummary({
               Estimate at Completion (EAC)
             </Text>
             <Text fontSize="xl" fontWeight="bold">
-              {formatCurrency(forecastEac)}
+              {formatCurrency(snapshot.eac)}
             </Text>
             <Text fontSize="xs" color={mutedText} mt={1}>
-              Current Forecast
+              Forecast EAC
             </Text>
           </VStack>
         </Box>
 
-        {/* Card 4: Percent Complete */}
-        <Box
-          p={4}
-          borderWidth="1px"
-          borderRadius="md"
-          borderColor={borderCol}
-          bg={cardBg}
-        >
-          <VStack align="stretch" gap={1}>
-            <Text fontSize="sm" color={mutedText} fontWeight="medium">
-              Physical Completion
-            </Text>
-            <Text fontSize="xl" fontWeight="bold">
-              {formatPercent(percentCompleteNum)}
-            </Text>
-            <Text fontSize="xs" color={mutedText} mt={1}>
-              EV / BAC
-            </Text>
-          </VStack>
-        </Box>
-
-        {/* Card 5: Cost Performance Index (CPI) */}
+        {/* Card 6: Cost Performance Index (CPI) */}
         <Box
           p={4}
           borderWidth="1px"
@@ -362,7 +298,7 @@ export default function EarnedValueSummary({
               Cost Performance Index (CPI)
             </Text>
             <Text fontSize="xl" fontWeight="bold" color={cpiStatus.color}>
-              {formatIndex(cpi)}
+              {formatIndex(snapshot.cpi)}
             </Text>
             <Text fontSize="xs" color={cpiStatus.color} mt={1}>
               <CpiIcon style={{ display: "inline", marginRight: "4px" }} />
@@ -371,7 +307,7 @@ export default function EarnedValueSummary({
           </VStack>
         </Box>
 
-        {/* Card 6: Schedule Performance Index (SPI) */}
+        {/* Card 7: Schedule Performance Index (SPI) */}
         <Box
           p={4}
           borderWidth="1px"
@@ -384,7 +320,7 @@ export default function EarnedValueSummary({
               Schedule Performance Index (SPI)
             </Text>
             <Text fontSize="xl" fontWeight="bold" color={spiStatus.color}>
-              {formatIndex(spi)}
+              {formatIndex(snapshot.spi)}
             </Text>
             <Text fontSize="xs" color={spiStatus.color} mt={1}>
               <SpiIcon style={{ display: "inline", marginRight: "4px" }} />
@@ -393,7 +329,7 @@ export default function EarnedValueSummary({
           </VStack>
         </Box>
 
-        {/* Card 7: To-Complete Performance Index (TCPI) */}
+        {/* Card 8: To-Complete Performance Index (TCPI) */}
         <Box
           p={4}
           borderWidth="1px"
@@ -406,7 +342,7 @@ export default function EarnedValueSummary({
               To-Complete Performance Index (TCPI)
             </Text>
             <Text fontSize="xl" fontWeight="bold" color={tcpiStatus.color}>
-              {formatTcpi(tcpi)}
+              {formatTcpi(snapshot.tcpi)}
             </Text>
             <Text fontSize="xs" color={tcpiStatus.color} mt={1}>
               <TcpiIcon style={{ display: "inline", marginRight: "4px" }} />
@@ -415,7 +351,7 @@ export default function EarnedValueSummary({
           </VStack>
         </Box>
 
-        {/* Card 8: Cost Variance (CV) */}
+        {/* Card 9: Cost Variance (CV) */}
         <Box
           p={4}
           borderWidth="1px"
@@ -428,7 +364,7 @@ export default function EarnedValueSummary({
               Cost Variance (CV)
             </Text>
             <Text fontSize="xl" fontWeight="bold" color={cvStatus.color}>
-              {formatVariance(costVariance)}
+              {formatCurrency(snapshot.cost_variance)}
             </Text>
             <Text fontSize="xs" color={cvStatus.color} mt={1}>
               <CvIcon style={{ display: "inline", marginRight: "4px" }} />
@@ -437,7 +373,7 @@ export default function EarnedValueSummary({
           </VStack>
         </Box>
 
-        {/* Card 9: Schedule Variance (SV) */}
+        {/* Card 10: Schedule Variance (SV) */}
         <Box
           p={4}
           borderWidth="1px"
@@ -450,32 +386,11 @@ export default function EarnedValueSummary({
               Schedule Variance (SV)
             </Text>
             <Text fontSize="xl" fontWeight="bold" color={svStatus.color}>
-              {formatVariance(scheduleVariance)}
+              {formatCurrency(snapshot.schedule_variance)}
             </Text>
             <Text fontSize="xs" color={svStatus.color} mt={1}>
               <SvIcon style={{ display: "inline", marginRight: "4px" }} />
               {svStatus.label}
-            </Text>
-          </VStack>
-        </Box>
-
-        {/* Card 10: Forecasted Quality */}
-        <Box
-          p={4}
-          borderWidth="1px"
-          borderRadius="md"
-          borderColor={borderCol}
-          bg={cardBg}
-        >
-          <VStack align="stretch" gap={1}>
-            <Text fontSize="sm" color={mutedText} fontWeight="medium">
-              Forecasted Quality
-            </Text>
-            <Text fontSize="xl" fontWeight="bold">
-              {formatPercent(forecastedQuality)}
-            </Text>
-            <Text fontSize="xs" color={mutedText} mt={1}>
-              Percentage of EAC from forecasts
             </Text>
           </VStack>
         </Box>

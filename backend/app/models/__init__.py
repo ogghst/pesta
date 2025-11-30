@@ -42,6 +42,21 @@ from app.models.baseline_log import (
     BaselineSnapshotSummaryPublic,
     BaselineSummaryPublic,
 )
+from app.models.baseline_project import (
+    BaselineProject,
+    BaselineProjectBase,
+    BaselineProjectCreate,
+    BaselineProjectPublic,
+    BaselineProjectUpdate,
+)
+from app.models.baseline_wbe import (
+    BaselineWBE,
+    BaselineWBEBase,
+    BaselineWBECreate,
+    BaselineWBEPublic,
+    BaselineWBEPublicWithWBE,
+    BaselineWBEUpdate,
+)
 from app.models.branch_lock import BranchLock
 from app.models.branch_notification import (
     BranchNotification,
@@ -359,6 +374,19 @@ __all__ = [
     "BaselineCostElementsByWBEPublic",
     "BaselineCostElementsPublic",
     "WBEWithBaselineCostElementsPublic",
+    # Baseline WBE models
+    "BaselineWBE",
+    "BaselineWBEBase",
+    "BaselineWBECreate",
+    "BaselineWBEPublic",
+    "BaselineWBEPublicWithWBE",
+    "BaselineWBEUpdate",
+    # Baseline Project models
+    "BaselineProject",
+    "BaselineProjectBase",
+    "BaselineProjectCreate",
+    "BaselineProjectPublic",
+    "BaselineProjectUpdate",
     # Branch lock models
     "BranchLock",
     # Branch notification models

@@ -10,6 +10,8 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.api.routes.earned_value import _get_entry_map, _get_forecast_eac_map
+from app.api.routes.planned_value import _get_schedule_map
 from app.models import (
     WBE,
     BaselineCostElement,
@@ -22,7 +24,14 @@ from app.models import (
     BaselineLogBase,
     BaselineLogPublic,
     BaselineLogUpdate,
+    BaselineProject,
+    BaselineProjectCreate,
+    BaselineProjectPublic,
     BaselineSnapshotSummaryPublic,
+    BaselineWBE,
+    BaselineWBECreate,
+    BaselineWBEPublic,
+    BaselineWBEPublicWithWBE,
     CostElement,
     CostElementSchedule,
     CostRegistration,
@@ -32,15 +41,20 @@ from app.models import (
     Project,
     WBEWithBaselineCostElementsPublic,
 )
-from app.services.branch_filtering import apply_status_filters
+from app.services.branch_filtering import apply_branch_filters, apply_status_filters
 from app.services.entity_versioning import (
     create_entity_with_version,
     update_entity_with_version,
+)
+from app.services.evm_aggregation import (
+    aggregate_cost_element_metrics,
+    get_cost_element_evm_metrics,
 )
 from app.services.planned_value import calculate_cost_element_planned_value
 from app.services.time_machine import (
     TimeMachineEventType,
     apply_time_machine_filters,
+    end_of_day,
 )
 
 router = APIRouter(prefix="/projects", tags=["baseline-logs"])
@@ -224,7 +238,259 @@ def create_baseline_cost_elements_for_baseline_log(
             entity_id=baseline_cost_element.baseline_cost_element_id,
         )
 
+    # Create WBE snapshots for all WBEs
+    for wbe in wbes:
+        _create_baseline_wbe_snapshot(
+            session=session,
+            baseline_log=baseline_log,
+            wbe=wbe,
+            control_date=baseline_log.baseline_date,
+        )
+
+    # Create project snapshot
+    project = session.get(Project, baseline_log.project_id)
+    if project:
+        _create_baseline_project_snapshot(
+            session=session,
+            baseline_log=baseline_log,
+            project=project,
+            control_date=baseline_log.baseline_date,
+        )
+
     session.commit()
+
+
+def _create_baseline_wbe_snapshot(
+    session: Session,
+    baseline_log: BaselineLog,
+    wbe: WBE,
+    control_date: date,
+) -> BaselineWBE:
+    """Create a baseline WBE snapshot by aggregating cost element metrics.
+
+    Args:
+        session: Database session
+        baseline_log: The BaselineLog entry
+        wbe: The WBE to snapshot
+        control_date: Control date for calculations (baseline_date)
+
+    Returns:
+        Created BaselineWBE record
+    """
+    # Get all cost elements for WBE (respecting control_date and branch)
+    cutoff = end_of_day(control_date)
+    cost_element_statement = select(CostElement).where(
+        CostElement.wbe_id == wbe.wbe_id,
+        CostElement.created_at <= cutoff,
+    )
+    cost_element_statement = apply_branch_filters(
+        cost_element_statement, CostElement, branch="main"
+    )
+    cost_elements = session.exec(cost_element_statement).all()
+
+    if not cost_elements:
+        # Create BaselineWBE with zero metrics for empty WBE
+        baseline_wbe_in = BaselineWBECreate(
+            baseline_id=baseline_log.baseline_id,
+            wbe_id=wbe.wbe_id,
+            planned_value=Decimal("0.00"),
+            earned_value=Decimal("0.00"),
+            actual_cost=Decimal("0.00"),
+            budget_bac=Decimal("0.00"),
+            eac=Decimal("0.00"),
+            forecasted_quality=Decimal("0.0000"),
+            cpi=None,
+            spi=None,
+            tcpi=None,
+            cost_variance=Decimal("0.00"),
+            schedule_variance=Decimal("0.00"),
+        )
+        baseline_wbe = BaselineWBE.model_validate(baseline_wbe_in)
+        baseline_wbe = create_entity_with_version(
+            session=session,
+            entity=baseline_wbe,
+            entity_type="baseline_wbe",
+            entity_id=baseline_wbe.baseline_wbe_id,
+        )
+        return baseline_wbe
+
+    cost_element_ids = [ce.cost_element_id for ce in cost_elements]
+
+    # Get schedules, entries, and forecasts
+    schedule_map = _get_schedule_map(session, cost_element_ids, control_date)
+    entry_map = _get_entry_map(session, cost_element_ids, control_date)
+    forecast_map = _get_forecast_eac_map(session, cost_element_ids, control_date)
+
+    # Get cost registrations
+    statement = select(CostRegistration).where(
+        CostRegistration.cost_element_id.in_(cost_element_ids),
+    )
+    statement = apply_status_filters(statement, CostRegistration)
+    statement = apply_time_machine_filters(
+        statement, TimeMachineEventType.COST_REGISTRATION, control_date
+    )
+    all_cost_registrations = session.exec(statement).all()
+
+    # Group cost registrations by cost element
+    cost_registrations_by_ce: dict[uuid.UUID, list[CostRegistration]] = {}
+    for cr in all_cost_registrations:
+        if cr.cost_element_id not in cost_registrations_by_ce:
+            cost_registrations_by_ce[cr.cost_element_id] = []
+        cost_registrations_by_ce[cr.cost_element_id].append(cr)
+
+    # Calculate metrics for each cost element
+    cost_element_metrics = []
+    for cost_element in cost_elements:
+        forecast_eac = forecast_map.get(cost_element.cost_element_id)
+        metrics = get_cost_element_evm_metrics(
+            cost_element=cost_element,
+            schedule=schedule_map.get(cost_element.cost_element_id),
+            entry=entry_map.get(cost_element.cost_element_id),
+            cost_registrations=cost_registrations_by_ce.get(
+                cost_element.cost_element_id, []
+            ),
+            control_date=control_date,
+            forecast_eac=forecast_eac,
+        )
+        cost_element_metrics.append(metrics)
+
+    # Aggregate metrics
+    aggregated = aggregate_cost_element_metrics(cost_element_metrics)
+
+    # Create BaselineWBE record
+    baseline_wbe_in = BaselineWBECreate(
+        baseline_id=baseline_log.baseline_id,
+        wbe_id=wbe.wbe_id,
+        planned_value=aggregated.planned_value,
+        earned_value=aggregated.earned_value,
+        actual_cost=aggregated.actual_cost,
+        budget_bac=aggregated.budget_bac,
+        eac=aggregated.eac,
+        forecasted_quality=aggregated.forecasted_quality,
+        cpi=aggregated.cpi,
+        spi=aggregated.spi,
+        tcpi=aggregated.tcpi,
+        cost_variance=aggregated.cost_variance,
+        schedule_variance=aggregated.schedule_variance,
+    )
+    baseline_wbe = BaselineWBE.model_validate(baseline_wbe_in)
+    baseline_wbe = create_entity_with_version(
+        session=session,
+        entity=baseline_wbe,
+        entity_type="baseline_wbe",
+        entity_id=baseline_wbe.baseline_wbe_id,
+    )
+    return baseline_wbe
+
+
+def _create_baseline_project_snapshot(
+    session: Session,
+    baseline_log: BaselineLog,
+    project: Project,
+    control_date: date,
+) -> BaselineProject:
+    """Create a baseline project snapshot by aggregating WBE metrics.
+
+    Args:
+        session: Database session
+        baseline_log: The BaselineLog entry
+        project: The Project to snapshot
+        control_date: Control date for calculations (baseline_date)
+
+    Returns:
+        Created BaselineProject record
+    """
+    # Get all WBEs for project (respecting control_date and branch)
+    cutoff = end_of_day(control_date)
+    wbe_statement = select(WBE).where(
+        WBE.project_id == project.project_id,
+        WBE.created_at <= cutoff,
+    )
+    wbe_statement = apply_branch_filters(wbe_statement, WBE, branch="main")
+    wbes = session.exec(wbe_statement).all()
+
+    if not wbes:
+        # Create BaselineProject with zero metrics for empty project
+        baseline_project_in = BaselineProjectCreate(
+            baseline_id=baseline_log.baseline_id,
+            project_id=project.project_id,
+            planned_value=Decimal("0.00"),
+            earned_value=Decimal("0.00"),
+            actual_cost=Decimal("0.00"),
+            budget_bac=Decimal("0.00"),
+            eac=Decimal("0.00"),
+            forecasted_quality=Decimal("0.0000"),
+            cpi=None,
+            spi=None,
+            tcpi=None,
+            cost_variance=Decimal("0.00"),
+            schedule_variance=Decimal("0.00"),
+        )
+        baseline_project = BaselineProject.model_validate(baseline_project_in)
+        baseline_project = create_entity_with_version(
+            session=session,
+            entity=baseline_project,
+            entity_type="baseline_project",
+            entity_id=baseline_project.baseline_project_id,
+        )
+        return baseline_project
+
+    # Get BaselineWBE records for all WBEs (they should already be created)
+    baseline_wbe_statement = select(BaselineWBE).where(
+        BaselineWBE.baseline_id == baseline_log.baseline_id,
+        BaselineWBE.wbe_id.in_([wbe.wbe_id for wbe in wbes]),
+    )
+    baseline_wbe_statement = apply_status_filters(baseline_wbe_statement, BaselineWBE)
+    baseline_wbes = session.exec(baseline_wbe_statement).all()
+
+    # Convert BaselineWBE records to CostElementEVMMetrics-like structure for aggregation
+    from app.services.evm_aggregation import CostElementEVMMetrics
+
+    wbe_metrics = []
+    for baseline_wbe in baseline_wbes:
+        # Convert BaselineWBE to CostElementEVMMetrics format for aggregation
+        metric = CostElementEVMMetrics(
+            planned_value=baseline_wbe.planned_value,
+            earned_value=baseline_wbe.earned_value,
+            actual_cost=baseline_wbe.actual_cost,
+            budget_bac=baseline_wbe.budget_bac,
+            eac=baseline_wbe.eac,
+            forecasted_quality=baseline_wbe.forecasted_quality,
+            cpi=baseline_wbe.cpi,
+            spi=baseline_wbe.spi,
+            tcpi=baseline_wbe.tcpi,
+            cost_variance=baseline_wbe.cost_variance,
+            schedule_variance=baseline_wbe.schedule_variance,
+        )
+        wbe_metrics.append(metric)
+
+    # Aggregate WBE metrics to project level
+    aggregated = aggregate_cost_element_metrics(wbe_metrics)
+
+    # Create BaselineProject record
+    baseline_project_in = BaselineProjectCreate(
+        baseline_id=baseline_log.baseline_id,
+        project_id=project.project_id,
+        planned_value=aggregated.planned_value,
+        earned_value=aggregated.earned_value,
+        actual_cost=aggregated.actual_cost,
+        budget_bac=aggregated.budget_bac,
+        eac=aggregated.eac,
+        forecasted_quality=aggregated.forecasted_quality,
+        cpi=aggregated.cpi,
+        spi=aggregated.spi,
+        tcpi=aggregated.tcpi,
+        cost_variance=aggregated.cost_variance,
+        schedule_variance=aggregated.schedule_variance,
+    )
+    baseline_project = BaselineProject.model_validate(baseline_project_in)
+    baseline_project = create_entity_with_version(
+        session=session,
+        entity=baseline_project,
+        entity_type="baseline_project",
+        entity_id=baseline_project.baseline_project_id,
+    )
+    return baseline_project
 
 
 @router.get("/{project_id}/baseline-logs/", response_model=list[BaselineLogPublic])
@@ -686,6 +952,9 @@ def get_baseline_cost_elements_by_wbe(
                 baseline_cost_element_id=bce.baseline_cost_element_id,
                 baseline_id=bce.baseline_id,
                 cost_element_id=bce.cost_element_id,
+                entity_id=bce.entity_id,
+                status=bce.status,
+                version=bce.version,
                 budget_bac=bce.budget_bac,
                 revenue_plan=bce.revenue_plan,
                 planned_value=bce.planned_value,
@@ -879,6 +1148,9 @@ def get_baseline_cost_elements(
             baseline_cost_element_id=bce.baseline_cost_element_id,
             baseline_id=bce.baseline_id,
             cost_element_id=bce.cost_element_id,
+            entity_id=bce.entity_id,
+            status=bce.status,
+            version=bce.version,
             budget_bac=bce.budget_bac,
             revenue_plan=bce.revenue_plan,
             planned_value=bce.planned_value,
@@ -910,6 +1182,188 @@ def get_baseline_cost_elements(
         cost_elements_list.append(cost_element_data)
 
     return BaselineCostElementsPublic(data=cost_elements_list, count=count)
+
+
+@router.get(
+    "/{project_id}/baseline-logs/{baseline_id}/wbe-snapshots",
+    response_model=list[BaselineWBEPublicWithWBE],
+)
+def get_baseline_wbe_snapshots(
+    *,
+    session: SessionDep,
+    _current_user: CurrentUser,
+    project_id: uuid.UUID,
+    baseline_id: uuid.UUID,
+) -> Any:
+    """
+    Get all WBE snapshots for a baseline.
+
+    Args:
+        project_id: ID of the project
+        baseline_id: ID of the baseline log
+
+    Returns:
+        List of BaselineWBEPublicWithWBE
+    """
+    # Validate project exists
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Get baseline and verify it belongs to the project
+    statement = select(BaselineLog).where(BaselineLog.baseline_id == baseline_id)
+    statement = apply_status_filters(statement, BaselineLog)
+    baseline = session.exec(statement).first()
+    if not baseline:
+        raise HTTPException(status_code=404, detail="Baseline log not found")
+
+    if baseline.project_id != project_id:
+        raise HTTPException(status_code=404, detail="Baseline log not found")
+
+    # Get all BaselineWBE records for this baseline with WBE join
+    wbe_snapshot_statement = (
+        select(BaselineWBE, WBE)
+        .join(WBE, BaselineWBE.wbe_id == WBE.wbe_id)
+        .where(BaselineWBE.baseline_id == baseline_id)
+    )
+    wbe_snapshot_statement = apply_status_filters(wbe_snapshot_statement, BaselineWBE)
+    results = session.exec(wbe_snapshot_statement).all()
+
+    # Build response with WBE details
+    snapshots = []
+    for baseline_wbe, wbe in results:
+        snapshot = BaselineWBEPublicWithWBE(
+            baseline_wbe_id=baseline_wbe.baseline_wbe_id,
+            baseline_id=baseline_wbe.baseline_id,
+            wbe_id=baseline_wbe.wbe_id,
+            created_at=baseline_wbe.created_at,
+            entity_id=baseline_wbe.entity_id,
+            status=baseline_wbe.status,
+            version=baseline_wbe.version,
+            planned_value=baseline_wbe.planned_value,
+            earned_value=baseline_wbe.earned_value,
+            actual_cost=baseline_wbe.actual_cost,
+            budget_bac=baseline_wbe.budget_bac,
+            eac=baseline_wbe.eac,
+            forecasted_quality=baseline_wbe.forecasted_quality,
+            cpi=baseline_wbe.cpi,
+            spi=baseline_wbe.spi,
+            tcpi=baseline_wbe.tcpi,
+            cost_variance=baseline_wbe.cost_variance,
+            schedule_variance=baseline_wbe.schedule_variance,
+            wbe_machine_type=wbe.machine_type,
+            wbe_serial_number=wbe.serial_number,
+        )
+        snapshots.append(snapshot)
+
+    return snapshots
+
+
+@router.get(
+    "/{project_id}/baseline-logs/{baseline_id}/wbe-snapshots/{wbe_id}",
+    response_model=BaselineWBEPublic,
+)
+def get_baseline_wbe_snapshot_detail(
+    *,
+    session: SessionDep,
+    _current_user: CurrentUser,
+    project_id: uuid.UUID,
+    baseline_id: uuid.UUID,
+    wbe_id: uuid.UUID,
+) -> Any:
+    """
+    Get a specific WBE snapshot for a baseline.
+
+    Args:
+        project_id: ID of the project
+        baseline_id: ID of the baseline log
+        wbe_id: ID of the WBE
+
+    Returns:
+        BaselineWBEPublic
+    """
+    # Validate project exists
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Get baseline and verify it belongs to the project
+    statement = select(BaselineLog).where(BaselineLog.baseline_id == baseline_id)
+    statement = apply_status_filters(statement, BaselineLog)
+    baseline = session.exec(statement).first()
+    if not baseline:
+        raise HTTPException(status_code=404, detail="Baseline log not found")
+
+    if baseline.project_id != project_id:
+        raise HTTPException(status_code=404, detail="Baseline log not found")
+
+    # Verify WBE belongs to project
+    wbe = session.get(WBE, wbe_id)
+    if not wbe or wbe.project_id != project_id:
+        raise HTTPException(status_code=404, detail="WBE not found")
+
+    # Get BaselineWBE record
+    wbe_snapshot_statement = select(BaselineWBE).where(
+        BaselineWBE.baseline_id == baseline_id,
+        BaselineWBE.wbe_id == wbe_id,
+    )
+    wbe_snapshot_statement = apply_status_filters(wbe_snapshot_statement, BaselineWBE)
+    wbe_snapshot = session.exec(wbe_snapshot_statement).first()
+    if not wbe_snapshot:
+        raise HTTPException(status_code=404, detail="WBE snapshot not found")
+
+    return wbe_snapshot
+
+
+@router.get(
+    "/{project_id}/baseline-logs/{baseline_id}/project-snapshot",
+    response_model=BaselineProjectPublic,
+)
+def get_baseline_project_snapshot(
+    *,
+    session: SessionDep,
+    _current_user: CurrentUser,
+    project_id: uuid.UUID,
+    baseline_id: uuid.UUID,
+) -> Any:
+    """
+    Get the project snapshot for a baseline.
+
+    Args:
+        project_id: ID of the project
+        baseline_id: ID of the baseline log
+
+    Returns:
+        BaselineProjectPublic
+    """
+    # Validate project exists
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Get baseline and verify it belongs to the project
+    statement = select(BaselineLog).where(BaselineLog.baseline_id == baseline_id)
+    statement = apply_status_filters(statement, BaselineLog)
+    baseline = session.exec(statement).first()
+    if not baseline:
+        raise HTTPException(status_code=404, detail="Baseline log not found")
+
+    if baseline.project_id != project_id:
+        raise HTTPException(status_code=404, detail="Baseline log not found")
+
+    # Get BaselineProject record
+    project_snapshot_statement = select(BaselineProject).where(
+        BaselineProject.baseline_id == baseline_id,
+        BaselineProject.project_id == project_id,
+    )
+    project_snapshot_statement = apply_status_filters(
+        project_snapshot_statement, BaselineProject
+    )
+    project_snapshot = session.exec(project_snapshot_statement).first()
+    if not project_snapshot:
+        raise HTTPException(status_code=404, detail="Project snapshot not found")
+
+    return project_snapshot
 
 
 @router.get(

@@ -16,29 +16,6 @@ interface BaselineLogsTableProps {
   projectId: string
 }
 
-// Valid baseline types for display
-const BASELINE_TYPE_LABELS: Record<string, string> = {
-  schedule: "Schedule",
-  earned_value: "Earned Value",
-  budget: "Budget",
-  forecast: "Forecast",
-  combined: "Combined",
-}
-
-// Valid milestone types for display
-const MILESTONE_TYPE_LABELS: Record<string, string> = {
-  kickoff: "Kickoff",
-  bom_release: "BOM Release",
-  engineering_complete: "Engineering Complete",
-  procurement_complete: "Procurement Complete",
-  manufacturing_start: "Manufacturing Start",
-  shipment: "Shipment",
-  site_arrival: "Site Arrival",
-  commissioning_start: "Commissioning Start",
-  commissioning_complete: "Commissioning Complete",
-  closeout: "Closeout",
-}
-
 function BaselineLogsTable({ projectId }: BaselineLogsTableProps) {
   const { controlDate } = useTimeMachine()
   const navigate = useNavigate()
@@ -64,20 +41,12 @@ function BaselineLogsTable({ projectId }: BaselineLogsTableProps) {
       header: "Type",
       enableSorting: true,
       enableResizing: true,
-      enableColumnFilter: true,
-      filterType: "select",
-      filterConfig: {
-        type: "select",
-        options: Object.keys(BASELINE_TYPE_LABELS),
-      },
       size: 150,
       defaultVisible: true,
       cell: ({ getValue }) => {
         const type = getValue() as string
         return (
-          <span style={{ textTransform: "capitalize" }}>
-            {BASELINE_TYPE_LABELS[type] || type}
-          </span>
+          <span style={{ textTransform: "capitalize" }}>{type || "N/A"}</span>
         )
       },
     },
@@ -86,19 +55,13 @@ function BaselineLogsTable({ projectId }: BaselineLogsTableProps) {
       header: "Milestone",
       enableSorting: true,
       enableResizing: true,
-      enableColumnFilter: true,
-      filterType: "select",
-      filterConfig: {
-        type: "select",
-        options: Object.keys(MILESTONE_TYPE_LABELS),
-      },
       size: 180,
       defaultVisible: true,
       cell: ({ getValue }) => {
         const milestone = getValue() as string
         return (
           <span style={{ textTransform: "capitalize" }}>
-            {MILESTONE_TYPE_LABELS[milestone] || milestone}
+            {milestone || "N/A"}
           </span>
         )
       },
@@ -131,12 +94,6 @@ function BaselineLogsTable({ projectId }: BaselineLogsTableProps) {
       header: "Status",
       enableSorting: true,
       enableResizing: true,
-      enableColumnFilter: true,
-      filterType: "select",
-      filterConfig: {
-        type: "select",
-        options: ["true", "false"],
-      },
       size: 100,
       defaultVisible: true,
       cell: ({ getValue }) => {

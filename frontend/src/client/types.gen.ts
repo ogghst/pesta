@@ -162,6 +162,30 @@ export type BaselineLogUpdate = {
 };
 
 /**
+ * Public baseline project schema for API responses.
+ */
+export type BaselineProjectPublic = {
+    planned_value?: string;
+    earned_value?: string;
+    actual_cost?: string;
+    budget_bac?: string;
+    eac?: string;
+    forecasted_quality?: string;
+    cpi?: (string | null);
+    spi?: (string | null);
+    tcpi?: (string | "overrun" | null);
+    cost_variance?: string;
+    schedule_variance?: string;
+    baseline_project_id: string;
+    baseline_id: string;
+    project_id: string;
+    created_at: string;
+    entity_id: string;
+    status: string;
+    version: number;
+};
+
+/**
  * Public schema for baseline summary with aggregated values.
  */
 export type BaselineSummaryPublic = {
@@ -179,6 +203,56 @@ export type BaselineSummaryPublic = {
     cost_element_count?: number;
 };
 
+/**
+ * Public baseline WBE schema for API responses.
+ */
+export type BaselineWBEPublic = {
+    planned_value?: string;
+    earned_value?: string;
+    actual_cost?: string;
+    budget_bac?: string;
+    eac?: string;
+    forecasted_quality?: string;
+    cpi?: (string | null);
+    spi?: (string | null);
+    tcpi?: (string | "overrun" | null);
+    cost_variance?: string;
+    schedule_variance?: string;
+    baseline_wbe_id: string;
+    baseline_id: string;
+    wbe_id: string;
+    created_at: string;
+    entity_id: string;
+    status: string;
+    version: number;
+};
+
+/**
+ * Public baseline WBE schema with WBE details for API responses.
+ */
+export type BaselineWBEPublicWithWBE = {
+    planned_value?: string;
+    earned_value?: string;
+    actual_cost?: string;
+    budget_bac?: string;
+    eac?: string;
+    forecasted_quality?: string;
+    cpi?: (string | null);
+    spi?: (string | null);
+    tcpi?: (string | "overrun" | null);
+    cost_variance?: string;
+    schedule_variance?: string;
+    baseline_wbe_id: string;
+    baseline_id: string;
+    wbe_id: string;
+    created_at: string;
+    entity_id: string;
+    status: string;
+    version: number;
+    wbe_machine_type?: (string | null);
+    wbe_serial_number?: (string | null);
+};
+
 export type Body_login_login_access_token = {
     grant_type?: (string | null);
     username: string;
@@ -186,6 +260,26 @@ export type Body_login_login_access_token = {
     scope?: string;
     client_id?: (string | null);
     client_secret?: (string | null);
+};
+
+/**
+ * Public schema for branch lock information.
+ */
+export type BranchLockPublic = {
+    lock_id: string;
+    project_id: string;
+    branch: string;
+    locked_by_id: string;
+    locked_by_name: (string | null);
+    reason: (string | null);
+    locked_at: string;
+};
+
+/**
+ * Request schema for locking a branch.
+ */
+export type BranchLockRequest = {
+    reason?: (string | null);
 };
 
 /**
@@ -1559,6 +1653,28 @@ export type BaselineLogsGetBaselineCostElementsData = {
 
 export type BaselineLogsGetBaselineCostElementsResponse = (BaselineCostElementsPublic);
 
+export type BaselineLogsGetBaselineWbeSnapshotsData = {
+    baselineId: string;
+    projectId: string;
+};
+
+export type BaselineLogsGetBaselineWbeSnapshotsResponse = (Array<BaselineWBEPublicWithWBE>);
+
+export type BaselineLogsGetBaselineWbeSnapshotDetailData = {
+    baselineId: string;
+    projectId: string;
+    wbeId: string;
+};
+
+export type BaselineLogsGetBaselineWbeSnapshotDetailResponse = (BaselineWBEPublic);
+
+export type BaselineLogsGetBaselineProjectSnapshotData = {
+    baselineId: string;
+    projectId: string;
+};
+
+export type BaselineLogsGetBaselineProjectSnapshotResponse = (BaselineProjectPublic);
+
 export type BaselineLogsGetBaselineEarnedValueEntriesData = {
     baselineId: string;
     /**
@@ -1586,6 +1702,42 @@ export type BranchComparisonCompareBranchesData = {
 
 export type BranchComparisonCompareBranchesResponse = ({
     [key: string]: unknown;
+});
+
+export type BranchesLockBranchData = {
+    branch: string;
+    projectId: string;
+    requestBody: BranchLockRequest;
+};
+
+export type BranchesLockBranchResponse = (BranchLockPublic);
+
+export type BranchesUnlockBranchData = {
+    branch: string;
+    projectId: string;
+};
+
+export type BranchesUnlockBranchResponse = ({
+    [key: string]: (string);
+});
+
+export type BranchesGetBranchLockStatusData = {
+    branch: string;
+    projectId: string;
+};
+
+export type BranchesGetBranchLockStatusResponse = (unknown);
+
+export type BranchesListBranchLocksData = {
+    projectId: string;
+};
+
+export type BranchesListBranchLocksResponse = ({
+    [key: string]: {
+        [key: string]: {
+            [key: string]: unknown;
+        };
+    };
 });
 
 export type BranchNotificationsListBranchNotificationsData = {
@@ -2155,12 +2307,20 @@ export type ProjectsCreateProjectFromTemplateData = {
 export type ProjectsCreateProjectFromTemplateResponse = (ProjectPublic);
 
 export type ReportsGetProjectCostPerformanceReportEndpointData = {
+    /**
+     * Branch name (defaults to 'main')
+     */
+    branch?: (string | null);
     projectId: string;
 };
 
 export type ReportsGetProjectCostPerformanceReportEndpointResponse = (CostPerformanceReportPublic);
 
 export type ReportsGetProjectVarianceAnalysisReportEndpointData = {
+    /**
+     * Branch name (defaults to 'main')
+     */
+    branch?: (string | null);
     projectId: string;
     /**
      * Filter to show only problem areas (negative CV or SV)

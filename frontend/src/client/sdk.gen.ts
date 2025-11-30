@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { AdminListAppConfigurationsResponse, AdminCreateAppConfigurationData, AdminCreateAppConfigurationResponse, AdminGetAppConfigurationData, AdminGetAppConfigurationResponse, AdminUpdateAppConfigurationData, AdminUpdateAppConfigurationResponse, AdminDeleteAppConfigurationData, AdminDeleteAppConfigurationResponse, AdminListVarianceThresholdConfigsResponse, AdminCreateVarianceThresholdConfigData, AdminCreateVarianceThresholdConfigResponse, AdminGetVarianceThresholdConfigData, AdminGetVarianceThresholdConfigResponse, AdminUpdateVarianceThresholdConfigData, AdminUpdateVarianceThresholdConfigResponse, AdminDeleteVarianceThresholdConfigData, AdminDeleteVarianceThresholdConfigResponse, BaselineLogsListBaselineLogsData, BaselineLogsListBaselineLogsResponse, BaselineLogsCreateBaselineLogData, BaselineLogsCreateBaselineLogResponse, BaselineLogsReadBaselineLogData, BaselineLogsReadBaselineLogResponse, BaselineLogsUpdateBaselineLogData, BaselineLogsUpdateBaselineLogResponse, BaselineLogsCancelBaselineLogData, BaselineLogsCancelBaselineLogResponse, BaselineLogsGetBaselineSnapshotSummaryData, BaselineLogsGetBaselineSnapshotSummaryResponse, BaselineLogsGetBaselineCostElementsByWbeData, BaselineLogsGetBaselineCostElementsByWbeResponse, BaselineLogsGetBaselineCostElementsData, BaselineLogsGetBaselineCostElementsResponse, BaselineLogsGetBaselineEarnedValueEntriesData, BaselineLogsGetBaselineEarnedValueEntriesResponse, BranchComparisonCompareBranchesData, BranchComparisonCompareBranchesResponse, BranchNotificationsListBranchNotificationsData, BranchNotificationsListBranchNotificationsResponse, BudgetSummaryGetProjectBudgetSummaryData, BudgetSummaryGetProjectBudgetSummaryResponse, BudgetSummaryGetWbeBudgetSummaryData, BudgetSummaryGetWbeBudgetSummaryResponse, BudgetTimelineGetCostElementsWithSchedulesData, BudgetTimelineGetCostElementsWithSchedulesResponse, ChangeOrderLineItemsListChangeOrderLineItemsData, ChangeOrderLineItemsListChangeOrderLineItemsResponse, ChangeOrdersCreateChangeOrderData, ChangeOrdersCreateChangeOrderResponse, ChangeOrdersListChangeOrdersData, ChangeOrdersListChangeOrdersResponse, ChangeOrdersReadChangeOrderData, ChangeOrdersReadChangeOrderResponse, ChangeOrdersUpdateChangeOrderData, ChangeOrdersUpdateChangeOrderResponse, ChangeOrdersDeleteChangeOrderData, ChangeOrdersDeleteChangeOrderResponse, ChangeOrdersTransitionChangeOrderStatusData, ChangeOrdersTransitionChangeOrderStatusResponse, CostCategoriesReadCostCategoriesResponse, CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, CostElementsReadCostElementByEntityIdData, CostElementsReadCostElementByEntityIdResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementSchedulesReadScheduleByCostElementData, CostElementSchedulesReadScheduleByCostElementResponse, CostElementSchedulesCreateScheduleData, CostElementSchedulesCreateScheduleResponse, CostElementSchedulesReadScheduleHistoryByCostElementData, CostElementSchedulesReadScheduleHistoryByCostElementResponse, CostElementSchedulesUpdateScheduleData, CostElementSchedulesUpdateScheduleResponse, CostElementSchedulesDeleteScheduleData, CostElementSchedulesDeleteScheduleResponse, CostElementTypesReadCostElementTypesResponse, CostRegistrationsReadCostRegistrationsData, CostRegistrationsReadCostRegistrationsResponse, CostRegistrationsCreateCostRegistrationData, CostRegistrationsCreateCostRegistrationResponse, CostRegistrationsReadCostRegistrationData, CostRegistrationsReadCostRegistrationResponse, CostRegistrationsUpdateCostRegistrationData, CostRegistrationsUpdateCostRegistrationResponse, CostRegistrationsDeleteCostRegistrationData, CostRegistrationsDeleteCostRegistrationResponse, CostSummaryGetCostElementCostSummaryData, CostSummaryGetCostElementCostSummaryResponse, CostSummaryGetWbeCostSummaryData, CostSummaryGetWbeCostSummaryResponse, CostSummaryGetProjectCostSummaryData, CostSummaryGetProjectCostSummaryResponse, CostTimelineGetProjectCostTimelineData, CostTimelineGetProjectCostTimelineResponse, EarnedValueGetCostElementEarnedValueData, EarnedValueGetCostElementEarnedValueResponse, EarnedValueGetWbeEarnedValueData, EarnedValueGetWbeEarnedValueResponse, EarnedValueGetProjectEarnedValueData, EarnedValueGetProjectEarnedValueResponse, EarnedValueEntriesReadEarnedValueEntriesData, EarnedValueEntriesReadEarnedValueEntriesResponse, EarnedValueEntriesCreateEarnedValueEntryData, EarnedValueEntriesCreateEarnedValueEntryResponse, EarnedValueEntriesReadEarnedValueEntryData, EarnedValueEntriesReadEarnedValueEntryResponse, EarnedValueEntriesUpdateEarnedValueEntryData, EarnedValueEntriesUpdateEarnedValueEntryResponse, EarnedValueEntriesDeleteEarnedValueEntryData, EarnedValueEntriesDeleteEarnedValueEntryResponse, EvmIndicesGetWbeEvmIndicesData, EvmIndicesGetWbeEvmIndicesResponse, EvmIndicesGetProjectEvmIndicesData, EvmIndicesGetProjectEvmIndicesResponse, EvmMetricsGetCostElementEvmMetricsEndpointData, EvmMetricsGetCostElementEvmMetricsEndpointResponse, EvmMetricsGetWbeEvmMetricsEndpointData, EvmMetricsGetWbeEvmMetricsEndpointResponse, EvmMetricsGetProjectEvmMetricsEndpointData, EvmMetricsGetProjectEvmMetricsEndpointResponse, ForecastsReadForecastsData, ForecastsReadForecastsResponse, ForecastsCreateForecastData, ForecastsCreateForecastResponse, ForecastsReadForecastData, ForecastsReadForecastResponse, ForecastsUpdateForecastData, ForecastsUpdateForecastResponse, ForecastsDeleteForecastData, ForecastsDeleteForecastResponse, HardDeleteHardDeleteProjectData, HardDeleteHardDeleteProjectResponse, HardDeleteHardDeleteWbeData, HardDeleteHardDeleteWbeResponse, HardDeleteHardDeleteCostElementData, HardDeleteHardDeleteCostElementResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PlannedValueGetCostElementPlannedValueData, PlannedValueGetCostElementPlannedValueResponse, PlannedValueGetWbePlannedValueData, PlannedValueGetWbePlannedValueResponse, PlannedValueGetProjectPlannedValueData, PlannedValueGetProjectPlannedValueResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, ReportsGetProjectCostPerformanceReportEndpointData, ReportsGetProjectCostPerformanceReportEndpointResponse, ReportsGetProjectVarianceAnalysisReportEndpointData, ReportsGetProjectVarianceAnalysisReportEndpointResponse, ReportsGetVarianceTrendEndpointData, ReportsGetVarianceTrendEndpointResponse, RestoreRestoreProjectData, RestoreRestoreProjectResponse, RestoreRestoreWbeData, RestoreRestoreWbeResponse, RestoreRestoreCostElementData, RestoreRestoreCostElementResponse, RestoreRestoreChangeOrderData, RestoreRestoreChangeOrderResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersReadTimeMachinePreferenceResponse, UsersUpdateTimeMachinePreferenceData, UsersUpdateTimeMachinePreferenceResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, VersionHistoryGetEntityVersionHistoryData, VersionHistoryGetEntityVersionHistoryResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse, WbesReadWbeByEntityIdData, WbesReadWbeByEntityIdResponse, WbesReadWbeData, WbesReadWbeResponse } from './types.gen';
+import type { AdminListAppConfigurationsResponse, AdminCreateAppConfigurationData, AdminCreateAppConfigurationResponse, AdminGetAppConfigurationData, AdminGetAppConfigurationResponse, AdminUpdateAppConfigurationData, AdminUpdateAppConfigurationResponse, AdminDeleteAppConfigurationData, AdminDeleteAppConfigurationResponse, AdminListVarianceThresholdConfigsResponse, AdminCreateVarianceThresholdConfigData, AdminCreateVarianceThresholdConfigResponse, AdminGetVarianceThresholdConfigData, AdminGetVarianceThresholdConfigResponse, AdminUpdateVarianceThresholdConfigData, AdminUpdateVarianceThresholdConfigResponse, AdminDeleteVarianceThresholdConfigData, AdminDeleteVarianceThresholdConfigResponse, BaselineLogsListBaselineLogsData, BaselineLogsListBaselineLogsResponse, BaselineLogsCreateBaselineLogData, BaselineLogsCreateBaselineLogResponse, BaselineLogsReadBaselineLogData, BaselineLogsReadBaselineLogResponse, BaselineLogsUpdateBaselineLogData, BaselineLogsUpdateBaselineLogResponse, BaselineLogsCancelBaselineLogData, BaselineLogsCancelBaselineLogResponse, BaselineLogsGetBaselineSnapshotSummaryData, BaselineLogsGetBaselineSnapshotSummaryResponse, BaselineLogsGetBaselineCostElementsByWbeData, BaselineLogsGetBaselineCostElementsByWbeResponse, BaselineLogsGetBaselineCostElementsData, BaselineLogsGetBaselineCostElementsResponse, BaselineLogsGetBaselineWbeSnapshotsData, BaselineLogsGetBaselineWbeSnapshotsResponse, BaselineLogsGetBaselineWbeSnapshotDetailData, BaselineLogsGetBaselineWbeSnapshotDetailResponse, BaselineLogsGetBaselineProjectSnapshotData, BaselineLogsGetBaselineProjectSnapshotResponse, BaselineLogsGetBaselineEarnedValueEntriesData, BaselineLogsGetBaselineEarnedValueEntriesResponse, BranchComparisonCompareBranchesData, BranchComparisonCompareBranchesResponse, BranchesLockBranchData, BranchesLockBranchResponse, BranchesUnlockBranchData, BranchesUnlockBranchResponse, BranchesGetBranchLockStatusData, BranchesGetBranchLockStatusResponse, BranchesListBranchLocksData, BranchesListBranchLocksResponse, BranchNotificationsListBranchNotificationsData, BranchNotificationsListBranchNotificationsResponse, BudgetSummaryGetProjectBudgetSummaryData, BudgetSummaryGetProjectBudgetSummaryResponse, BudgetSummaryGetWbeBudgetSummaryData, BudgetSummaryGetWbeBudgetSummaryResponse, BudgetTimelineGetCostElementsWithSchedulesData, BudgetTimelineGetCostElementsWithSchedulesResponse, ChangeOrderLineItemsListChangeOrderLineItemsData, ChangeOrderLineItemsListChangeOrderLineItemsResponse, ChangeOrdersCreateChangeOrderData, ChangeOrdersCreateChangeOrderResponse, ChangeOrdersListChangeOrdersData, ChangeOrdersListChangeOrdersResponse, ChangeOrdersReadChangeOrderData, ChangeOrdersReadChangeOrderResponse, ChangeOrdersUpdateChangeOrderData, ChangeOrdersUpdateChangeOrderResponse, ChangeOrdersDeleteChangeOrderData, ChangeOrdersDeleteChangeOrderResponse, ChangeOrdersTransitionChangeOrderStatusData, ChangeOrdersTransitionChangeOrderStatusResponse, CostCategoriesReadCostCategoriesResponse, CostElementsReadCostElementsData, CostElementsReadCostElementsResponse, CostElementsCreateCostElementData, CostElementsCreateCostElementResponse, CostElementsUpdateCostElementData, CostElementsUpdateCostElementResponse, CostElementsDeleteCostElementData, CostElementsDeleteCostElementResponse, CostElementsReadCostElementByEntityIdData, CostElementsReadCostElementByEntityIdResponse, CostElementsReadCostElementData, CostElementsReadCostElementResponse, CostElementSchedulesReadScheduleByCostElementData, CostElementSchedulesReadScheduleByCostElementResponse, CostElementSchedulesCreateScheduleData, CostElementSchedulesCreateScheduleResponse, CostElementSchedulesReadScheduleHistoryByCostElementData, CostElementSchedulesReadScheduleHistoryByCostElementResponse, CostElementSchedulesUpdateScheduleData, CostElementSchedulesUpdateScheduleResponse, CostElementSchedulesDeleteScheduleData, CostElementSchedulesDeleteScheduleResponse, CostElementTypesReadCostElementTypesResponse, CostRegistrationsReadCostRegistrationsData, CostRegistrationsReadCostRegistrationsResponse, CostRegistrationsCreateCostRegistrationData, CostRegistrationsCreateCostRegistrationResponse, CostRegistrationsReadCostRegistrationData, CostRegistrationsReadCostRegistrationResponse, CostRegistrationsUpdateCostRegistrationData, CostRegistrationsUpdateCostRegistrationResponse, CostRegistrationsDeleteCostRegistrationData, CostRegistrationsDeleteCostRegistrationResponse, CostSummaryGetCostElementCostSummaryData, CostSummaryGetCostElementCostSummaryResponse, CostSummaryGetWbeCostSummaryData, CostSummaryGetWbeCostSummaryResponse, CostSummaryGetProjectCostSummaryData, CostSummaryGetProjectCostSummaryResponse, CostTimelineGetProjectCostTimelineData, CostTimelineGetProjectCostTimelineResponse, EarnedValueGetCostElementEarnedValueData, EarnedValueGetCostElementEarnedValueResponse, EarnedValueGetWbeEarnedValueData, EarnedValueGetWbeEarnedValueResponse, EarnedValueGetProjectEarnedValueData, EarnedValueGetProjectEarnedValueResponse, EarnedValueEntriesReadEarnedValueEntriesData, EarnedValueEntriesReadEarnedValueEntriesResponse, EarnedValueEntriesCreateEarnedValueEntryData, EarnedValueEntriesCreateEarnedValueEntryResponse, EarnedValueEntriesReadEarnedValueEntryData, EarnedValueEntriesReadEarnedValueEntryResponse, EarnedValueEntriesUpdateEarnedValueEntryData, EarnedValueEntriesUpdateEarnedValueEntryResponse, EarnedValueEntriesDeleteEarnedValueEntryData, EarnedValueEntriesDeleteEarnedValueEntryResponse, EvmIndicesGetWbeEvmIndicesData, EvmIndicesGetWbeEvmIndicesResponse, EvmIndicesGetProjectEvmIndicesData, EvmIndicesGetProjectEvmIndicesResponse, EvmMetricsGetCostElementEvmMetricsEndpointData, EvmMetricsGetCostElementEvmMetricsEndpointResponse, EvmMetricsGetWbeEvmMetricsEndpointData, EvmMetricsGetWbeEvmMetricsEndpointResponse, EvmMetricsGetProjectEvmMetricsEndpointData, EvmMetricsGetProjectEvmMetricsEndpointResponse, ForecastsReadForecastsData, ForecastsReadForecastsResponse, ForecastsCreateForecastData, ForecastsCreateForecastResponse, ForecastsReadForecastData, ForecastsReadForecastResponse, ForecastsUpdateForecastData, ForecastsUpdateForecastResponse, ForecastsDeleteForecastData, ForecastsDeleteForecastResponse, HardDeleteHardDeleteProjectData, HardDeleteHardDeleteProjectResponse, HardDeleteHardDeleteWbeData, HardDeleteHardDeleteWbeResponse, HardDeleteHardDeleteCostElementData, HardDeleteHardDeleteCostElementResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PlannedValueGetCostElementPlannedValueData, PlannedValueGetCostElementPlannedValueResponse, PlannedValueGetWbePlannedValueData, PlannedValueGetWbePlannedValueResponse, PlannedValueGetProjectPlannedValueData, PlannedValueGetProjectPlannedValueResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsCreateProjectFromTemplateData, ProjectsCreateProjectFromTemplateResponse, ReportsGetProjectCostPerformanceReportEndpointData, ReportsGetProjectCostPerformanceReportEndpointResponse, ReportsGetProjectVarianceAnalysisReportEndpointData, ReportsGetProjectVarianceAnalysisReportEndpointResponse, ReportsGetVarianceTrendEndpointData, ReportsGetVarianceTrendEndpointResponse, RestoreRestoreProjectData, RestoreRestoreProjectResponse, RestoreRestoreWbeData, RestoreRestoreWbeResponse, RestoreRestoreCostElementData, RestoreRestoreCostElementResponse, RestoreRestoreChangeOrderData, RestoreRestoreChangeOrderResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersReadTimeMachinePreferenceResponse, UsersUpdateTimeMachinePreferenceData, UsersUpdateTimeMachinePreferenceResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, VersionHistoryGetEntityVersionHistoryData, VersionHistoryGetEntityVersionHistoryResponse, WbesReadWbesData, WbesReadWbesResponse, WbesCreateWbeData, WbesCreateWbeResponse, WbesUpdateWbeData, WbesUpdateWbeResponse, WbesDeleteWbeData, WbesDeleteWbeResponse, WbesReadWbeByEntityIdData, WbesReadWbeByEntityIdResponse, WbesReadWbeData, WbesReadWbeResponse } from './types.gen';
 
 export class AdminService {
     /**
@@ -487,6 +487,99 @@ export class BaselineLogsService {
     }
     
     /**
+     * Get Baseline Wbe Snapshots
+     * Get all WBE snapshots for a baseline.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     *
+     * Returns:
+     * List of BaselineWBEPublicWithWBE
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @returns BaselineWBEPublicWithWBE Successful Response
+     * @throws ApiError
+     */
+    public static getBaselineWbeSnapshots(data: BaselineLogsGetBaselineWbeSnapshotsData): CancelablePromise<BaselineLogsGetBaselineWbeSnapshotsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}/wbe-snapshots',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Baseline Wbe Snapshot Detail
+     * Get a specific WBE snapshot for a baseline.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     * wbe_id: ID of the WBE
+     *
+     * Returns:
+     * BaselineWBEPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @param data.wbeId
+     * @returns BaselineWBEPublic Successful Response
+     * @throws ApiError
+     */
+    public static getBaselineWbeSnapshotDetail(data: BaselineLogsGetBaselineWbeSnapshotDetailData): CancelablePromise<BaselineLogsGetBaselineWbeSnapshotDetailResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}/wbe-snapshots/{wbe_id}',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId,
+                wbe_id: data.wbeId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Baseline Project Snapshot
+     * Get the project snapshot for a baseline.
+     *
+     * Args:
+     * project_id: ID of the project
+     * baseline_id: ID of the baseline log
+     *
+     * Returns:
+     * BaselineProjectPublic
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.baselineId
+     * @returns BaselineProjectPublic Successful Response
+     * @throws ApiError
+     */
+    public static getBaselineProjectSnapshot(data: BaselineLogsGetBaselineProjectSnapshotData): CancelablePromise<BaselineLogsGetBaselineProjectSnapshotResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/baseline-logs/{baseline_id}/project-snapshot',
+            path: {
+                project_id: data.projectId,
+                baseline_id: data.baselineId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
      * Get Baseline Earned Value Entries
      * Get earned value entries associated with a specific baseline.
      *
@@ -555,6 +648,110 @@ export class BranchComparisonService {
             query: {
                 branch: data.branch,
                 base_branch: data.baseBranch
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class BranchesService {
+    /**
+     * Lock Branch
+     * Lock a branch to prevent modifications.
+     *
+     * Only project managers and admins can lock branches.
+     * Main branch cannot be locked.
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.branch
+     * @param data.requestBody
+     * @returns BranchLockPublic Successful Response
+     * @throws ApiError
+     */
+    public static lockBranch(data: BranchesLockBranchData): CancelablePromise<BranchesLockBranchResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/projects/{project_id}/branches/{branch}/lock',
+            path: {
+                project_id: data.projectId,
+                branch: data.branch
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Unlock Branch
+     * Unlock a branch to allow modifications.
+     *
+     * Only project managers and admins can unlock branches.
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.branch
+     * @returns string Successful Response
+     * @throws ApiError
+     */
+    public static unlockBranch(data: BranchesUnlockBranchData): CancelablePromise<BranchesUnlockBranchResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/projects/{project_id}/branches/{branch}/lock',
+            path: {
+                project_id: data.projectId,
+                branch: data.branch
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Branch Lock Status
+     * Get lock status for a specific branch.
+     *
+     * Returns lock information if branch is locked, None otherwise.
+     * @param data The data for the request.
+     * @param data.projectId
+     * @param data.branch
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static getBranchLockStatus(data: BranchesGetBranchLockStatusData): CancelablePromise<BranchesGetBranchLockStatusResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/branches/{branch}/lock',
+            path: {
+                project_id: data.projectId,
+                branch: data.branch
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * List Branch Locks
+     * Get lock status for all branches in a project.
+     *
+     * Returns a dictionary mapping branch names to their lock information.
+     * @param data The data for the request.
+     * @param data.projectId
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static listBranchLocks(data: BranchesListBranchLocksData): CancelablePromise<BranchesListBranchLocksResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/projects/{project_id}/branches/locks',
+            path: {
+                project_id: data.projectId
             },
             errors: {
                 422: 'Validation Error'
@@ -2294,6 +2491,7 @@ export class ReportsService {
      * along with hierarchical metadata (WBE, department, cost element type).
      * @param data The data for the request.
      * @param data.projectId
+     * @param data.branch Branch name (defaults to 'main')
      * @returns CostPerformanceReportPublic Successful Response
      * @throws ApiError
      */
@@ -2303,6 +2501,9 @@ export class ReportsService {
             url: '/api/v1/projects/{project_id}/reports/cost-performance',
             path: {
                 project_id: data.projectId
+            },
+            query: {
+                branch: data.branch
             },
             errors: {
                 422: 'Validation Error'
@@ -2322,6 +2523,7 @@ export class ReportsService {
      * @param data.projectId
      * @param data.showOnlyProblems Filter to show only problem areas (negative CV or SV)
      * @param data.sortBy Sort field: 'cv' (cost variance) or 'sv' (schedule variance)
+     * @param data.branch Branch name (defaults to 'main')
      * @returns VarianceAnalysisReportPublic Successful Response
      * @throws ApiError
      */
@@ -2334,7 +2536,8 @@ export class ReportsService {
             },
             query: {
                 show_only_problems: data.showOnlyProblems,
-                sort_by: data.sortBy
+                sort_by: data.sortBy,
+                branch: data.branch
             },
             errors: {
                 422: 'Validation Error'

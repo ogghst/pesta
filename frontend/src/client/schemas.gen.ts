@@ -660,6 +660,136 @@ export const BaselineLogUpdateSchema = {
     description: 'Schema for updating a baseline log entry.'
 } as const;
 
+export const BaselineProjectPublicSchema = {
+    properties: {
+        planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Planned Value',
+            default: '0.00'
+        },
+        earned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Earned Value',
+            default: '0.00'
+        },
+        actual_cost: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Actual Cost',
+            default: '0.00'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        eac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Eac',
+            default: '0.00'
+        },
+        forecasted_quality: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Forecasted Quality',
+            default: '0.0000'
+        },
+        cpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cpi'
+        },
+        spi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Spi'
+        },
+        tcpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'string',
+                    const: 'overrun'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tcpi'
+        },
+        cost_variance: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Cost Variance',
+            default: '0.00'
+        },
+        schedule_variance: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Schedule Variance',
+            default: '0.00'
+        },
+        baseline_project_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Baseline Project Id'
+        },
+        baseline_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Baseline Id'
+        },
+        project_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Project Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        entity_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Entity Id'
+        },
+        status: {
+            type: 'string',
+            title: 'Status'
+        },
+        version: {
+            type: 'integer',
+            title: 'Version'
+        }
+    },
+    type: 'object',
+    required: ['baseline_project_id', 'baseline_id', 'project_id', 'created_at', 'entity_id', 'status', 'version'],
+    title: 'BaselineProjectPublic',
+    description: 'Public baseline project schema for API responses.'
+} as const;
+
 export const BaselineSummaryPublicSchema = {
     properties: {
         snapshot_id: {
@@ -756,6 +886,288 @@ export const BaselineSummaryPublicSchema = {
     description: 'Public schema for baseline summary with aggregated values.'
 } as const;
 
+export const BaselineWBEPublicSchema = {
+    properties: {
+        planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Planned Value',
+            default: '0.00'
+        },
+        earned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Earned Value',
+            default: '0.00'
+        },
+        actual_cost: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Actual Cost',
+            default: '0.00'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        eac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Eac',
+            default: '0.00'
+        },
+        forecasted_quality: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Forecasted Quality',
+            default: '0.0000'
+        },
+        cpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cpi'
+        },
+        spi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Spi'
+        },
+        tcpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'string',
+                    const: 'overrun'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tcpi'
+        },
+        cost_variance: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Cost Variance',
+            default: '0.00'
+        },
+        schedule_variance: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Schedule Variance',
+            default: '0.00'
+        },
+        baseline_wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Baseline Wbe Id'
+        },
+        baseline_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Baseline Id'
+        },
+        wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Wbe Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        entity_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Entity Id'
+        },
+        status: {
+            type: 'string',
+            title: 'Status'
+        },
+        version: {
+            type: 'integer',
+            title: 'Version'
+        }
+    },
+    type: 'object',
+    required: ['baseline_wbe_id', 'baseline_id', 'wbe_id', 'created_at', 'entity_id', 'status', 'version'],
+    title: 'BaselineWBEPublic',
+    description: 'Public baseline WBE schema for API responses.'
+} as const;
+
+export const BaselineWBEPublicWithWBESchema = {
+    properties: {
+        planned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Planned Value',
+            default: '0.00'
+        },
+        earned_value: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Earned Value',
+            default: '0.00'
+        },
+        actual_cost: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Actual Cost',
+            default: '0.00'
+        },
+        budget_bac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Budget Bac',
+            default: '0.00'
+        },
+        eac: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Eac',
+            default: '0.00'
+        },
+        forecasted_quality: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Forecasted Quality',
+            default: '0.0000'
+        },
+        cpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cpi'
+        },
+        spi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Spi'
+        },
+        tcpi: {
+            anyOf: [
+                {
+                    type: 'string',
+                    pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$'
+                },
+                {
+                    type: 'string',
+                    const: 'overrun'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tcpi'
+        },
+        cost_variance: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Cost Variance',
+            default: '0.00'
+        },
+        schedule_variance: {
+            type: 'string',
+            pattern: '^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$',
+            title: 'Schedule Variance',
+            default: '0.00'
+        },
+        baseline_wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Baseline Wbe Id'
+        },
+        baseline_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Baseline Id'
+        },
+        wbe_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Wbe Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        entity_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Entity Id'
+        },
+        status: {
+            type: 'string',
+            title: 'Status'
+        },
+        version: {
+            type: 'integer',
+            title: 'Version'
+        },
+        wbe_machine_type: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Wbe Machine Type'
+        },
+        wbe_serial_number: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Wbe Serial Number'
+        }
+    },
+    type: 'object',
+    required: ['baseline_wbe_id', 'baseline_id', 'wbe_id', 'created_at', 'entity_id', 'status', 'version'],
+    title: 'BaselineWBEPublicWithWBE',
+    description: 'Public baseline WBE schema with WBE details for API responses.'
+} as const;
+
 export const Body_login_login_access_tokenSchema = {
     properties: {
         grant_type: {
@@ -809,6 +1221,76 @@ export const Body_login_login_access_tokenSchema = {
     type: 'object',
     required: ['username', 'password'],
     title: 'Body_login-login_access_token'
+} as const;
+
+export const BranchLockPublicSchema = {
+    properties: {
+        lock_id: {
+            type: 'string',
+            title: 'Lock Id'
+        },
+        project_id: {
+            type: 'string',
+            title: 'Project Id'
+        },
+        branch: {
+            type: 'string',
+            title: 'Branch'
+        },
+        locked_by_id: {
+            type: 'string',
+            title: 'Locked By Id'
+        },
+        locked_by_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Locked By Name'
+        },
+        reason: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Reason'
+        },
+        locked_at: {
+            type: 'string',
+            title: 'Locked At'
+        }
+    },
+    type: 'object',
+    required: ['lock_id', 'project_id', 'branch', 'locked_by_id', 'locked_by_name', 'reason', 'locked_at'],
+    title: 'BranchLockPublic',
+    description: 'Public schema for branch lock information.'
+} as const;
+
+export const BranchLockRequestSchema = {
+    properties: {
+        reason: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Reason'
+        }
+    },
+    type: 'object',
+    title: 'BranchLockRequest',
+    description: 'Request schema for locking a branch.'
 } as const;
 
 export const BranchNotificationPublicSchema = {
